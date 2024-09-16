@@ -10,9 +10,16 @@ import SignUp from './pages/Signup'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
+import Button from 'react-bootstrap/Button'
+import { useLogout } from './hooks/useLogout';
 
 
 function App() {
+  const logout= useLogout();
+
+  const handleLogout = () => {
+    logout();
+  }
   
   return (
     <>
@@ -35,6 +42,10 @@ function App() {
             <Nav.Link as={Link} style={{color:'black'}} to="/signup">
               Sign Up
             </Nav.Link>
+
+            <Nav.Item>
+              <Button onClick={handleLogout}>Logout</Button>
+            </Nav.Item>
           </Nav>
         </Navbar>
         <Routes> 
