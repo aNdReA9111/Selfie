@@ -1,38 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import {BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom'
+
+import Home from './pages/Home';
+import About from './pages/About';
+
+import Login from './pages/Login'
+import SignUp from './pages/Signup'
+
+// Bootstrap
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Navbar from 'react-bootstrap/Navbar';
+import Nav from 'react-bootstrap/Nav';
+
 
 function App() {
-  const [count, setCount] = useState(0)
-
+  
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
+      <Router>
+        <Navbar bg='primary'>
+          <Navbar.Brand>Selfie</Navbar.Brand>
+          <Nav>
+            <Nav.Link as={Link} style={{color:'black'}} to="/">
+              Home
+            </Nav.Link>
+            
+            <Nav.Link as={Link} style={{color:'black'}} to="/about">
+              About
+            </Nav.Link>
 
-        <button onClick={() => setCount((count) => count-count)}>
-          Azzera
-        </button>
+            <Nav.Link as={Link} style={{color:'black'}} to="/login">
+              Login
+            </Nav.Link>
 
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+            <Nav.Link as={Link} style={{color:'black'}} to="/signup">
+              Sign Up
+            </Nav.Link>
+          </Nav>
+        </Navbar>
+        <Routes> 
+          <Route Component={Home} path="/"></Route>
+          <Route Component={About} path="/about"></Route>
+          <Route Component={Login} path="/login"></Route>
+          <Route Component={SignUp} path="/signup"></Route>
+
+        </Routes>
+      </Router>
     </>
   )
 }
