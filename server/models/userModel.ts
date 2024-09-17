@@ -4,18 +4,27 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 
 // Definire un'interfaccia che rappresenta le proprietà di un documento User
 interface IUser extends Document {
+    _id: Schema.Types.ObjectId;
     email: string;
     password: string;
+    nome: string;
+    cognome: string;
+    username: string;
+    data_nascita: Date;
 }
 
 // Definire un'interfaccia che rappresenta i metodi statici del modello User
 interface IUserModel extends Model<IUser> {
-    signup(email: string, password: string): Promise<IUser>;
+    signup(email: string, password: string, nome: string, cognome: string, username: string, data_nascita: Date): Promise<IUser>;
     login(email: string, password: string): Promise<IUser>;
 }
 
 // Definire lo schema di Mongoose
 const userSchema = new Schema<IUser>({
+    _id:{
+        type: Schema.Types.ObjectId,
+        auto: true
+    },
     email: {
         type: String,
         required: true,
@@ -24,11 +33,29 @@ const userSchema = new Schema<IUser>({
     password: {
         type: String,
         required: true
+    },
+    nome: {
+        type: String,
+        required: true
+    },
+    cognome: {
+        type: String,
+        required: true
+    },
+    username: {
+        type: String,
+        required: true,
+        trim: true,
+        unique: true
+    },
+    data_nascita: {
+        type: Date,
+        required: true
     }
 });
 
 // aggiungo il metodo statico per la regiostrarzione
-userSchema.statics.signup = async function(email: string, password: string): Promise<IUser> {
+userSchema.statics.signup = async function(email: string, password: string, nome: string, cognome: string, username: string, data_nascita: Date): Promise<IUser> {
 
     // validazione
     if(!email || !password) throw new Error('Email and password are required');
@@ -41,7 +68,7 @@ userSchema.statics.signup = async function(email: string, password: string): Pro
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(password, salt);
 
-    const user = await this.create({ email, password: hashedPassword });
+    const user = await this.create({ email, password: hashedPassword, nome, cognome, username, data_nascita});
     return user;
 };
 

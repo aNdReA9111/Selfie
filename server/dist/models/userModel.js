@@ -3,6 +3,10 @@ import validator from 'validator';
 import mongoose, { Schema } from 'mongoose';
 // Definire lo schema di Mongoose
 const userSchema = new Schema({
+    _id: {
+        type: Schema.Types.ObjectId,
+        auto: true
+    },
     email: {
         type: String,
         required: true,
@@ -11,10 +15,28 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: true
+    },
+    nome: {
+        type: String,
+        required: true
+    },
+    cognome: {
+        type: String,
+        required: true
+    },
+    username: {
+        type: String,
+        required: true,
+        trim: true,
+        unique: true
+    },
+    data_nascita: {
+        type: Date,
+        required: true
     }
 });
 // aggiungo il metodo statico per la regiostrarzione
-userSchema.statics.signup = async function (email, password) {
+userSchema.statics.signup = async function (email, password, nome, cognome, username, data_nascita) {
     // validazione
     if (!email || !password)
         throw new Error('Email and password are required');
@@ -27,7 +49,7 @@ userSchema.statics.signup = async function (email, password) {
         throw new Error('Email already exists');
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(password, salt);
-    const user = await this.create({ email, password: hashedPassword });
+    const user = await this.create({ email, password: hashedPassword, nome, cognome, username, data_nascita });
     return user;
 };
 // creo il metodo statico per il login
