@@ -1,7 +1,8 @@
 import express, { Request, Response } from 'express';
 import {userRoutes} from '../routes/user.js';
 import mongoose from 'mongoose';
-import cors from 'cors';
+import cors from 'cors'
+
 
 // Initialize the Express application
 const app = express();
