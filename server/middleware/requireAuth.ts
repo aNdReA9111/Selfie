@@ -13,7 +13,7 @@ const requireAuth = async (req: any, res: any, next: any) => {
     const token = authorization.split(' ')[1];
 
     try {
-        const { _id } = jwt.verify(token, process.env.SECRET as string | "chiavesupersegreta") as JwtPayload;
+        const { _id } = jwt.verify(token, process.env.SECRET as string | "chiavesupersupersupersegreta") as JwtPayload;
         req.user = await User.findOne({ _id }).select('_id');
         next();
     } catch (error) {
