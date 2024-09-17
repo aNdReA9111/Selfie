@@ -12,10 +12,12 @@ import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import Button from 'react-bootstrap/Button'
 import { useLogout } from './hooks/useLogout';
+import { useAuthContext } from './hooks/useAuthContext';
 
 
 function App() {
   const logout= useLogout();
+  const { user } = useAuthContext();
 
   const handleLogout = () => {
     logout();
@@ -35,17 +37,20 @@ function App() {
               About
             </Nav.Link>
 
-            <Nav.Link as={Link} style={{color:'black'}} to="/login">
-              Login
-            </Nav.Link>
+            {!user && (<div>
+              <Nav.Link as={Link} style={{color:'black'}} to="/login">
+                Login
+              </Nav.Link>
 
-            <Nav.Link as={Link} style={{color:'black'}} to="/signup">
-              Sign Up
-            </Nav.Link>
+              <Nav.Link as={Link} style={{color:'black'}} to="/signup">
+                Sign Up
+              </Nav.Link>
+            </div>)}
 
-            <Nav.Item>
+            {user && (<Nav.Item>
+              <span>{user.email}</span>
               <Button onClick={handleLogout}>Logout</Button>
-            </Nav.Item>
+            </Nav.Item>)}
           </Nav>
         </Navbar>
         <Routes> 
