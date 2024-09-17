@@ -1,4 +1,4 @@
-import {BrowserRouter as Router, Routes, Route, Link} from 'react-router-dom'
+import {BrowserRouter as Router, Routes, Route, Link, Navigate} from 'react-router-dom'
 
 import Home from './pages/Home';
 import About from './pages/About';
@@ -29,23 +29,29 @@ function App() {
         <Navbar bg='primary'>
           <Navbar.Brand>Selfie</Navbar.Brand>
           <Nav>
-            <Nav.Link as={Link} style={{color:'black'}} to="/">
-              Home
-            </Nav.Link>
+            {user && (
+              <>
+                <Nav.Link as={Link} style={{color:'black'}} to="/">
+                  Home
+                </Nav.Link>
             
-            <Nav.Link as={Link} style={{color:'black'}} to="/about">
-              About
-            </Nav.Link>
+                <Nav.Link as={Link} style={{color:'black'}} to="/about">
+                  About
+                </Nav.Link>
+              </>
+            )}
 
-            {!user && (<div>
-              <Nav.Link as={Link} style={{color:'black'}} to="/login">
-                Login
-              </Nav.Link>
+            {!user && (
+              <>
+                <Nav.Link as={Link} style={{color:'black'}} to="/login">
+                  Login
+                </Nav.Link>
 
-              <Nav.Link as={Link} style={{color:'black'}} to="/signup">
-                Sign Up
-              </Nav.Link>
-            </div>)}
+                <Nav.Link as={Link} style={{color:'black'}} to="/signup">
+                  Sign Up
+                </Nav.Link>
+              </>
+            )}
 
             {user && (<Nav.Item>
               <span>{user.email}</span>
@@ -54,8 +60,8 @@ function App() {
           </Nav>
         </Navbar>
         <Routes> 
-          <Route Component={Home} path="/"></Route>
-          <Route Component={About} path="/about"></Route>
+          <Route Component={() => (user ? <Home /> :  <Navigate to="/login" />)} path="/" />
+          <Route Component={() => (user ? <About /> : <Navigate to="/login" />)} path="/about"></Route>
           <Route Component={Login} path="/login"></Route>
           <Route Component={SignUp} path="/signup"></Route>
 
