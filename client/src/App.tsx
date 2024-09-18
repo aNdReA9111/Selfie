@@ -1,4 +1,4 @@
-import {BrowserRouter as Router, Routes, Route, Link, Navigate} from 'react-router-dom'
+import {BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom'
 
 import Home from './pages/Home';
 import About from './pages/About';
@@ -8,57 +8,20 @@ import SignUp from './pages/Signup'
 
 // Bootstrap
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Navbar from 'react-bootstrap/Navbar';
-import Nav from 'react-bootstrap/Nav';
-import Button from 'react-bootstrap/Button'
-import { useLogout } from './hooks/useLogout';
 import { useAuthContext } from './hooks/useAuthContext';
+
+// Navbar
+import MyNavbar from './components/MyNavbar';
 
 
 function App() {
-  const logout= useLogout();
+  
   const { user } = useAuthContext();
 
-  const handleLogout = () => {
-    logout();
-  }
-  
   return (
     <>
       <Router>
-        <Navbar bg='primary'>
-          <Navbar.Brand>Selfie</Navbar.Brand>
-          <Nav>
-            {user && (
-              <>
-                <Nav.Link as={Link} style={{color:'black'}} to="/">
-                  Home
-                </Nav.Link>
-            
-                <Nav.Link as={Link} style={{color:'black'}} to="/about">
-                  About
-                </Nav.Link>
-              </>
-            )}
-
-            {!user && (
-              <>
-                <Nav.Link as={Link} style={{color:'black'}} to="/login">
-                  Login
-                </Nav.Link>
-
-                <Nav.Link as={Link} style={{color:'black'}} to="/signup">
-                  Sign Up
-                </Nav.Link>
-              </>
-            )}
-
-            {user && (<Nav.Item>
-              <span>{user.email}</span>
-              <Button onClick={handleLogout}>Logout</Button>
-            </Nav.Item>)}
-          </Nav>
-        </Navbar>
+        <MyNavbar />
         <Routes> 
           <Route Component={() => (user ? <Home /> :  <Navigate to="/login" />)} path="/" />
           <Route Component={() => (user ? <About /> : <Navigate to="/login" />)} path="/about"></Route>
