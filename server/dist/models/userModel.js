@@ -1,6 +1,16 @@
 import bcrypt from 'bcrypt';
 import validator from 'validator';
 import mongoose, { Schema } from 'mongoose';
+const flagsSchema = new Schema({
+    notifica_email: {
+        type: Boolean,
+        default: false
+    },
+    notifica_desktop: {
+        type: Boolean,
+        default: true
+    }
+});
 // Definire lo schema di Mongoose
 const userSchema = new Schema({
     _id: {
@@ -33,6 +43,10 @@ const userSchema = new Schema({
     data_nascita: {
         type: Date,
         required: true
+    },
+    flags: {
+        type: flagsSchema,
+        default: { notifica_email: false, notifica_desktop: true }
     }
 });
 // aggiungo il metodo statico per la regiostrarzione
