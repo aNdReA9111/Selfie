@@ -27,7 +27,10 @@ app.get('/', (req: Request, res: Response) => {
 
 // Routes
 import { userRoutes } from '../routes/user.js';
+import { eventRoutes } from '../routes/event.js';
+
 app.use('/api/users', userRoutes);
+app.use('/api/events', eventRoutes);
 
 
 // Connessione al database
