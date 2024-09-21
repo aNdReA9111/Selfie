@@ -108,47 +108,7 @@ userSchema.statics.login = async function(email: string, password: string): Prom
 }
 
 
+const UserModel: IUserModel = mongoose.model<IUser, IUserModel>('user', userSchema);
 
 // Esportare il modello con il tipo corretto
-export default mongoose.model<IUser, IUserModel>('user', userSchema);
-
-
-////////////////////////////////////////////////////////////////
-
-/*
-
-La procedura sotto funziona solo in JS, TypeScript non sa automaticamente
-che viene aggiunto un metodo statico al modello Mongoose.
-
-*/
-
-////////////////////////////////////////////////////////////////
-
-// import bcrypt from 'bcrypt';
-// import mongoose from 'mongoose';
-
-// const userSchema = new mongoose.Schema({
-//     email: {
-//         type: String,
-//         required: true,
-//         unique: true
-//     },
-//     password: {
-//         type: String,
-//         required: true
-//     }
-// });
-
-// userSchema.statics.signup = async function(email: string, password: string) {
-//     const existingUser = await this.findOne({ email });
-//     if(existingUser)
-//         throw new Error('Email already exists');
-    
-//     const salt = bcrypt.genSaltSync(10);
-//     const hashedPassword = bcrypt.hashSync(password, salt);
-
-//     const user = await  this.create({ email, password: hashedPassword });
-//     return user;
-// }
-
-// export default mongoose.model('User', userSchema); 
+export { UserModel, IUser };
