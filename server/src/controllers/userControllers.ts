@@ -25,7 +25,7 @@ const loginUser = async (req: Request, res: Response) => {
         // creo il token 
         const token = createToken(String(user._id)); 
 
-        res.status(200).json({ email, token, nome: user.nome, cognome: user.cognome, username: user.username, data_nascita: user.data_nascita });
+        res.status(200).json({ email, token, nome: user.nome, cognome: user.cognome, username: user.username, data_nascita: user.data_nascita, flags: user.flags });
     } catch (error: any) {
         res.status(400).json({ message: error.message });
     }
@@ -42,7 +42,7 @@ const signUpUser = async (req: Request, res: Response) => {
         // creo il token 
         const token = createToken(String(user._id)); 
 
-        res.status(201).json({ email, token, nome, cognome, username, data_nascita });
+        res.status(201).json({ email, token, nome, cognome, username, data_nascita, flags: user.flags });
     } catch (error: any) {
         res.status(400).json({ message: error.message });
     }

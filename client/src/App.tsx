@@ -1,70 +1,71 @@
-import {BrowserRouter as Router, Routes, Route, Link, Navigate} from 'react-router-dom'
+import {BrowserRouter as Router, Routes, Route, Navigate} from 'react-router-dom'
+import { useState, useEffect } from 'react';
 
 import Home from './pages/Home';
+import Pomodoro from './pages/Pomodoro';
+import Calendar from './pages/Calendar';
 import About from './pages/About';
-
 import Login from './pages/Login'
 import SignUp from './pages/Signup'
 
 // Bootstrap
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Navbar from 'react-bootstrap/Navbar';
-import Nav from 'react-bootstrap/Nav';
-import Button from 'react-bootstrap/Button'
-import { useLogout } from './hooks/useLogout';
+
 import { useAuthContext } from './hooks/useAuthContext';
+
+// Navbar
+import MyNavbar from './components/MyNavbar';
+
+
+//Notifiche
 
 
 function App() {
-  const logout= useLogout();
   const { user } = useAuthContext();
+  const [permission, setPermission] = useState<NotificationPermission>(Notification.permission);
 
-  const handleLogout = () => {
-    logout();
-  }
-  
+  const showNotification = (title: string, options?: NotificationOptions) => {
+    if (permission === 'granted') {
+      new Notification(title, options);
+    } else {
+      console.warn('Notification permission not granted');
+    }
+  };
+
+  const askNotificationPermission = () => {
+    if (permission !== 'granted') {
+      Notification.requestPermission().then((perm) => {
+        setPermission(perm);
+        if (perm === 'granted') {
+          showNotification('Grazie per aver attivato le notifiche!');
+        }
+      });
+    }
+  };
+
+  useEffect(() => {
+    if(user && user.flags.notifica_desktop) {
+      askNotificationPermission();
+      if (permission === 'granted') {
+        showNotification('Benvenuto su Selfie!');
+      }
+    }
+  }, [user]);
+
   return (
     <>
       <Router>
-        <Navbar bg='primary'>
-          <Navbar.Brand>Selfie</Navbar.Brand>
-          <Nav>
-            {user && (
-              <>
-                <Nav.Link as={Link} style={{color:'black'}} to="/">
-                  Home
-                </Nav.Link>
-            
-                <Nav.Link as={Link} style={{color:'black'}} to="/about">
-                  About
-                </Nav.Link>
-              </>
-            )}
-
-            {!user && (
-              <>
-                <Nav.Link as={Link} style={{color:'black'}} to="/login">
-                  Login
-                </Nav.Link>
-
-                <Nav.Link as={Link} style={{color:'black'}} to="/signup">
-                  Sign Up
-                </Nav.Link>
-              </>
-            )}
-
-            {user && (<Nav.Item>
-              <span>{user.email}</span>
-              <Button onClick={handleLogout}>Logout</Button>
-            </Nav.Item>)}
-          </Nav>
-        </Navbar>
+        {user ? <MyNavbar /> : null}
         <Routes> 
           <Route Component={() => (user ? <Home /> :  <Navigate to="/login" />)} path="/" />
+          <Route Component={() => (user ? <Calendar /> : <Navigate to="/login" />)} path="/calendar"></Route>
+          <Route Component={() => (user ? <Pomodoro /> : <Navigate to="/login" />)} path="/pomodoro"></Route>
+          
+          <Route Component={() => (user ? <About /> : <Navigate to="/login" />)} path="/account-settings"></Route>    
+          
           <Route Component={() => (user ? <About /> : <Navigate to="/login" />)} path="/about"></Route>
-          <Route Component={Login} path="/login"></Route>
-          <Route Component={SignUp} path="/signup"></Route>
-
+          <Route Component={() => (!user ? <Login /> : <Navigate to="/" />)} path="/login"></Route>
+          <Route Component={() => (!user ? <SignUp /> : <Navigate to="/" />)} path="/signup"></Route>
         </Routes>
       </Router>
     </>

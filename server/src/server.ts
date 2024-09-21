@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 //path relativo a dist
-dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 // Middleware per il parsing del corpo della richiesta in JSON
 import cors from "cors";
@@ -30,8 +30,11 @@ app.get("/", (req: Request, res: Response) => {
 // Routes
 import { userRoutes } from "./routes/user.js";
 import { notesRouter } from "./routes/notes.js";
+import { eventRoutes } from './routes/event.js';
 app.use("/api/user", userRoutes);
 app.use("/api/notes", notesRouter);
+app.use('/api/events', eventRoutes);
+
 
 // Connessione al database
 import mongoose from "mongoose";

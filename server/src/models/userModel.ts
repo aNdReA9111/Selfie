@@ -2,6 +2,11 @@ import bcrypt from 'bcrypt';
 import validator from 'validator';
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
+interface IFlags extends Document {
+    notifica_email: boolean;
+    notifica_desktop: boolean;
+}
+
 // Definire un'interfaccia che rappresenta le proprietà di un documento User
 interface IUser extends Document {
     _id: Schema.Types.ObjectId;
@@ -11,6 +16,7 @@ interface IUser extends Document {
     cognome: string;
     username: string;
     data_nascita: Date;
+    flags: IFlags;
 }
 
 // Definire un'interfaccia che rappresenta i metodi statici del modello User
@@ -18,6 +24,17 @@ interface IUserModel extends Model<IUser> {
     signup(email: string, password: string, nome: string, cognome: string, username: string, data_nascita: Date): Promise<IUser>;
     login(email: string, password: string): Promise<IUser>;
 }
+
+const flagsSchema = new Schema<IFlags>({
+    notifica_email: {
+        type: Boolean,
+        default: false
+    },
+    notifica_desktop: {
+        type: Boolean,
+        default: true
+    }
+});
 
 // Definire lo schema di Mongoose
 const userSchema = new Schema<IUser>({
@@ -51,6 +68,10 @@ const userSchema = new Schema<IUser>({
     data_nascita: {
         type: Date,
         required: true
+    },
+    flags: {
+        type: flagsSchema,
+        default: { notifica_email: false, notifica_desktop: true }
     }
 });
 

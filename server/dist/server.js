@@ -24,10 +24,17 @@ app.get("/", (req, res) => {
     res.send("Hello World!");
 });
 // Routes
+<<<<<<< HEAD:server/dist/server.js
 import { userRoutes } from "./routes/user.js";
 import { notesRouter } from "./routes/notes.js";
 app.use("/api/user", userRoutes);
 app.use("/api/notes", notesRouter);
+=======
+import { userRoutes } from '../routes/user.js';
+import { eventRoutes } from '../routes/event.js';
+app.use('/api/users', userRoutes);
+app.use('/api/events', eventRoutes);
+>>>>>>> origin/main:server/dist/src/server.js
 // Connessione al database
 import mongoose from "mongoose";
 mongoose.connect(process.env.DB_URI);

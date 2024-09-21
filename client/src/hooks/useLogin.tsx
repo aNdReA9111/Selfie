@@ -8,7 +8,7 @@ interface UseLoginReturn {
     error: string | null;
   }
   
-  export const useLogin = (): UseLoginReturn => {
+export const useLogin = (): UseLoginReturn => {
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { dispatch } = useAuthContext();
