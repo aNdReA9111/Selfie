@@ -11,7 +11,10 @@ import { loginUser, signUpUser } from '../controllers/userControllers.js';
 
 // userRoutes.use(requireAuth);
 
-
+userRoutes.use((req, res, next) => {
+  console.log(`Request passed through /users router: ${req.method} ${req.url}`);
+  next();
+});
 // login
 userRoutes.post('/login', loginUser);
 

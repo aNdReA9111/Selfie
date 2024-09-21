@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import UserModel from '../models/userModel.js';
+import { UserModel } from '../models/userModel.js';
 import jwt from 'jsonwebtoken';
 
 // configuro il .env
@@ -12,7 +12,7 @@ const __dirname = dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const createToken = (_id: string) => {
-    return jwt.sign({ _id }, process.env.SECRET, { expiresIn   : '3d' });
+    return jwt.sign({ _id }, process.env.SECRET as string, { expiresIn   : '3d' });
 }
 
 // login user
@@ -26,7 +26,7 @@ const loginUser = async (req: Request, res: Response) => {
         const token = createToken(String(user._id)); 
 
         res.status(200).json({ email, token, nome: user.nome, cognome: user.cognome, username: user.username, data_nascita: user.data_nascita });
-    } catch (error) {
+    } catch (error: any) {
         res.status(400).json({ message: error.message });
     }
 }
@@ -43,7 +43,7 @@ const signUpUser = async (req: Request, res: Response) => {
         const token = createToken(String(user._id)); 
 
         res.status(201).json({ email, token, nome, cognome, username, data_nascita });
-    } catch (error) {
+    } catch (error: any) {
         res.status(400).json({ message: error.message });
     }
 }
