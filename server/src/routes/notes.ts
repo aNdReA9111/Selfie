@@ -7,23 +7,23 @@ import {
   deleteNote,
   deleteAllNotes,
 } from "../controllers/notesControllers.js";
-import { requireAuth } from '../middleware/requireAuth.js'
+import { requireAuth } from "../middleware/requireAuth.js";
 
-const notesRouter: Router = express.Router();
+const notesRoutes: Router = express.Router();
 
-notesRouter.use(requireAuth);
+notesRoutes.use(requireAuth);
 
 //ritorna le note visualizzabili dall'utente
-notesRouter.get("/", getNotes);
+notesRoutes.get("/", getNotes);
 //ritorna la singola nota
-notesRouter.get("/:id", getNote);
+notesRoutes.get("/:id", getNote);
 //aggiunta di una nuova nota
-notesRouter.post("/", addNote);
+notesRoutes.post("/", addNote);
 //modifica di una nota esistente
-notesRouter.patch("/:id", updateNote);
+notesRoutes.patch("/:id", updateNote);
 //eliminazione di una nota
-notesRouter.delete("/:id", deleteNote);
+notesRoutes.delete("/:id", deleteNote);
 //eliminazione di tutte le note
-notesRouter.delete("/", deleteAllNotes);
+notesRoutes.delete("/", deleteAllNotes);
 
-export { notesRouter };
+export { notesRoutes };

@@ -4,11 +4,14 @@ import App from './App.tsx'
 
 
 import { AuthContextProvider } from './context/authContext'
+import { TimeMachineContextProvider } from './context/timeMachineContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthContextProvider>
-      <App />
+      <TimeMachineContextProvider>
+        <App />
+      </TimeMachineContextProvider>
     </AuthContextProvider>
   </StrictMode>,
 )
