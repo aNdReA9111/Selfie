@@ -110,12 +110,22 @@ userSchema.statics.signup = async function(email: string, password: string, nome
 };
 
 
-// creo il metodo statico per il login
-userSchema.statics.login = async function(email: string, password: string): Promise<IUser> {
-    if(!email || !password) throw new Error('Email and password are required');
+// creo il metodo statico per il login (email o username)
+userSchema.statics.login = async function(email_or_username: string, password: string): Promise<IUser> {
+    if(!email_or_username || !password) throw new Error('Email (or username) and password are required');
     
-    const user = await this.findOne({ email });
-    if(!user) throw new Error('Email does not exist');
+    const user = await this.findOne({
+        $or: [
+            { email: email_or_username },
+            { username: email_or_username }
+        ]
+    });
+    if(!user) {
+        if(validator.isEmail(email_or_username)) 
+            throw new Error('Email non esistente');
+        else
+            throw new Error('username non esistente');
+    }
     
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if(!isPasswordValid) throw new Error('Password is not valid');
