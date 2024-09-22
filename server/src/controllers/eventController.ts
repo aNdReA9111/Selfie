@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import EventModel from '../models/eventModel.js';
+import { EventModel } from '../models/eventModel.js';
+import mongoose from 'mongoose';
 
 const createEvent = async (req: Request, res: Response) => {
     const { titolo, descrizione, data, frequenza, ripetizioni, _id_utente } = req.body;
@@ -12,15 +13,48 @@ const createEvent = async (req: Request, res: Response) => {
     }
 }
 
-const deleteEventById = async (req: Request, res: Response) => {
-    const { _id } = req.body;
+const getEventById = async (req: Request, res: Response) => {
+    const { id_user, id_event } = req.params;
 
     try {
-        const event = await EventModel.deleteEventById(_id);
+        const event = await EventModel.getEventById(String(id_event), String(id_user));
         res.status(200).json(event);
     } catch (error: any) {
         res.status(400).json({ message: error.message });
     }
 }
 
-export { createEvent, deleteEventById };
+const getAllEvents = async (req: Request, res: Response) => {
+    const { id_user } = req.params;
+
+    try {
+        const events = await EventModel.getAllEvents(String(id_user));
+        res.status(200).json(events);
+    } catch (error: any) {
+        res.status(400).json({ message: error.message });
+    }
+}
+
+const deleteEventById = async (req: Request, res: Response) => {
+    const { id_user, id_event} = req.params;
+
+    try {
+        const event = await EventModel.deleteEventById(String(id_event), String(id_user));
+        res.status(200).json(event);
+    } catch (error: any) {
+        res.status(400).json({ message: error.message });
+    }
+}
+
+const deleteAllEvents = async (req: Request, res: Response) => {
+    const { id_user } = req.params;
+
+    try {
+        await EventModel.deleteAllEvents(String(id_user));
+        res.status(200).json({ message: 'All events deleted' });
+    } catch (error: any) {
+        res.status(400).json({ message: error.message });
+    }
+}
+
+export { createEvent, getAllEvents, getEventById, deleteEventById, deleteAllEvents };
