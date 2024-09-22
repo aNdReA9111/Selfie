@@ -15,6 +15,7 @@ interface IEvent extends Document {
 interface IEventModel extends Model<IEvent> {
     createEvent(titolo: string, descrizione: string, data: Date, frequenza: [string], ripetizioni: number, _id_utente: string): Promise<IEvent>;
     deleteEventById(_id: string, _id_utente: string): Promise<IEvent>;
+    deleteAllEvents(_id_utente: string): Promise<void>;
 }
 
 
@@ -64,6 +65,7 @@ eventSchema.statics.createEvent = async function(titolo: string, descrizione: st
     const event = await this.create({ titolo, descrizione, data, frequenza, ripetizioni, _id_utente });
     return event;
 }
+
 // aggiungo il metodo statico per la cancellazione di un evento
 eventSchema.statics.deleteEventById = async function(_id: string, _id_utente: string): Promise<IEvent> {
     // Trova l'evento
@@ -84,6 +86,13 @@ eventSchema.statics.deleteEventById = async function(_id: string, _id_utente: st
     return event;
 }
 
+// aggiungo il metodo statico per la cancellazione di tutti gli eventi di un utente
+eventSchema.statics.deleteAllEvents = async function(_id_utente: string): Promise<void> {
+    const result = await this.deleteMany({ _id_utente });
+    if (result.deletedCount === 0) {
+        throw new Error('Nessun evento trovato per l\'utente specificato');
+    }
+}
 
 
 export default mongoose.model<IEvent, IEventModel>('Event', eventSchema);

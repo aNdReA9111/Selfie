@@ -24,4 +24,17 @@ const deleteEventById = async (req: Request, res: Response) => {
     }
 }
 
-export { createEvent, deleteEventById };
+const deleteAllEvents = async (req: Request, res: Response) => {
+    const { id_user } = req.params;
+
+    try {
+        await EventModel.deleteAllEvents(String(id_user));
+        
+
+        res.status(200).json({ message: 'All events deleted' });
+    } catch (error: any) {
+        res.status(400).json({ message: error.message });
+    }
+}
+
+export { createEvent, deleteEventById, deleteAllEvents };
