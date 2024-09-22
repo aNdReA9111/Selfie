@@ -13,6 +13,28 @@ const createEvent = async (req: Request, res: Response) => {
     }
 }
 
+const getEventById = async (req: Request, res: Response) => {
+    const { id_user, id_event } = req.params;
+
+    try {
+        const event = await EventModel.getEventById(String(id_event), String(id_user));
+        res.status(200).json(event);
+    } catch (error: any) {
+        res.status(400).json({ message: error.message });
+    }
+}
+
+const getAllEvents = async (req: Request, res: Response) => {
+    const { id_user } = req.params;
+
+    try {
+        const events = await EventModel.getAllEvents(String(id_user));
+        res.status(200).json(events);
+    } catch (error: any) {
+        res.status(400).json({ message: error.message });
+    }
+}
+
 const deleteEventById = async (req: Request, res: Response) => {
     const { id_user, id_event} = req.params;
 
@@ -29,12 +51,10 @@ const deleteAllEvents = async (req: Request, res: Response) => {
 
     try {
         await EventModel.deleteAllEvents(String(id_user));
-        
-
         res.status(200).json({ message: 'All events deleted' });
     } catch (error: any) {
         res.status(400).json({ message: error.message });
     }
 }
 
-export { createEvent, deleteEventById, deleteAllEvents };
+export { createEvent, getAllEvents, getEventById, deleteEventById, deleteAllEvents };

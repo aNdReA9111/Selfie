@@ -14,6 +14,8 @@ interface IEvent extends Document {
 // Definire un'interfaccia che rappresenta i metodi statici del modello Event
 interface IEventModel extends Model<IEvent> {
     createEvent(titolo: string, descrizione: string, data: Date, frequenza: [string], ripetizioni: number, _id_utente: string): Promise<IEvent>;
+    getEventById(_id: string, _id_utente : string): Promise<IEvent>;
+    getAllEvents(_id_utente: string): Promise<IEvent[]>;
     deleteEventById(_id: string, _id_utente: string): Promise<IEvent>;
     deleteAllEvents(_id_utente: string): Promise<void>;
 }
@@ -57,13 +59,36 @@ const eventSchema = new Schema<IEvent>({
 eventSchema.statics.createEvent = async function(titolo: string, descrizione: string, data: Date, frequenza: [string], ripetizioni: number, _id_utente: string): Promise<IEvent> {
 
     // validazione
-    if (!titolo || !descrizione || !data || !frequenza || !ripetizioni || !_id_utente) {
+    if (!titolo || !descrizione || !data || !frequenza || !ripetizioni || !_id_utente)
         throw new Error('Tutti i campi sono obbligatori');
-    }
 
     // creazione dell'evento
     const event = await this.create({ titolo, descrizione, data, frequenza, ripetizioni, _id_utente });
     return event;
+}
+
+// aggiungo il metodo statico per la ricerca di un evento
+eventSchema.statics.getEventById = async function(_id: string, _id_utente: string): Promise<IEvent> {
+    const event = await this.findById(_id);
+
+    if (!event) 
+        throw new Error('Evento non trovato');
+
+    // Verifica se l'utente è il proprietario dell'evento
+    if (!(String(event._id_utente) === _id_utente)) 
+        throw new Error('Non sei autorizzato a visualizzare questo evento');
+
+    return event;
+}
+
+// aggiungo il metodo statico per la ricerca di tutti gli eventi di un utente
+eventSchema.statics.getAllEvents = async function(_id_utente: string): Promise<IEvent[]> {
+    const events = await this.find({ _id_utente });
+
+    if (events.length === 0)
+        throw new Error('Nessun evento trovato per l\'utente specificato');
+
+    return events;
 }
 
 // aggiungo il metodo statico per la cancellazione di un evento
@@ -75,7 +100,6 @@ eventSchema.statics.deleteEventById = async function(_id: string, _id_utente: st
     if (!event)
         throw new Error('Evento non trovato');
     
-
     // Verifica se l'utente è il proprietario dell'evento
     if (!(String(event._id_utente) === _id_utente))
         throw new Error('Non sei autorizzato a cancellare questo evento');
@@ -89,9 +113,8 @@ eventSchema.statics.deleteEventById = async function(_id: string, _id_utente: st
 // aggiungo il metodo statico per la cancellazione di tutti gli eventi di un utente
 eventSchema.statics.deleteAllEvents = async function(_id_utente: string): Promise<void> {
     const result = await this.deleteMany({ _id_utente });
-    if (result.deletedCount === 0) {
+    if (result.deletedCount === 0)
         throw new Error('Nessun evento trovato per l\'utente specificato');
-    }
 }
 
 
