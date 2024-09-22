@@ -7,13 +7,13 @@ interface IEvent extends Document {
     descrizione: string;
     data: Date;
     frequenza: [string];
-    ripetizioni: number;
+    ripetizioni: [string];
     _id_utente: string;
 }
 
 // Definire un'interfaccia che rappresenta i metodi statici del modello Event
 interface IEventModel extends Model<IEvent> {
-    createEvent(titolo: string, descrizione: string, data: Date, frequenza: [string], ripetizioni: number, _id_utente: string): Promise<IEvent>;
+    createEvent(titolo: string, descrizione: string, data: Date, frequenza: [string], ripetizioni: [string], _id_utente: string): Promise<IEvent>;
     getEventById(_id: string, _id_utente : string): Promise<IEvent>;
     getAllEvents(_id_utente: string): Promise<IEvent[]>;
     deleteEventById(_id: string, _id_utente: string): Promise<IEvent>;
@@ -23,7 +23,7 @@ interface IEventModel extends Model<IEvent> {
 
 // Definire lo schema di Mongoose
 const eventSchema = new Schema<IEvent>({
-    _id:{
+    _id: {
         type: Schema.Types.ObjectId,
         auto: true
     },
@@ -42,11 +42,13 @@ const eventSchema = new Schema<IEvent>({
     frequenza: {
         type: [String],
         required: true,
-        enum: ['giornaliero', 'settimanale', 'mensile', 'annuale']
+        enum: ['nessuna', 'giornaliero', 'settimanale', 'mensile', 'annuale'],
+        default: ['nessuna']
     },
     ripetizioni: {
-        type: Number,
-        required: true
+        type: [String],
+        match: [/^(none|[1-9]+[mhdMy])$/, 'Il campo ripetizioni deve essere nel formato [1-9][m,h,d,M,y] o "none"'],
+        default: ['none']
     },
     _id_utente: {
         type: String,
@@ -56,7 +58,7 @@ const eventSchema = new Schema<IEvent>({
 
 
 // aggiungo il metodo statico per la creazione di un evento
-eventSchema.statics.createEvent = async function(titolo: string, descrizione: string, data: Date, frequenza: [string], ripetizioni: number, _id_utente: string): Promise<IEvent> {
+eventSchema.statics.createEvent = async function(titolo: string, descrizione: string, data: Date, frequenza: [string], ripetizioni: [string], _id_utente: string): Promise<IEvent> {
 
     // validazione
     if (!titolo || !descrizione || !data || !frequenza || !ripetizioni || !_id_utente)
@@ -118,4 +120,6 @@ eventSchema.statics.deleteAllEvents = async function(_id_utente: string): Promis
 }
 
 
-export default mongoose.model<IEvent, IEventModel>('Event', eventSchema);
+const EventModel = mongoose.model<IEvent, IEventModel>('Event', eventSchema);
+
+export { IEvent, EventModel };

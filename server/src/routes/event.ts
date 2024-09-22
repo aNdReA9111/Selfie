@@ -1,12 +1,12 @@
 import express from 'express';
 import { requireAuth } from '../middleware/requireAuth.js'
 import  {    
-            createEvent, 
-            getAllEvents, 
-            getEventById, 
-            deleteEventById, 
-            deleteAllEvents 
-        } from '../controllers/eventController.js';
+    createEvent, 
+    getAllEvents, 
+    getEventById, 
+    deleteEventById, 
+    deleteAllEvents 
+} from '../controllers/eventController.js';
 
 const eventRoutes = express.Router();
 

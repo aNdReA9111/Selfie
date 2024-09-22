@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import EventModel from '../models/eventModel.js';
+import { EventModel } from '../models/eventModel.js';
 import mongoose from 'mongoose';
 
 const createEvent = async (req: Request, res: Response) => {
