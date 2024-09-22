@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import TimeMachine from '../components/TimeMachine';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -16,6 +17,8 @@ const Login = () => {
     }
 
     return (
+       <>
+        <TimeMachine/>
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', background: 'linear-gradient(to bottom, #6A0000, #FF0000)' }}>
             <h1 style={{ color: 'white', marginBottom: '10vh' }}>Selfie</h1>
             <Form className='mb-3' onSubmit={handleSubmit} style={{ width: '300px', padding: '20px', border: '1px solid red', borderRadius: '10px', backgroundColor: 'white' }}>
@@ -51,6 +54,7 @@ const Login = () => {
                 </div>
             </Form>
         </div>
+      </>
     )
 };
 
