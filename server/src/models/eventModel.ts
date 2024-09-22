@@ -8,13 +8,13 @@ interface IEvent extends Document {
     data: Date;
     frequenza: [string];
     ripetizioni: number;
-    _id_utente: Schema.Types.ObjectId;
+    _id_utente: string;
 }
 
 // Definire un'interfaccia che rappresenta i metodi statici del modello Event
 interface IEventModel extends Model<IEvent> {
-    createEvent(titolo: string, descrizione: string, data: Date, frequenza: [string], ripetizioni: number, _id_utente: Schema.Types.ObjectId): Promise<IEvent>;
-    deleteEventById(_id: Schema.Types.ObjectId): Promise<IEvent>;
+    createEvent(titolo: string, descrizione: string, data: Date, frequenza: [string], ripetizioni: number, _id_utente: string): Promise<IEvent>;
+    deleteEventById(_id: string, _id_utente: string): Promise<IEvent>;
 }
 
 
@@ -46,14 +46,14 @@ const eventSchema = new Schema<IEvent>({
         required: true
     },
     _id_utente: {
-        type: Schema.Types.ObjectId,
+        type: String,
         required: true
     }
 });
 
 
 // aggiungo il metodo statico per la creazione di un evento
-eventSchema.statics.createEvent = async function(titolo: string, descrizione: string, data: Date, frequenza: [string], ripetizioni: number, _id_utente: Schema.Types.ObjectId): Promise<IEvent> {
+eventSchema.statics.createEvent = async function(titolo: string, descrizione: string, data: Date, frequenza: [string], ripetizioni: number, _id_utente: string): Promise<IEvent> {
 
     // validazione
     if (!titolo || !descrizione || !data || !frequenza || !ripetizioni || !_id_utente) {
@@ -64,10 +64,23 @@ eventSchema.statics.createEvent = async function(titolo: string, descrizione: st
     const event = await this.create({ titolo, descrizione, data, frequenza, ripetizioni, _id_utente });
     return event;
 }
-
 // aggiungo il metodo statico per la cancellazione di un evento
-eventSchema.statics.deleteEventById = async function(_id: Schema.Types.ObjectId): Promise<IEvent> {
-    const event = await this.findOneAndDelete({ _id });
+eventSchema.statics.deleteEventById = async function(_id: string, _id_utente: string): Promise<IEvent> {
+    // Trova l'evento
+    const event = await this.findById(_id);
+
+    // Verifica se l'evento esiste
+    if (!event)
+        throw new Error('Evento non trovato');
+    
+
+    // Verifica se l'utente è il proprietario dell'evento
+    if (!(String(event._id_utente) === _id_utente))
+        throw new Error('Non sei autorizzato a cancellare questo evento');
+    
+
+    // Cancella l'evento
+    await this.findByIdAndDelete(_id);
     return event;
 }
 

@@ -7,7 +7,7 @@ eventRoutes.use(requireAuth);
 
 // controllers
 eventRoutes.post('/create', createEvent);
-eventRoutes.delete('/delete', deleteEventById);
+eventRoutes.delete('/delete/:id_user/:id_event', deleteEventById);
 
 
 export { eventRoutes };

@@ -31,7 +31,7 @@ app.get("/", (req: Request, res: Response) => {
 import { userRoutes } from "./routes/user.js";
 import { notesRouter } from "./routes/notes.js";
 import { eventRoutes } from './routes/event.js';
-app.use("/api/user", userRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/notes", notesRouter);
 app.use('/api/events', eventRoutes);
 
