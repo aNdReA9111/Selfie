@@ -1,6 +1,8 @@
 import { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../context/authContext';
 
+import {sortEventsByNearest } from '../utils/dateUtils';
+
 export interface IEvent {
     _id: string;
     titolo: string;
@@ -9,6 +11,7 @@ export interface IEvent {
     frequenza: string[];
     ripetizioni: number;
     _id_utente: string;
+    timezone: string;
 }
 
 interface useEventsReturn {
@@ -36,7 +39,9 @@ export const useEvents = (): useEventsReturn => {
                 throw new Error('Failed to fetch events');
             
             const data : IEvent[] = await response.json();
-            setEvents(data);
+            console.log(data)
+            setEvents(sortEventsByNearest(data));
+            console.log(events);
         } catch (err) {
             if (err instanceof Error) {
                 setError(err.message);

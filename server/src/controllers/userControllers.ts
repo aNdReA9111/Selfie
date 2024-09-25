@@ -45,7 +45,7 @@ const signUpUser = async (req: Request, res: Response) => {
         const token = createToken(String(user._id)); 
 
         // Creo un evento di compleanno per l'utente
-        await EventModel.createEvent('Buon Compleanno', 'Auguri di buon compleanno!', user.data_nascita, ['annuale'], ['2s'], String(user._id));
+        await EventModel.createEvent('Buon Compleanno', 'Auguri di buon compleanno!', user.data_nascita, ['annuale'], ['2s'], String(user._id), 'Europe/Rome');
 
         res.status(201).json({ email, token, nome, cognome, username, data_nascita, flags: user.flags });
     } catch (error: any) {
