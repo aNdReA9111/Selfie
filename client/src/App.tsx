@@ -13,8 +13,9 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useAuthContext } from './hooks/useAuthContext';
 
 
-// Navbar
+// Components
 import MyNavbar from './components/MyNavbar';
+import MyNotification from './components/MyNotification';
 
 function App() {
   const { user } = useAuthContext();
@@ -23,6 +24,8 @@ function App() {
     <>
       <Router>
         {user ? <MyNavbar /> : null}
+        {user ? <MyNotification/> : null}
+        
         <Routes> 
           <Route Component={() => (user ? <Home /> :  <Navigate to="/login" />)} path="/" />
           <Route Component={() => (user ? <Calendar /> : <Navigate to="/login" />)} path="/calendar"></Route>
