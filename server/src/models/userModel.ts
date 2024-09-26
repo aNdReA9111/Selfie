@@ -2,14 +2,14 @@ import bcrypt from 'bcrypt';
 import validator from 'validator';
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
-interface IFlags extends Document {
+export interface IFlags extends Document {
     notifica_email: boolean;
     notifica_desktop: boolean;
     notifica_alert: boolean;
 }
 
 // Definire un'interfaccia che rappresenta le proprietà di un documento User
-interface IUser extends Document {
+export interface IUser extends Document {
     _id: Schema.Types.ObjectId;
     email: string;
     password: string;
@@ -23,7 +23,7 @@ interface IUser extends Document {
 
 // Definire un'interfaccia che rappresenta i metodi statici del modello User
 interface IUserModel extends Model<IUser> {
-    signup(email: string, password: string, nome: string, cognome: string, username: string, data_nascita: Date): Promise<IUser>;
+    signup(email: string, password: string, nome: string, cognome: string, username: string, data_nascita: Date, flags: IFlags): Promise<IUser>;
     login(email: string, password: string): Promise<IUser>;
 }
 
@@ -92,7 +92,7 @@ const userSchema = new Schema<IUser>({
 });
 
 // aggiungo il metodo statico per la regiostrarzione
-userSchema.statics.signup = async function(email: string, password: string, nome: string, cognome: string, username: string, data_nascita: Date): Promise<IUser> {
+userSchema.statics.signup = async function(email: string, password: string, nome: string, cognome: string, username: string, data_nascita: Date, flags : IFlags): Promise<IUser> {
 
     // validazione
     if(!email || !password) throw new Error('Email and password are required');
@@ -137,4 +137,4 @@ userSchema.statics.login = async function(email_or_username: string, password: s
 const UserModel: IUserModel = mongoose.model<IUser, IUserModel>('user', userSchema);
 
 // Esportare il modello con il tipo corretto
-export { UserModel, IUser };
+export { UserModel };
