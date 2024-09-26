@@ -28,6 +28,7 @@ export const useEvents = (): useEventsReturn => {
 
     const getEvents = async () => {
         try {
+            console.log(user);
             const response = await fetch(`http://localhost:4000/api/events/get/${user._id}`, {
                 method: 'GET',
                 headers: {
