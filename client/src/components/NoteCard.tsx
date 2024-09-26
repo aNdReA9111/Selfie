@@ -2,13 +2,27 @@ import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 import { Note } from '../utils/types';
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { useNotesContext } from '../hooks/useNotesContext';
+import DOMPurify from 'dompurify';
+import { marked } from "marked";
 
 export const NoteCard = ({note}: {note: Note}) => {
-
+  const [html, setHtml] = useState<string>('');
   const { user } = useAuthContext();
   const { dispatch } = useNotesContext();
+  const isOwner = note.author === user.username;
+
+  useEffect(() => {
+    const parseMD = async () => {
+      if (note.content || note.title) {
+        const unsafe = await marked.parse(`\n# ${note.title}\n${note.content}`);
+        setHtml(DOMPurify.sanitize(unsafe));
+      }
+    }
+    parseMD();
+  }, [note.content, note.title]);
 
   const handleDelete = async () => {
     try {
@@ -35,11 +49,13 @@ export const NoteCard = ({note}: {note: Note}) => {
         <Card.Subtitle className="mb-2 text-muted">{new Date(note.created).toLocaleDateString()}</Card.Subtitle>
         <Card.Text>
           {/*ANCHE LA PREVIEW DEVE ESSERE  IN MARKDOWN*/}
-          {note.content.length > 200 ? note.content.slice(0, 200) + '...' : note.content}
+          {<section dangerouslySetInnerHTML={{__html: html.length > 200 ? html.slice(0, 200) + '...' : html }}></section>}
+          {/*note.content.length > 200 ? note.content.slice(0, 200) + '...' : note.content*/}
         </Card.Text>
         <Link to={`/notes/${note._id}`}>See more</Link>
-        <Button variant="primary" onClick={handleDelete}>Delete</Button>
-        <Link to={`/notes/edit/${note._id}`}>Edit</Link>
+        {/*solo proprietario può modificare o eliminare, chi è nella lista no*/}
+        {isOwner && <Button variant="primary" onClick={handleDelete}>Delete</Button> }
+        {isOwner && <Link to={`/notes/edit/${note._id}`}>Edit</Link> }
       </Card.Body>
     </Card>
   );
