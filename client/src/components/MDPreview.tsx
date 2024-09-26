@@ -11,13 +11,13 @@ export const MDPreview = () => {
 
   const title = watch('title');
   const content = watch('content');
-  console.log(title, content);
+  // console.log(title, content);
 
 
   useEffect(() => {
     const parseMD = async () => {
       if (content || title) {
-        const unsafe = await marked.parse(title + '\n' + content);
+        const unsafe = await marked.parse(`\n# ${title}\n${content}`);
         setHtml(DOMPurify.sanitize(unsafe));
       }
     }
@@ -26,8 +26,7 @@ export const MDPreview = () => {
 
   return (
     <div id="preview" className="container d-none d-md-block h-100 overflow-scroll">
-      {title && <h1>{title}</h1>}
-      {content && <p dangerouslySetInnerHTML={{__html: html}}></p>}
+      {content && <section dangerouslySetInnerHTML={{__html: html}}></section>}
     </div>
   );
 }

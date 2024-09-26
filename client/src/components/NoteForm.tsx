@@ -66,7 +66,8 @@ export const NoteForm = ({isEdit, isView}: {isEdit: boolean, isView: boolean}) =
   }
 
   return (
-    <form className={`container ${isView ? 'd-none' : 'd-flex'} flex-column align-items-start justify-content-center mb-5 h-75`} onSubmit={handleSubmit(onSubmit)}>
+    !isView && (
+    <form className={`container flex-column align-items-start justify-content-center mb-5 h-75`} onSubmit={handleSubmit(onSubmit)}>
       <div className="input-group mb-4 p-2">
         <label className="input-group-text" id="title">Title</label>
         <input type="text" {...register('title')} className="form-control" placeholder="Note Title" aria-label="Note Title" aria-describedby="title"/>
@@ -99,6 +100,6 @@ export const NoteForm = ({isEdit, isView}: {isEdit: boolean, isView: boolean}) =
         {errors.allowedUsers && <p>{errors.allowedUsers.message}</p>}
       </div>
       <button className="btn btn-primary" type="submit">{isEdit ? 'Update Note' : 'Create Note'}</button>
-    </form>
+    </form>)
   );
 }

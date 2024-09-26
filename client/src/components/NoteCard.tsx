@@ -37,8 +37,8 @@ export const NoteCard = ({note}: {note: Note}) => {
           {/*ANCHE LA PREVIEW DEVE ESSERE  IN MARKDOWN*/}
           {note.content.length > 200 ? note.content.slice(0, 200) + '...' : note.content}
         </Card.Text>
-        <Button variant="primary" onClick={handleDelete}>Delete</Button>
         <Link to={`/notes/${note._id}`}>See more</Link>
+        <Button variant="primary" onClick={handleDelete}>Delete</Button>
         <Link to={`/notes/edit/${note._id}`}>Edit</Link>
       </Card.Body>
     </Card>

@@ -16,7 +16,7 @@ export const EditorContextProvider = ({ isEdit, isView }: { isEdit: boolean, isV
     allowedUsers: [],
     tags: []
   }
-  if(isEdit) {
+  if(isEdit || isView) {
     const { id } = useParams();
     const { notes } = useNotesContext();
     const note: Note | undefined = notes.find((note: Note) => note._id === id);
@@ -30,6 +30,7 @@ export const EditorContextProvider = ({ isEdit, isView }: { isEdit: boolean, isV
       }
     }
   }
+  console.log(defaultValues);
   const methods = useForm<NoteFormData>({
     defaultValues,
     resolver: zodResolver(formSchema),
