@@ -98,7 +98,7 @@ const MyNavbar = () => {
                           </Nav.Item>
                           <button 
                             className="btn btn-danger btn-sm ml-2" 
-                            onClick={() => handleRemoveNotification(ev._id)}
+                            onClick={() => ev._id && handleRemoveNotification(ev._id)}
                             title={""}
                           > 
                           </button>
