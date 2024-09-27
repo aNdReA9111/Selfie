@@ -3,7 +3,7 @@ import { Note, NotesAction, NotesContextType, NotesState } from '../utils/types'
 
 export const NotesContext = createContext<NotesContextType | undefined>(undefined);
 
-const reducer = (state: NotesState, action: NotesAction) => {
+const reducer = (state: NotesState, action: NotesAction): NotesState => {
   switch (action.type) {
     case 'SET_NOTES':
       return {
@@ -33,6 +33,44 @@ const reducer = (state: NotesState, action: NotesAction) => {
             : e
         ),
       };
+    case 'SORT_BY_DATE':
+      return {
+        notes: state.notes.sort((a: Note, b: Note) => {
+          console.log(typeof a.created)
+          if (a.created.getTime() > b.created.getTime()) {
+            return -1;
+          }
+          if (a.created.getTime() < b.created.getTime()) {
+            return 1;
+          }
+          return 0;
+        })
+      }
+    case 'SORT_BY_TITLE':
+      return {
+        notes: state.notes.sort((a: Note, b: Note) => {
+          if (a.title.toLowerCase() < b.title.toLowerCase()) {
+            return -1;
+          }
+          if (a.title.toLowerCase() > b.title.toLowerCase()) {
+            return 1;
+          }
+          return 0;
+        })
+      }
+    case 'SORT_BY_CONTENT':
+      return {
+        notes: state.notes.sort((a: Note, b: Note) => {
+          if (a.content.length < b.content.length) {
+            return -1;
+          }
+          if (a.content.length > b.content.length) {
+            return 1;
+          }
+          return 0;
+        })
+      }
+
     default:
       return state;
   }

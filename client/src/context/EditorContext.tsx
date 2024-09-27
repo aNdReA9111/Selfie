@@ -3,7 +3,7 @@ import { MDPreview } from "../components/MDPreview";
 import { NoteForm } from "../components/NoteForm";
 import { Note, NoteFormData, formSchema } from "../utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { OptionsBar } from "../components/OptionsBar";
+// import { OptionsBar } from "../components/OptionsBar";
 import { useParams } from "react-router-dom";
 import { useNotesContext } from "../hooks/useNotesContext";
 
@@ -38,7 +38,7 @@ export const EditorContextProvider = ({ isEdit, isView }: { isEdit: boolean, isV
 
   return (
     <FormProvider {...methods}>
-      <OptionsBar />
+      {/*<OptionsBar />*/}
       <div style={{ height: '95svh' }} className="d-flex flex-md-row flex-column justify-content-center align-items-start text-bg-light m-0" >
         <NoteForm isEdit={isEdit} isView={isView}/>
         <MDPreview />

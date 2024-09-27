@@ -50,7 +50,6 @@ export const NoteCard = ({note}: {note: Note}) => {
         <Card.Text>
           {/*ANCHE LA PREVIEW DEVE ESSERE  IN MARKDOWN*/}
           {<section dangerouslySetInnerHTML={{__html: html.length > 200 ? html.slice(0, 200) + '...' : html }}></section>}
-          {/*note.content.length > 200 ? note.content.slice(0, 200) + '...' : note.content*/}
         </Card.Text>
         <Link to={`/notes/${note._id}`}>See more</Link>
         {/*solo proprietario può modificare o eliminare, chi è nella lista no*/}

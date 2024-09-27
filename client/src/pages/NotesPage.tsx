@@ -4,6 +4,7 @@ import { Note, NotesContextType } from '../utils/types';
 import { useNotesContext } from '../hooks/useNotesContext';
 import { useAuthContext } from '../hooks/useAuthContext';
 import Spinner from 'react-bootstrap/Spinner';
+import { Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 
@@ -26,7 +27,11 @@ export const NotesPreview = () => {
           }
         })
 
-        const json = await res.json();
+        const json: Note[] = await res.json();
+        json.forEach((el: Note) => {
+          el.created = new Date(el.created)
+          el.updated = new Date(el.updated)
+        });
 
         if(res.ok) {
           dispatch({type: 'SET_NOTES', payload: json});
@@ -52,24 +57,28 @@ export const NotesPreview = () => {
   //Funzioni di sorting --> data di creazione, data di modifica
 
   return (
-
-    <div className="container d-flex flex-wrap">
-      {
-        notes.length === 0
-        ? <p>No notes yet</p>
-        : notes.map((note: Note) => <NoteCard key={note._id} note={note} />)
-      }
-      {
-        error === '' ? null : <p>{error}</p>
-      }
-      {
-        isLoading ?
-          <Spinner animation="border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-          : null
-      }
+    <>
+      <div className="container d-flex flex-wrap">
+        {
+          notes.length === 0
+          ? <p>No notes yet</p>
+          : notes.map((note: Note) => <NoteCard key={note._id} note={note} />)
+        }
+        {
+          error === '' ? null : <p>{error}</p>
+        }
+        {
+          isLoading ?
+            <Spinner animation="border" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+            : null
+        }
+      </div>
       <Link to="/notes/add">Add note</Link>
-    </div>
+      <Button variant="primary" onClick={() => dispatch({type: "SORT_BY_DATE"})}>Sort by Date</Button>
+      <Button variant="primary" onClick={() => dispatch({type: "SORT_BY_TITLE"})}>Sort by Title</Button>
+      <Button variant="primary" onClick={() => dispatch({type: "SORT_BY_CONTENT"})}>Sort by Content length</Button>
+    </>
   );
 }

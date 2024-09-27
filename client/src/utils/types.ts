@@ -76,6 +76,15 @@ export type NotesAction =
   | {
       type: "EDIT_NOTE";
       payload: Note;
+    }
+  | {
+      type: "SORT_BY_DATE";
+    }
+  | {
+      type: "SORT_BY_TITLE";
+    }
+  | {
+      type: "SORT_BY_CONTENT";
     };
 export type NotesContextType = {
   notes: Note[];
