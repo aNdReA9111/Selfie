@@ -3,7 +3,17 @@ import { useAuthContext } from './useAuthContext'
 
 // Definiamo un'interfaccia per il tipo di ritorno
 interface UseSignupReturn {
-    signup: (email: string, password: string) => Promise<void>;
+    signup: (data: {
+        username: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+        password: string;
+        birthDate: string;
+        desktopNotifications: boolean;
+        browserNotifications: boolean;
+        emailNotifications: boolean;
+    }) => Promise<void>;
     isLoading: boolean;
     error: string | null;
   }
@@ -14,7 +24,17 @@ interface UseSignupReturn {
     const { dispatch } = useAuthContext();
 
 
-    const signup = async (email: string, password: string) => {
+    const signup = async ({ username, email, firstName, lastName, password, birthDate, desktopNotifications, browserNotifications, emailNotifications }: {
+        username: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+        password: string;
+        birthDate: string;
+        desktopNotifications: boolean;
+        browserNotifications: boolean;
+        emailNotifications: boolean;
+    }) => {
         setIsLoading(true);
         setError(null);
 
@@ -22,10 +42,20 @@ interface UseSignupReturn {
             const response = await fetch('http://localhost:4000/api/users/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({
+                    username,
+                    email,
+                    nome: firstName,
+                    cognome: lastName,
+                    password,
+                    data_nascita: birthDate,
+                    flags: {
+                        notifica_email: emailNotifications,
+                        notifica_desktop: desktopNotifications,
+                        notifica_alert: browserNotifications
+                    }
+                })
             });
-            
-            
 
             // Controllo se la risposta è ok prima di fare il parsing
             if (!response.ok) {
@@ -45,7 +75,6 @@ interface UseSignupReturn {
             setIsLoading(false);
             setError('Qualcosa è andato storto, riprova più tardi.');
         }
-
     }
 
     return { signup, isLoading, error };

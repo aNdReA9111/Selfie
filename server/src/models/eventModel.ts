@@ -9,11 +9,12 @@ interface IEvent extends Document {
     frequenza: [string];
     ripetizioni: [string];
     _id_utente: string;
+    timezone?: string;
 }
 
 // Definire un'interfaccia che rappresenta i metodi statici del modello Event
 interface IEventModel extends Model<IEvent> {
-    createEvent(titolo: string, descrizione: string, data: Date, frequenza: [string], ripetizioni: [string], _id_utente: string): Promise<IEvent>;
+    createEvent(titolo: string, descrizione: string, data: Date, frequenza: [string], ripetizioni: [string], timezone: string, _id_utente: string): Promise<IEvent>;
     getEventById(_id: string, _id_utente : string): Promise<IEvent>;
     getAllEvents(_id_utente: string): Promise<IEvent[]>;
     deleteEventById(_id: string, _id_utente: string): Promise<IEvent>;
@@ -45,27 +46,33 @@ const eventSchema = new Schema<IEvent>({
         enum: ['nessuna', 'giornaliero', 'settimanale', 'mensile', 'annuale'],
         default: ['nessuna']
     },
+
     ripetizioni: {
         type: [String],
-        match: [/^(none|[1-9]+[mhdMy])$/, 'Il campo ripetizioni deve essere nel formato [1-9][m,h,d,M,y] o "none"'],
+        match: [/^(none|0-9]+[mhdMy])$/, 'Il campo ripetizioni deve essere nel formato [0-9][m,h,d,M,y] o "none"'],
         default: ['none']
     },
     _id_utente: {
         type: String,
         required: true
+    },
+    timezone: {
+        type: String,
+        default: 'Europe/Rome',
+        required: false
     }
 });
 
 
 // aggiungo il metodo statico per la creazione di un evento
-eventSchema.statics.createEvent = async function(titolo: string, descrizione: string, data: Date, frequenza: [string], ripetizioni: [string], _id_utente: string): Promise<IEvent> {
+eventSchema.statics.createEvent = async function(titolo: string, descrizione: string, data: Date, frequenza: [string], ripetizioni: [string], timezone: string, _id_utente: string): Promise<IEvent> {
 
     // validazione
     if (!titolo || !descrizione || !data || !frequenza || !ripetizioni || !_id_utente)
         throw new Error('Tutti i campi sono obbligatori');
 
     // creazione dell'evento
-    const event = await this.create({ titolo, descrizione, data, frequenza, ripetizioni, _id_utente });
+    const event = await this.create({ titolo, descrizione, data, frequenza, ripetizioni, timezone, _id_utente });
     return event;
 }
 

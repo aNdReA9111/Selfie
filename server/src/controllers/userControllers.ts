@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { UserModel } from '../models/userModel.js';
+import { UserModel, IFlags } from '../models/userModel.js';
 import jwt from 'jsonwebtoken';
 
 // configuro il .env
@@ -36,18 +36,24 @@ const loginUser = async (req: Request, res: Response) => {
 
 // signup user
 const signUpUser = async (req: Request, res: Response) => {
-    const { email, password, nome, cognome, username, data_nascita } = req.body;
+    const { email, password, nome, cognome, username, data_nascita, notifica_alert, notifica_desktop, notifica_email } = req.body;
 
     try {      
-        const user = await UserModel.signup(email, password, nome, cognome, username, data_nascita);
+        const flags = {
+            notifica_email,
+            notifica_desktop,
+            notifica_alert,
+        } as IFlags;
+
+        const user = await UserModel.signup(email, password, nome, cognome, username, data_nascita, flags);
 
         // creo il token 
         const token = createToken(String(user._id)); 
 
         // Creo un evento di compleanno per l'utente
-        await EventModel.createEvent('Buon Compleanno', 'Auguri di buon compleanno!', user.data_nascita, ['annuale'], ['2s'], String(user._id));
+        await EventModel.createEvent('Buon Compleanno', 'Auguri di buon compleanno!', user.data_nascita, ['annuale'], ['2s'], 'Europe/Rome', String(user._id));
 
-        res.status(201).json({ email, token, nome, cognome, username, data_nascita, flags: user.flags });
+        res.status(201).json({ _id: user._id, email, token, nome: user.nome, cognome: user.cognome, username: user.username, data_nascita: user.data_nascita, flags: user.flags });
     } catch (error: any) {
         res.status(400).json({ message: error.message });
     }
