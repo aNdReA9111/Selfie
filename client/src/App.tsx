@@ -27,7 +27,7 @@ function App() {
       <Router>
         {user ? <MyNavbar /> : null}
         {user ? <MyNotification/> : null}
-        <Routes> 
+        <Routes>
           <Route Component={() => (user ? <Home /> :  <Navigate to="/login" />)} path="/" />
           <Route Component={() => (user ? <Calendar /> : <Navigate to="/login" />)} path="/calendar"></Route>
           <Route Component={() => (user ? <Pomodoro /> : <Navigate to="/login" />)} path="/pomodoro"></Route>
@@ -36,7 +36,6 @@ function App() {
           <Route Component={() => (user ? <Editor isEdit={false} isView={false}/> : <Navigate to="/login" />)} path="/notes/add"></Route>
           <Route Component={() => (user ? <Editor isEdit={false} isView={true}/> : <Navigate to="/login" />)} path="/notes/:id"></Route>
           <Route Component={() => (user ? <NotesPreview /> : <Navigate to="/login" />)} path="/notes"></Route>
-          {/*<Route Component={() => (user ? <NoteView /> : <Navigate to="/login" />)} path="/notes/:id"></Route>*/}
 
           <Route Component={() => (user ? <About /> : <Navigate to="/login" />)} path="/account-settings"></Route>
 

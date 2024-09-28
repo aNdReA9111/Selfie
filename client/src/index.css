@@ -6,3 +6,7 @@ img {
   height: auto;
   box-sizing: border-box;
 }
+
+a {
+  text-decoration: none;
+}
