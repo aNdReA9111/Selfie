@@ -6,7 +6,7 @@ import  {
     getEventById, 
     deleteEventById, 
     deleteAllEvents 
-} from '../controllers/eventController.js';
+} from '../controllers/eventControllers.js';
 
 const eventRoutes = express.Router();
 
@@ -16,15 +16,15 @@ eventRoutes.use(requireAuth);
 /* controllers */
 
 //post
-eventRoutes.post('/create', createEvent);
+eventRoutes.post('/', createEvent);
 
 //get
-eventRoutes.get('/get/:id_user/:id_event', getEventById);
-eventRoutes.get('/get/:id_user', getAllEvents);
+eventRoutes.get('/:id_event', getEventById);
+eventRoutes.get('/', getAllEvents);
 
 //delete
-eventRoutes.delete('/delete/:id_user/:id_event', deleteEventById);
-eventRoutes.delete('/delete/:id_user', deleteAllEvents);
+eventRoutes.delete('/:id_event', deleteEventById);
+eventRoutes.delete('/', deleteAllEvents);
 
 
 export { eventRoutes };

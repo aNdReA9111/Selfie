@@ -36,6 +36,7 @@ const getNotes = async (req: Request, res: Response) => {
     $or: [
       { author: user.username },
       { allowedUsers: { $in: [user.username] } },
+      { open: true }
     ],
   });
 
