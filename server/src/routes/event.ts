@@ -15,16 +15,17 @@ eventRoutes.use(requireAuth);
 
 /* controllers */
 
-//post
+//creazione di un evento
 eventRoutes.post('/', createEvent);
-
-//get
+//ritorna il singolo evento
 eventRoutes.get('/:id_event', getEventById);
+//ritorna tutti gli eventi o gli eventi filtrati per data
 eventRoutes.get('/', getAllEvents);
-
-//delete
+//eliminazione del singolo evento
 eventRoutes.delete('/:id_event', deleteEventById);
+//eliminazione di tutti gli eventi 
 eventRoutes.delete('/', deleteAllEvents);
-
+//patch
+eventRoutes.patch('/:id_event')
 
 export { eventRoutes };

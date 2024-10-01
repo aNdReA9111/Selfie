@@ -3,27 +3,27 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 // Definire un'interfaccia che rappresenta le proprietà di un documento Event
 interface IEvent extends Document {
   _id: Schema.Types.ObjectId;
-  titolo: string;
-  descrizione: string;
-  data: Date;
-  frequenza: [string];
-  ripetizioni: [string];
-  durata: number;
-  _id_utente: string;
+  title: string;
+  description: string;
+  date: Date;
+  frequency: [string];
+  repetitions: [string];
+  duration: number;
+  _id_user: string;
   timezone?: string;
 }
 
 // Definire un'interfaccia che rappresenta i metodi statici del modello Event
 interface IEventModel extends Model<IEvent> {
   createEvent(
-    titolo: string,
-    descrizione: string,
-    data: Date,
-    frequenza: [string],
-    ripetizioni: [string],
-    durata: number,
+    title: string,
+    description: string,
+    date: Date,
+    frequency: [string],
+    repetitions: [string],
+    duration: number,
     timezone: string,
-    _id_utente: string,
+    _id_user: string,
   ): Promise<IEvent>;
   getEventById(_id: string, _id_utente: string): Promise<IEvent>;
   getAllEvents(_id_utente: string, date: Date | undefined): Promise<IEvent[]>;
@@ -37,26 +37,26 @@ const eventSchema = new Schema<IEvent>({
     type: Schema.Types.ObjectId,
     auto: true,
   },
-  titolo: {
+  title: {
     type: String,
     required: true,
   },
-  descrizione: {
+  description: {
     type: String,
     required: true,
   },
-  data: {
+  date: {
     type: Date,
     required: true,
   },
-  frequenza: {
+  frequency: {
     type: [String],
     required: true,
     enum: ["nessuna", "giornaliero", "settimanale", "mensile", "annuale"],
     default: ["nessuna"],
   },
 
-  ripetizioni: {
+  repetitions: {
     type: [String],
     match: [
       /^(none|([0-9]+[mhdMy]))$/,
@@ -65,12 +65,12 @@ const eventSchema = new Schema<IEvent>({
     default: ["none"],
   },
 
-  durata: {
+  duration: {
     type: Number,
     required: true,
   },
 
-  _id_utente: {
+  _id_user: {
     type: String,
     required: true,
   },
@@ -84,37 +84,36 @@ const eventSchema = new Schema<IEvent>({
 
 // aggiungo il metodo statico per la creazione di un evento
 eventSchema.statics.createEvent = async function (
-  titolo: string,
-  descrizione: string,
-  data: Date,
-  frequenza: [string],
-  ripetizioni: [string],
-  durata: string,
+  title: string,
+  description: string,
+  date: Date,
+  frequency: [string],
+  repetitions: [string],
+  duration: string,
   timezone: string,
-  _id_utente: string,
+  _id_user: string,
 ): Promise<IEvent> {
   // validazione
   if (
-    !titolo ||
-    !descrizione ||
-    !data ||
-    !frequenza ||
-    !durata ||
-    !ripetizioni ||
-    !_id_utente
+    !title ||
+    !description ||
+    !date ||
+    !frequency ||
+    !duration ||
+    !repetitions ||
+    !_id_user
   )
     throw new Error("Tutti i campi sono obbligatori");
 
   // creazione dell'evento
   const event = await this.create({
-    titolo,
-    descrizione,
-    data,
-    frequenza,
-    ripetizioni,
-    durata,
-    timezone,
-    _id_utente,
+    title,
+    description,
+    date,
+    frequency,
+    duration,
+    repetitions,
+    _id_user
   });
   return event;
 };

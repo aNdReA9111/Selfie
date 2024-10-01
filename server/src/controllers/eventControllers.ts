@@ -4,26 +4,26 @@ import mongoose from "mongoose";
 
 const createEvent = async (req: Request, res: Response) => {
   const {
-    titolo,
-    descrizione,
-    data,
-    frequenza,
-    ripetizioni,
-    durata,
+    title,
+    description,
+    date,
+    frequency,
+    repetitions,
+    duration,
     timezone,
     user: _id,
   } = req.body;
 
   try {
     const event = await EventModel.createEvent(
-      titolo,
-      descrizione,
-      data,
-      frequenza,
-      ripetizioni,
-      durata,
+      title,
+      description,
+      date,
+      frequency,
+      repetitions,
+      duration,
       timezone,
-      String(_id),
+      _id,
     );
     res.status(201).json(event);
   } catch (error: any) {
