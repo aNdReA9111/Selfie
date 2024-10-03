@@ -1,12 +1,13 @@
-import express from 'express';
-import { requireAuth } from '../middleware/requireAuth.js'
-import  {    
-    createEvent, 
-    getAllEvents, 
-    getEventById, 
-    deleteEventById, 
-    deleteAllEvents 
-} from '../controllers/eventControllers.js';
+import express from "express";
+import { requireAuth } from "../middleware/requireAuth.js";
+import {
+  createEvent,
+  getAllEvents,
+  getEventById,
+  deleteEventById,
+  deleteAllEvents,
+  updateEvent,
+} from "../controllers/eventControllers.js";
 
 const eventRoutes = express.Router();
 
@@ -16,16 +17,16 @@ eventRoutes.use(requireAuth);
 /* controllers */
 
 //creazione di un evento
-eventRoutes.post('/', createEvent);
+eventRoutes.post("/", createEvent);
 //ritorna il singolo evento
-eventRoutes.get('/:id_event', getEventById);
+eventRoutes.get("/:id", getEventById);
 //ritorna tutti gli eventi o gli eventi filtrati per data
-eventRoutes.get('/', getAllEvents);
+eventRoutes.get("/", getAllEvents);
 //eliminazione del singolo evento
-eventRoutes.delete('/:id_event', deleteEventById);
-//eliminazione di tutti gli eventi 
-eventRoutes.delete('/', deleteAllEvents);
+eventRoutes.delete("/:id", deleteEventById);
+//eliminazione di tutti gli eventi
+eventRoutes.delete("/", deleteAllEvents);
 //patch
-eventRoutes.patch('/:id_event')
+eventRoutes.patch("/:id", updateEvent);
 
 export { eventRoutes };
