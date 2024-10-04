@@ -7,10 +7,10 @@ import { requireAuth } from "../middleware/requireAuth.js";
 
 
 
-const messagesRoutes: Router = express.Router();
-messagesRoutes.use(requireAuth);
+const messageRoutes: Router = express.Router();
+messageRoutes.use(requireAuth);
 
-messagesRoutes.get("/get", getMessages);
-messagesRoutes.post("/send/:username_sender", sendMessage);
+messageRoutes.get("/get", getMessages);
+messageRoutes.post("/send/:username_sender", sendMessage);
 
-export default messagesRoutes;
+export { messageRoutes };

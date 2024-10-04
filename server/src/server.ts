@@ -31,10 +31,12 @@ app.get("/", (req: Request, res: Response) => {
 import { userRoutes } from "./routes/user.js";
 import { notesRoutes } from "./routes/notes.js";
 import { eventRoutes } from './routes/event.js';
+import { messageRoutes } from "./routes/message.js";
 
 app.use("/api/users", userRoutes);
 app.use("/api/notes", notesRoutes);
 app.use('/api/events', eventRoutes);
+app.use("/api/messages", messageRoutes);
 
 
 // Connessione al database
