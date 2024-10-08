@@ -1,87 +1,140 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
-import DayCell from '../components/DayCell';
-import DayDetails from '../components/DayDetails';
-import isoWeek from 'dayjs/plugin/isoWeek'; // Per rendere l'inizio settimana lunedì
 
-// import '../css/Calendar.css';
-// import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { Calendar as BigCalendar, Event, dayjsLocalizer, DateLocalizer } from 'react-big-calendar';
 
-dayjs.extend(isoWeek); // Estende la gestione per avere il lunedì come primo giorno
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-const Calendar: React.FC = () => {
-  const [currentDate, setCurrentDate] = useState(dayjs()); // Data corrente (mese)
-  const startOfMonth = currentDate.startOf('month');
-  const endOfMonth = currentDate.endOf('month');
+import weekday from 'dayjs/plugin/weekday';
+import localeData from 'dayjs/plugin/localeData';
 
-  const startOfCalendar = startOfMonth.startOf('isoWeek'); // Inizio della settimana di partenza del calendario
-  const endOfCalendar = endOfMonth.endOf('isoWeek'); // Fine della settimana del calendario
 
-  const daysInCalendar: Array<dayjs.Dayjs> = [];
-  let day = startOfCalendar;
+// Aggiungi i plugin necessari a dayjs
+dayjs.extend(weekday);
+dayjs.extend(localeData);
 
-  const [date, setDate] = useState(currentDate.format('DD-MM-YYYY'));
-  const [events, setEvents] = useState([
-    { id: 1, time: '10:00', description: 'Meeting' },
-    { id: 2, time: '12:00', description: 'Lunch' },
-    { id: 3, time: '14:00', description: 'Workshop' },
+// DA MODIFICARE IN USEEVENTS 
+interface IEvent {
+  _id: string;
+  title: string;
+  description: string;
+  start: Date;
+  end: Date;
+  location?: string;
+  url?: string;
+  duration: number;
+  recurrencyRule: {
+    isRecurring: boolean;
+    frequency?: string;
+    repetition?: number;
+    interval: number;
+    byday?: string[];
+    bymonthday?: number[];
+    bymonth?: number[];
+    end?: string;
+    endDate?: Date;
+  };
+  attendees?: {
+    name: string;
+    email: string;
+    responded: boolean;
+    accepted: boolean;
+  }[];
+  notifications: {
+    notifica_email: boolean;
+    notifica_desktop: boolean;
+    notifica_alert: boolean;
+    text: string;
+  }[];
+  _id_user: string;
+}
+
+// Configura il localizer per Day.js
+const localizer: DateLocalizer = dayjsLocalizer(dayjs);
+
+
+const CustomCalendar = () => {
+  const [events, setEvents] = useState<IEvent[]>([
+    {
+      _id: '1',
+      title: 'Evento di esempio',
+      description: 'Descrizione dell\'evento di esempio',
+      start: dayjs('2024-10-08T10:00:00').toDate(),
+      end: dayjs('2024-10-08T12:00:00').toDate(),
+      location: 'Location di esempio',
+      url: 'http://example.com',
+      duration: 120,
+      recurrencyRule: {
+        isRecurring: false,
+        interval: 1,
+      },
+      notifications: [
+        {
+          notifica_email: true,
+          notifica_desktop: false,
+          notifica_alert: true,
+          text: 'Notifica di esempio',
+        },
+      ],
+      _id_user: 'user1',
+    },
   ]);
 
-  // Riempie l'array `daysInCalendar` con ogni giorno del calendario visualizzato
-  while (day.isBefore(endOfCalendar) || day.isSame(endOfCalendar, 'day')) {
-    daysInCalendar.push(day);
-    day = day.add(1, 'day');
-  }
+  useEffect(() => {
+    // fetch dal db
+    
+  }, []);
 
-  return (
-    <div className="d-flex flex-row flex-wrap flex-xl-nowrap align-content-stretch">
-      <div className="container text-center grid gap-3">
-        <div className="d-flex justify-content-between align-items-center my-3">
-          <button className="btn btn-outline-primary" onClick={() => setCurrentDate(currentDate.subtract(1, 'month'))}>
-            Mese Precedente
-          </button>
-          <h3 className='month'>{currentDate.format('MMMM YYYY')}</h3>
-          <button className="btn btn-outline-primary" onClick={() => setCurrentDate(currentDate.add(1, 'month'))}>
-            Mese Successivo
-          </button>
-        </div>
+  const handleSelectEvent = (event: Event) => {
+    alert(event.title);
+  };
 
-        <div className="d-flex flex-column ">
-          {/* Giorni della settimana */}
-          <div 
-            className="row"
-          >
-            {['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'].map((day, index) => (
-                <div key={index} className="col text-center font-weight-bold" style={{ maxHeight: '50px', width: '100%' }}>
-                <div className="day" style={{ height: '4rem', width: '3rem'}} >{day}</div>
-                </div>
-            ))}
-          </div>
+  const handleSelectSlot = (slotInfo: any) => {
+    const title = window.prompt('Nome nuovo evento');
+    if (title) {
+      setEvents((prev) => [
+        ...prev,
+        
+        {
+          _id: (prev.length + 1).toString(),
+          title,
+          description: '',
+          start: slotInfo.start,
+          end: slotInfo.end,
+          location: '',
+          url: '',
+          duration: dayjs(slotInfo.end).diff(dayjs(slotInfo.start), 'seconds'),
+          recurrencyRule: {
+            isRecurring: false,
+            interval: 1,
+          },
+          notifications: [],
+          _id_user: 'user1',
+        },
+      ]);
+    }
+  };
 
-          {/* Genera celle del calendario */}
-          {Array.from({ length: Math.ceil(daysInCalendar.length / 7) }).map((_, weekIndex) => (
-            <div className="row" key={weekIndex}>
-              {daysInCalendar.slice(weekIndex * 7, weekIndex * 7 + 7).map((day, index) => (
-                <div onClick={() => setDate(day.format('DD-MM-YYYY'))} key={index} className={`col text-center ${day.month() === currentDate.month() ? 'day' : 'day-dis'}`}>
-                  <DayCell
-                    day={day.date()}
-                    isCurrentMonth={day.month() === currentDate.month()}
-                  />
-                </div>
-              ))}
-            </div>
-          ))}
-
-          
-
+return (
+    <div className="container mt-5">
+      <div className="row justify-content-center">
+        <div className="col-md-8">
+          <BigCalendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            selectable
+            onSelectEvent={handleSelectEvent}
+            onSelectSlot={handleSelectSlot}
+            style={{ height: 500 }}
+            popup
+          />
         </div>
       </div>
-      <DayDetails
-        selectedDay={date}
-        events={events}
-      />
     </div>
   );
 };
 
-export default Calendar;
+export default CustomCalendar;
