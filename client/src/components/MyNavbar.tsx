@@ -1,7 +1,7 @@
 import React from 'react';
 
 // Bootstrap
-import 'bootstrap/dist/css/bootstrap.min.css';
+// import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import { Link } from 'react-router-dom';
@@ -31,7 +31,7 @@ const MyNavbar = () => {
     }).then(async response => {
         if (!response.ok)
           throw new Error(response.statusText);
-        
+
         const data = await response.json();
         setEvents(events.filter(ev => ev._id !== data._id));
 
@@ -55,10 +55,14 @@ const MyNavbar = () => {
                 Calendario
               </Nav.Link>
 
+              <Nav.Link as={Link} style={{color:'white'}} to="/notes" >
+                Notes
+              </Nav.Link>
+
               <Nav.Link as={Link} style={{color:'white'}} to="/pomodoro" >
                 Pomodoro
               </Nav.Link>
-                
+
               <Nav.Link as={Link} style={{color:'white'}} to="/about" >
                 About
               </Nav.Link>
@@ -96,11 +100,12 @@ const MyNavbar = () => {
                           <Nav.Item className="flex-grow-1">
                             {ev.titolo}
                           </Nav.Item>
+                          
                           <button 
                             className="btn btn-danger btn-sm ml-2" 
                             onClick={() => ev._id && handleRemoveNotification(ev._id)}
                             title={""}
-                          > 
+                          >
                           </button>
                         </div>
                         {
