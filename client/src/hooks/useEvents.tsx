@@ -4,12 +4,12 @@ import { AuthContext } from '../context/authContext';
 import {sortEventsByNearest } from '../utils/dateUtils';
 
 export interface IEvent {
-    _id: string;
+    _id?: string;
     titolo: string;
     descrizione: string;
     data: Date;
     frequenza: string[];
-    ripetizioni: number;
+    ripetizioni: string[];
     _id_utente: string;
     timezone: string;
 }

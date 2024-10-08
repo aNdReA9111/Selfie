@@ -100,9 +100,10 @@ const MyNavbar = () => {
                           <Nav.Item className="flex-grow-1">
                             {ev.titolo}
                           </Nav.Item>
-                          <button
-                            className="btn btn-danger btn-sm ml-2"
-                            onClick={() => handleRemoveNotification(ev._id)}
+                          
+                          <button 
+                            className="btn btn-danger btn-sm ml-2" 
+                            onClick={() => ev._id && handleRemoveNotification(ev._id)}
                             title={""}
                           >
                           </button>
