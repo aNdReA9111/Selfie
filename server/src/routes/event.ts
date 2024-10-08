@@ -26,7 +26,7 @@ eventRoutes.get("/", getAllEvents);
 eventRoutes.delete("/:id", deleteEventById);
 //eliminazione di tutti gli eventi
 eventRoutes.delete("/", deleteAllEvents);
-//patch
+//aggiornamento di un evento
 eventRoutes.patch("/:id", updateEvent);
 
 export { eventRoutes };

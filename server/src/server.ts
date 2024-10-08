@@ -23,9 +23,11 @@ app.use((req: Request, res: Response, next: any) => {
   console.log(`Request received: ${req.method} ${req.url}`);
   next(); // Pass the request to the next middleware or router
 });
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello World!");
-});
+
+app.use((req: Request, _: Response, next: any) => {
+  console.log(req.body);
+  next();
+})
 
 // Routes
 import { userRoutes } from "./routes/user.js";
@@ -35,7 +37,6 @@ import { eventRoutes } from './routes/event.js';
 app.use("/api/users", userRoutes);
 app.use("/api/notes", notesRoutes);
 app.use('/api/events', eventRoutes);
-
 
 // Connessione al database
 import mongoose from "mongoose";

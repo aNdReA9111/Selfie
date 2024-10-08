@@ -133,7 +133,7 @@ const deleteNote = async (req: Request, res: Response) => {
   res.status(200).json(note);
 };
 
-const deleteAllNotes = async (req: Request, res: Response) => {
+const deleteNotes = async (req: Request, res: Response) => {
   const { user: userId } = req.body;
 
   const user: IUser | null = await UserModel.findOne({ _id: userId });
@@ -152,4 +152,4 @@ const deleteAllNotes = async (req: Request, res: Response) => {
   return res.status(200);
 };
 
-export { addNote, getNotes, getNote, updateNote, deleteNote, deleteAllNotes };
+export { addNote, getNotes, getNote, updateNote, deleteNote, deleteNotes };

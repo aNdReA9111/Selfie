@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { EventModel, IEvent } from "../models/eventModel.js";
 import { UserModel, IUser } from "../models/userModel.js";
-import { getAllOccurrences } from "../utils/rrule.js";
 import mongoose from "mongoose";
 
 const createEvent = async (req: Request, res: Response) => {
@@ -62,11 +61,11 @@ const getEventById = async (req: Request, res: Response) => {
       _id_user: userId.toString(),
     });
 
-    if(!event) {
+    if (!event) {
       return res.status(404).json({ error: "Event not found" });
     }
 
-    res.status(200).json(getAllOccurrences(event));
+    res.status(200).json(event);
   } catch (error: any) {
     res.status(400).json({ message: error.message });
   }
@@ -74,7 +73,9 @@ const getEventById = async (req: Request, res: Response) => {
 
 const getAllEvents = async (req: Request, res: Response) => {
   const userId: mongoose.Types.ObjectId = req.body.user;
-  const { date } = req.query;
+  const date = req.query.date;
+  const onlyRecurring = /^true$/i.test(req.query.onlyRecurring as string);
+
 
   const user: IUser | null = await UserModel.findOne({ _id: userId });
   if (!user) {
@@ -84,34 +85,46 @@ const getAllEvents = async (req: Request, res: Response) => {
   try {
     let events: IEvent[];
     if (typeof date !== "string") {
-      events = await EventModel.find({ 
-        $or: [
-          { _id_user: userId.toString() },
-          { 
-            recurrencyRule: { 
-              $elemMatch: {
-                email: user.email,
-                accepted: true
-              }
-            } 
-          },
-        ]
-      });
+      if (onlyRecurring) {
+        events = await EventModel.find({
+          recurrencyRule: {
+            $elemMatch: {
+              isRecurring: onlyRecurring,
+            }
+          }
+        });
+      }
+      else {
+        events = await EventModel.find({
+          $or: [
+            { _id_user: userId.toString() },
+            {
+              attendees: {
+                $elemMatch: {
+                  email: user.email,
+                  accepted: true,
+                },
+              },
+            },
+          ],
+        });
+      }
     } else {
+      //query di eventi in una certa data, NON fa query di eventi ricorrenti
       events = await EventModel.find({
         $and: [
           {
             $or: [
               { _id_user: userId.toString() },
-              {  
-                recurrencyRule: { 
+              {
+                recurrencyRule: {
                   $elemMatch: {
                     email: user.email,
-                    accepted: true
-                  }
-                } 
+                    accepted: true,
+                  },
+                },
               },
-            ]
+            ],
           },
           {
             $or: [
@@ -124,24 +137,21 @@ const getAllEvents = async (req: Request, res: Response) => {
                 },
               },
               //eventi in date precedenti la cui durata li fa arrivare fino alla data della query
-              {
-                $gte: [
-                  { $add: ["$date", "$duration"] },
-                  new Date(new Date(date).setHours(0, 0, 0, 0)),
-                ],
+              { 
+                $expr: {
+                  $gte: [
+                    { $add: ["$date", "$duration"] },
+                    new Date(new Date(date).setHours(0, 0, 0, 0)),
+                  ],
+                },
               },
-            ]
-          }
-        ]
+            ],
+          },
+        ],
       });
     }
 
-    let occurrences: IEvent[] = [];
-    for (let i = 0; i < events.length; i++) {
-      occurrences = occurrences.concat(getAllOccurrences(events[i]));
-    }
-
-    res.status(200).json(occurrences);
+    res.status(200).json(events);
   } catch (error: any) {
     res.status(400).json({ message: error.message });
   }
@@ -174,6 +184,11 @@ const deleteEventById = async (req: Request, res: Response) => {
 const deleteAllEvents = async (req: Request, res: Response) => {
   const userId: mongoose.Types.ObjectId = req.body.user;
 
+  const user: IUser | null = await UserModel.findOne({ _id: userId });
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
   try {
     const result: mongoose.mongo.DeleteResult = await EventModel.deleteMany({
       _id_user: userId.toString(),
@@ -203,51 +218,6 @@ const updateEvent = async (req: Request, res: Response) => {
   }
 
   try {
-    if(eventData.recurrencyRule && eventData.recurrencyRule.isRecurring) {
-      if(eventData.recurrencyRule.end === "repetitions") {
-        let reps: number = parseInt(eventData.recurrencyRule.repetitions);
-        reps--;
-        eventData.recurrencyRule.repetitions = reps.toString();
-      }
-
-      let offset: number = 0;
-      switch (eventData.recurrencyRule.frequency) {
-        case "DAILY":
-          offset = eventData.recurrencyRule.interval * 60 * 60 * 1000;
-          break;
-
-        case "WEEKLY":
-          offset = eventData.recurrencyRule.interval * 7 * 24 * 60 * 60 * 1000;
-          break;
-
-        case "MONTHLY":
-          offset = eventData.recurrencyRule.interval * 30 * 24 * 60 * 60 * 1000;
-          break;
-
-        case "YEARLY":
-          offset = eventData.recurrencyRule.interval * 365 * 24 * 60 * 60 * 1000;
-          break;
-
-        default:
-          offset = 0;
-          break;
-      }
-      
-      if(eventData.recurrencyRule.end === "date") {
-        let endDate = new Date(eventData.recurrencyRule.endDate);
-        let currentDate = new Date(eventData.date);
-        if (new Date(currentDate.getTime() + offset) <= endDate) {
-          eventData.date = new Date(currentDate.getTime() + offset);
-        }
-      } else if(eventData.recurrencyRule.end === "repetitions") {
-        if(eventData.recurrencyRule.repetitions > 0) {
-          eventData.date = new Date(eventData.date.getTime() + offset);
-        }
-      } else if (eventData.recurrencyRule.end === "forever") {
-        eventData.date = new Date(eventData.date.getTime() + offset);
-      }
-    }
-
     //update evento
     const newEvent: IEvent | null = await EventModel.findOneAndUpdate(
       {

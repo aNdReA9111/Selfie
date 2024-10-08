@@ -5,8 +5,8 @@ import {
   addNote,
   updateNote,
   deleteNote,
-  deleteAllNotes,
-} from "../controllers/notesControllers.js";
+  deleteNotes,
+} from "../controllers/noteControllers.js";
 import { requireAuth } from "../middleware/requireAuth.js";
 
 const notesRoutes: Router = express.Router();

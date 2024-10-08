@@ -1,7 +1,4 @@
-import mongoose, { Schema, Document, Model, set } from "mongoose";
-import { Interface } from "readline";
-
-// Definire un'interfaccia che rappresenta le proprietà di un documento Event
+import mongoose, { Schema, Document, Model } from "mongoose";
 
 //interfaccia per eventi ricorrenti ispirata a rrule di ICalendar
 interface IRRule {
@@ -11,6 +8,7 @@ interface IRRule {
   interval: number;
   byday?: string[];
   bymonthday?: number[];
+  bymonth?: number[];
   end?: string;
   endDate?: Date;
 }
@@ -20,6 +18,11 @@ interface INotification {
   notifica_desktop: boolean;
   notifica_alert: boolean;
   text: string;
+  before?: boolean;       //true per eventi, false per attività con con data finale
+  advance?: number;       //quanto prima o dopo voglio la notifica
+  repetitions?: number;   //quante notifiche voglio ricevere
+  frequency?: string;     //con quale frequenza voglio ricevere le notifiche
+  advanceType?: string;   //giorni, ore, minuti
 }
 
 interface IAttendee {
@@ -29,6 +32,7 @@ interface IAttendee {
   accepted: boolean;
 }
 
+// Definire un'interfaccia che rappresenta le proprietà di un documento Event
 interface IEvent extends Document {
   _id: Schema.Types.ObjectId;
   title: string;
@@ -39,8 +43,7 @@ interface IEvent extends Document {
   duration: number;
   recurrencyRule: IRRule;
   attendees?: IAttendee[];
-  notifications: INotification[];
-  occurenceDate?: Date;
+  notifications?: INotification[];
   _id_user: string;
 }
 
@@ -64,8 +67,29 @@ const rruleSchema = new Schema<IRRule>({
       return this.isRecurring;
     },
   },
-  byday: { type: [String], enum: ["MO", "TU", "WE", "TH", "FR", "SA", "SU"] },
-  bymonthday: { type: [Number], min: 1, max: 31 },  
+  byday: {
+    type: [String],
+    enum: ["MO", "TU", "WE", "TH", "FR", "SA", "SU"],
+    required: function () {
+      return this.frequency === "WEEKLY";
+    },
+  },
+  bymonthday: {
+    type: [Number],
+    min: 1,
+    max: 31,
+    required: function () {
+      return this.frequency === "MONTHLY" || this.frequency === "YEARLY";
+    },
+  },
+  bymonth: {
+    type: [Number],
+    min: 1,
+    max: 12,
+    required: function () {
+      return this.frequency === "YEARLY";
+    },
+  },
   repetition: {
     type: Number,
     required: function () {
@@ -96,6 +120,40 @@ const notificationSchema = new Schema<INotification>({
   text: {
     type: String,
     required: true,
+  },
+  before: {
+    type: Boolean,
+    required: function () {
+      return this.notifica_alert || this.notifica_desktop || this.notifica_email;
+    },
+  },
+  advance: {
+    type: Number,
+    required: function () {
+      return this.notifica_alert || this.notifica_desktop || this.notifica_email;
+    },
+  },
+  advanceType: {
+    type: String,
+    enum: ["DAYS", "HOURS", "MINUTES"],
+    required: function () {
+      return this.notifica_alert || this.notifica_desktop || this.notifica_email;
+    },
+  },
+  repetitions: {
+    type: Number,
+    min: 1,
+    max: 5,
+    required: function () {
+      return this.notifica_alert || this.notifica_desktop || this.notifica_email;
+    },
+  },
+  frequency: {
+    type: String,
+    enum: ["MINUTELY", "HOURLY", "DAILY"],
+    required: function () {
+      return this.notifica_alert || this.notifica_desktop || this.notifica_email;
+    },
   },
 });
 
@@ -158,10 +216,6 @@ const eventSchema = new Schema<IEvent>({
   },
   notifications: {
     type: [notificationSchema],
-    required: true,
-  },
-  occurenceDate: {
-    type: Date,
     required: false,
   },
   _id_user: {
@@ -172,4 +226,4 @@ const eventSchema = new Schema<IEvent>({
 
 const EventModel: Model<IEvent> = mongoose.model<IEvent>("event", eventSchema);
 
-export { IEvent, EventModel };
+export { IEvent, EventModel, IAttendee, attendeeSchema, INotification, notificationSchema };
