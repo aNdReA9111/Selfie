@@ -1,10 +1,11 @@
-import { Request, Response } from "express";
+import { Response } from "express";
+import { Req } from "../utils/types.js";
 import { ActivityModel, IActivity } from "../models/activityModel.js";
 import { UserModel, IUser } from "../models/userModel.js";
 import mongoose from "mongoose";
 
-const createActivity = async (req: Request, res: Response) => {
-  const { title, description, date, endDate, isLate, user: userId } = req.body;
+const createActivity = async (req: Req, res: Response) => {
+  const { title, description, date, endDate, isLate, attendees, notifications, user: userId } = req.body;
 
   const user: IUser | null = await UserModel.findOne({ _id: userId });
   if (!user) {
@@ -18,6 +19,8 @@ const createActivity = async (req: Request, res: Response) => {
       date,
       endDate,
       isLate,
+      attendees,
+      notifications,
       _id_user: userId,
     });
 
@@ -27,7 +30,7 @@ const createActivity = async (req: Request, res: Response) => {
   }
 };
 
-const getActivities = async (req: Request, res: Response) => {
+const getActivities = async (req: Req, res: Response) => {
   const userId: mongoose.Types.ObjectId = req.body.user;
 
   const user: IUser | null = await UserModel.findOne({ _id: userId });
@@ -36,14 +39,26 @@ const getActivities = async (req: Request, res: Response) => {
   }
 
   try {
-    const activities = await ActivityModel.find({ _id_user: userId.toString() });
+    const activities = await ActivityModel.find({ 
+      $or: [
+        { _id_user: userId.toString() },
+        {
+          attendees: {
+            $elemMatch: {
+              email: user.email,
+              accepted: true,
+            },
+          },
+        },
+      ],
+    });
     res.status(200).json(activities);
   } catch (error: any) {
     res.status(400).json({ message: error.message });
   }
 }
 
-const getActivityById = async (req: Request, res: Response) => {
+const getActivityById = async (req: Req, res: Response) => {
   const activityId = req.params.id;
   const userId: mongoose.Types.ObjectId = req.body.user;
 
@@ -59,14 +74,24 @@ const getActivityById = async (req: Request, res: Response) => {
   try {
     const activity: IActivity | null = await ActivityModel.findOne({
       _id: new mongoose.Types.ObjectId(activityId),
-      _id_user: userId.toString(),
+      $or: [
+        { _id_user: userId.toString() },
+        {
+          attendees: {
+            $elemMatch: {
+              email: user.email,
+              accepted: true,
+            },
+          },
+        },
+      ],
     });
   } catch (error: any) {
     res.status(400).json({ message: error.message });
   }
 };
 
-const deleteActivityById = async (req: Request, res: Response) => {
+const deleteActivityById = async (req: Req, res: Response) => {
   const activityId = req.params.id;
   const userId: mongoose.Types.ObjectId = req.body.user;
 
@@ -90,7 +115,7 @@ const deleteActivityById = async (req: Request, res: Response) => {
   }
 };
 
-const deleteActivities = async (req: Request, res: Response) => {
+const deleteActivities = async (req: Req, res: Response) => {
   const userId: mongoose.Types.ObjectId = req.body.user;
 
   const user: IUser | null = await UserModel.findOne({ _id: userId });
@@ -104,18 +129,18 @@ const deleteActivities = async (req: Request, res: Response) => {
     });
     
     if (result.deletedCount === 0) {
-      throw new Error("Impossibile to delete all events");
+      throw new Error("Impossibile to delete all activities");
     }
 
-    res.status(200).json({ message: "All events deleted" });
+    res.status(200).json({ message: "All activities deleted" });
   } catch (error: any) {
     res.status(400).json({ message: error.message });
   }
 };
 
-const updateActivity = async (req: Request, res: Response) => {
+const updateActivity = async (req: Req, res: Response) => {
   const activityId = req.params.id;
-  const userId: mongoose.Types.ObjectId = req.body.user;
+  const { user: userId, ...activityData } = req.body;
 
   const user: IUser | null = await UserModel.findOne({ _id: userId });
   if (!user) {
@@ -129,7 +154,8 @@ const updateActivity = async (req: Request, res: Response) => {
   try {
     const activity: IActivity | null = await ActivityModel.findOneAndUpdate(
       { _id: new mongoose.Types.ObjectId(activityId), _id_user: userId.toString() },
-      req.body
+      { ...activityData },
+      { new: true },
     );
     res.status(200).json(activity);
   } catch (error: any) {

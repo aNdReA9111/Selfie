@@ -1,9 +1,10 @@
-import express, { Request, Response } from "express";
+import express, { Response } from "express";
+import { Req } from "../utils/types.js";
 import mongoose from "mongoose";
 import { UserModel, IUser } from "../models/userModel.js";
 import { NoteModel, INote } from "../models/noteModel.js";
 
-const addNote = async (req: Request, res: Response) => {
+const addNote = async (req: Req, res: Response) => {
   const { user: _id, ...noteData } = req.body;
 
   const user: IUser | null = await UserModel.findOne({ _id });
@@ -23,7 +24,7 @@ const addNote = async (req: Request, res: Response) => {
   }
 };
 
-const getNotes = async (req: Request, res: Response) => {
+const getNotes = async (req: Req, res: Response) => {
   const _id: mongoose.Types.ObjectId = req.body.user;
 
   const user: IUser | null = await UserModel.findOne({ _id });
@@ -47,7 +48,7 @@ const getNotes = async (req: Request, res: Response) => {
   res.status(200).json(notes);
 };
 
-const getNote = async (req: Request, res: Response) => {
+const getNote = async (req: Req, res: Response) => {
   const userId: mongoose.Types.ObjectId = req.body.user;
   const noteId: string = req.params.id;
 
@@ -75,7 +76,7 @@ const getNote = async (req: Request, res: Response) => {
   res.status(200).json(note);
 };
 
-const updateNote = async (req: Request, res: Response) => {
+const updateNote = async (req: Req, res: Response) => {
   const { user: userId, ...noteData } = req.body;
   const noteId: string = req.params.id;
 
@@ -106,7 +107,7 @@ const updateNote = async (req: Request, res: Response) => {
   res.status(200).json(note);
 };
 
-const deleteNote = async (req: Request, res: Response) => {
+const deleteNote = async (req: Req, res: Response) => {
   const { user: userId, ...noteData } = req.body;
   const noteId: string = req.params.id;
 
@@ -133,7 +134,7 @@ const deleteNote = async (req: Request, res: Response) => {
   res.status(200).json(note);
 };
 
-const deleteNotes = async (req: Request, res: Response) => {
+const deleteNotes = async (req: Req, res: Response) => {
   const { user: userId } = req.body;
 
   const user: IUser | null = await UserModel.findOne({ _id: userId });

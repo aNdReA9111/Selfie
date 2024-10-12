@@ -1,9 +1,10 @@
-import { Request, Response } from "express";
+import { Response } from "express";
+import { Req } from "../utils/types.js";
 import { EventModel, IEvent } from "../models/eventModel.js";
 import { UserModel, IUser } from "../models/userModel.js";
 import mongoose from "mongoose";
 
-const createEvent = async (req: Request, res: Response) => {
+const createEvent = async (req: Req, res: Response) => {
   const {
     title,
     description,
@@ -42,7 +43,7 @@ const createEvent = async (req: Request, res: Response) => {
   }
 };
 
-const getEventById = async (req: Request, res: Response) => {
+const getEventById = async (req: Req, res: Response) => {
   const eventId = req.params.id;
   const userId: mongoose.Types.ObjectId = req.body.user;
 
@@ -58,7 +59,17 @@ const getEventById = async (req: Request, res: Response) => {
   try {
     const event: IEvent | null = await EventModel.findOne({
       _id: new mongoose.Types.ObjectId(eventId),
-      _id_user: userId.toString(),
+      $or: [
+        { _id_user: userId.toString() },
+        {
+          attendees: {
+            $elemMatch: {
+              email: user.email,
+              accepted: true,
+            },
+          },
+        },
+      ],
     });
 
     if (!event) {
@@ -71,11 +82,10 @@ const getEventById = async (req: Request, res: Response) => {
   }
 };
 
-const getAllEvents = async (req: Request, res: Response) => {
+const getAllEvents = async (req: Req, res: Response) => {
   const userId: mongoose.Types.ObjectId = req.body.user;
   const date = req.query.date;
   const onlyRecurring = /^true$/i.test(req.query.onlyRecurring as string);
-
 
   const user: IUser | null = await UserModel.findOne({ _id: userId });
   if (!user) {
@@ -90,11 +100,10 @@ const getAllEvents = async (req: Request, res: Response) => {
           recurrencyRule: {
             $elemMatch: {
               isRecurring: onlyRecurring,
-            }
-          }
+            },
+          },
         });
-      }
-      else {
+      } else {
         events = await EventModel.find({
           $or: [
             { _id_user: userId.toString() },
@@ -117,7 +126,7 @@ const getAllEvents = async (req: Request, res: Response) => {
             $or: [
               { _id_user: userId.toString() },
               {
-                recurrencyRule: {
+                attendees: {
                   $elemMatch: {
                     email: user.email,
                     accepted: true,
@@ -137,7 +146,7 @@ const getAllEvents = async (req: Request, res: Response) => {
                 },
               },
               //eventi in date precedenti la cui durata li fa arrivare fino alla data della query
-              { 
+              {
                 $expr: {
                   $gte: [
                     { $add: ["$date", "$duration"] },
@@ -157,7 +166,7 @@ const getAllEvents = async (req: Request, res: Response) => {
   }
 };
 
-const deleteEventById = async (req: Request, res: Response) => {
+const deleteEventById = async (req: Req, res: Response) => {
   const eventId = req.params.id;
   const userId: mongoose.Types.ObjectId = req.body.user;
 
@@ -181,7 +190,7 @@ const deleteEventById = async (req: Request, res: Response) => {
   }
 };
 
-const deleteAllEvents = async (req: Request, res: Response) => {
+const deleteAllEvents = async (req: Req, res: Response) => {
   const userId: mongoose.Types.ObjectId = req.body.user;
 
   const user: IUser | null = await UserModel.findOne({ _id: userId });
@@ -204,7 +213,7 @@ const deleteAllEvents = async (req: Request, res: Response) => {
   }
 };
 
-const updateEvent = async (req: Request, res: Response) => {
+const updateEvent = async (req: Req, res: Response) => {
   const eventId = req.params.id;
   const { user: userId, ...eventData } = req.body;
 
