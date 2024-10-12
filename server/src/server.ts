@@ -1,45 +1,69 @@
 // Inizializzo Express
 import express, { Request, Response } from "express";
-const app = express();
-
-// configuro il .env
 import * as dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import webpush from "web-push";
+import cors from "cors";
+import { corsOptions } from "./utils/corsOption.js";
+import { userRoutes } from "./routes/user.js";
+import { notesRoutes } from "./routes/note.js";
+import { eventRoutes } from "./routes/event.js";
+import { activityRoutes } from "./routes/activity.js";
+import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
+
+const app = express();
+
+// configuro il .env
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 //path relativo a dist
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
+//configurazione webpush
+webpush.setVapidDetails(
+  "leonardo.po@studio.unibo.it",
+  process.env.PUBLIC_VAPID_KEY as string,
+  process.env.PRIVATE_VAPID_KEY as string
+)
+
 // Middleware per il parsing del corpo della richiesta in JSON
-import cors from "cors";
-import { corsOptions } from "./utils/corsOption.js";
 app.use(cors(corsOptions)); // Permetti CORS solo per determinate origini
 app.use(express.json());
+app.use(cookieParser());
 //logging middleware
 app.use((req: Request, res: Response, next: any) => {
   console.log(`Request received: ${req.method} ${req.url}`);
   next(); // Pass the request to the next middleware or router
 });
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello World!");
+
+app.use((req: Request, _: Response, next: any) => {
+  console.log(req.body);
+  next();
 });
 
 // Routes
-import { userRoutes } from "./routes/user.js";
-import { notesRoutes } from "./routes/notes.js";
-import { eventRoutes } from './routes/event.js';
-
 app.use("/api/users", userRoutes);
 app.use("/api/notes", notesRoutes);
-app.use('/api/events', eventRoutes);
-
+app.use("/api/events", eventRoutes);
+app.use("/api/activities", activityRoutes);
 
 // Connessione al database
-import mongoose from "mongoose";
-mongoose.connect(process.env.DB_URI as string);
+const PORT = Number(process.env.PORT as unknown) || 4000;
+mongoose.connect(process.env.DB_URI as string)
+  .then(() => { 
+    console.log("Connesso a MongoDB");
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Errore di connessione:", err);
+  });
+
 mongoose.connection.on("connected", () => console.log("Connesso a MongoDB"));
 mongoose.connection.on("reconnected", () =>
   console.log("Riconnesso a MongoDB"),
@@ -50,9 +74,3 @@ mongoose.connection.on("disconnected", () =>
 mongoose.connection.on("error", (err) =>
   console.error("Errore di connessione:", err),
 );
-
-// Start the server
-const PORT = Number(process.env.PORT as unknown) || 4000;
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
