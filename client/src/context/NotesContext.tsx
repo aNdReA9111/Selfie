@@ -36,7 +36,6 @@ const reducer = (state: NotesState, action: NotesAction): NotesState => {
     case 'SORT_BY_DATE':
       return {
         notes: state.notes.sort((a: Note, b: Note) => {
-          console.log(typeof a.created)
           if (a.created.getTime() > b.created.getTime()) {
             return -1;
           }
