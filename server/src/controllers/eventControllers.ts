@@ -97,11 +97,7 @@ const getAllEvents = async (req: Req, res: Response) => {
     if (typeof date !== "string") {
       if (onlyRecurring) {
         events = await EventModel.find({
-          recurrencyRule: {
-            $elemMatch: {
-              isRecurring: onlyRecurring,
-            },
-          },
+          'recurrencyRule.isRecurring': onlyRecurring,
         });
       } else {
         events = await EventModel.find({
