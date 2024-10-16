@@ -21,7 +21,8 @@ interface INotification {
   before?: boolean;       //true per eventi, false per attività con con data finale
   advance?: number;       //quanto prima o dopo voglio la notifica
   repetitions?: number;   //quante notifiche voglio ricevere
-  frequency?: string;     //con quale frequenza voglio ricevere le notifiche
+  frequency?: number;     //con quale frequenza voglio ricevere le notifiche
+  frequencyType?: string;     //con quale frequenza voglio ricevere le notifiche
   advanceType?: string;   //giorni, ore, minuti
 }
 
@@ -43,7 +44,7 @@ interface IEvent extends Document {
   duration: number;
   recurrencyRule: IRRule;
   attendees?: IAttendee[];
-  notifications?: INotification[];
+  notifications?: INotification;
   _id_user: string;
 }
 
@@ -149,6 +150,12 @@ const notificationSchema = new Schema<INotification>({
     },
   },
   frequency: {
+    type: Number,
+    required: function () {
+      return this.notifica_alert || this.notifica_desktop || this.notifica_email;
+    },
+  },
+  frequencyType: {
     type: String,
     enum: ["MINUTELY", "HOURLY", "DAILY"],
     required: function () {
@@ -215,7 +222,7 @@ const eventSchema = new Schema<IEvent>({
     required: false,
   },
   notifications: {
-    type: [notificationSchema],
+    type: notificationSchema,
     required: false,
   },
   _id_user: {
