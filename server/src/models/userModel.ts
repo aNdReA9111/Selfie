@@ -30,6 +30,7 @@ export interface IUser extends Document {
     data_nascita: Date;
     flags: IFlags;
     pushSubscriptions: IPushSubscription[];
+    currentDate: Date;
 }
 
 // Definire un'interfaccia che rappresenta i metodi statici del modello User
@@ -108,6 +109,10 @@ const userSchema = new Schema<IUser>({
     flags: {
         type: flagsSchema,
         default: { notifica_email: false, notifica_desktop: true, notifica_alert: true }
+    },
+    currentDate: {
+      type: Date,
+      default: new Date()
     }
 });
 

@@ -92,6 +92,7 @@ const getAllEvents = async (req: Req, res: Response) => {
     return res.status(404).json({ error: "User not found" });
   }
 
+
   try {
     let events: IEvent[];
     if (typeof date !== "string") {
@@ -115,6 +116,7 @@ const getAllEvents = async (req: Req, res: Response) => {
         });
       }
     } else {
+      user.currentDate = new Date(date);
       //query di eventi in una certa data, NON fa query di eventi ricorrenti
       events = await EventModel.find({
         $and: [
