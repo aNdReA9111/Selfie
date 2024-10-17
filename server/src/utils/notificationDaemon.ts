@@ -4,7 +4,7 @@ import { UserModel, IUser } from "../models/userModel.js";
 
 const MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
 
-//Invio notifica
+//Invio notifica push
 function sendNotification(sub: PushSubscription, title: string, url: string) {
   webpush
     .sendNotification(sub, JSON.stringify({ title, body: title, url }))
@@ -12,35 +12,47 @@ function sendNotification(sub: PushSubscription, title: string, url: string) {
     .catch((error) => console.error(`Error sending notification: ${error}`));
 }
 
-// Controllo ed eventual invio di notifiche
+// Controllo ed eventuale invio di notifiche
 async function checkAndSendNotifications() {
   //utenti che possono ricevere le notifiche
-  const users = await UserModel.find({
-    $or: [{ "flags.notifica_desktop": true }, { "flags.notifica_email": true }],
+  const users: IUser[] = await UserModel.find({
+    $or: [
+      { notifications: { $exists: true } }, 
+      { "flags.notifica_desktop": true },     
+      { "flags.notifica_email": true }
+    ],
   });
-  
+
   //ora
   const now: number = Date.now();
 
   for (const user of users) {
-    const timeMachineDate = user.currentDate
-      ? new Date(user.currentDate).getTime()
-      : Date.now();
+    console.log(user);
+    const timeMachineDate: number = user.currentDate.getTime();
     const fiveDaysMs = MILLIS_IN_DAY * 5;
-
+    try {
     const events: IEvent[] | null = await EventModel.find({
-      notifications: {
-        $or: [
-          { $elemMatch: { notifica_desktop: true } },
-          { $elemMatch: { notifica_email: true } },
-        ],
-      },
-      $or: [{ _id_user: user._id }, { attendees: user.email }],
+      $and: [
+        { notifications: { $exists: true } },
+        { $or: [{ "notifications.notifica_desktop": true }, { "notifications.notifica_email": true }] },
+        { 
+          $or: [
+            { _id_user: user._id },
+            {
+              attendees: {
+                $elemMatch: {
+                  email: user.email,
+                  accepted: true,
+                },
+              },
+            },
+          ], 
+        },
+      ],
       date: {
         $gte: new Date(timeMachineDate - fiveDaysMs),
-        $lt: new Date(timeMachineDate + fiveDaysMs),
       },
-    });
+    })
 
     for (const event of events) {
       const eventDate: number = event.date.getTime();
@@ -56,17 +68,24 @@ async function checkAndSendNotifications() {
       );
 
       for (const { title, url, notificationTime } of notificationTimes) {
-        if (notificationTime <= now) {
+        //primo controllo --> si attivano solo notifiche del giorno stesso
+        if (
+          new Date(notificationTime).getDate() === new Date(now).getDate() &&
+          notificationTime <= now
+        ) {
           user.pushSubscriptions.forEach((sub: PushSubscription) => {
             sendNotification(sub, title, url);
           });
         }
       }
     }
+    }catch (error) {
+      console.log(error)
+    }
   }
 }
 
-// Calculate notification times in milliseconds based on the time machine date
+// calcolo date notifiche
 function calculateNotificationTimes(
   eventDate: number,
   notifications: INotification,
@@ -95,12 +114,9 @@ function calculateNotificationTimes(
         break;
     }
   }
-  // const initialNotificationTime: number = timeMachineDate
-  //   ? eventDate - advanceMs - (Date.now() - new Date(timeMachineDate).getTime())
-  //   : eventDate - advanceMs;
+
   const initialNotificationTime: number = eventDate - advanceMs;
 
-  // Generate notification times based on frequency settings
   for (let i = 0; i < (repetitions || 1); i++) {
     let notificationTime: number = initialNotificationTime;
 
@@ -129,14 +145,8 @@ function calculateNotificationTimes(
 }
 
 //Demone per invio notifiche
-async function startDaemon() {
-  while (true) {
+export function startDaemon() {
+  setInterval(async () => {
     await checkAndSendNotifications();
-
-    //eseguo ogni minuto
-    await new Promise((resolve) => setTimeout(resolve, 60000));
-  }
+  }, 60000);
 }
-
-//start del demone
-startDaemon();

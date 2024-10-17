@@ -13,6 +13,7 @@ import { eventRoutes } from "./routes/event.js";
 import { activityRoutes } from "./routes/activity.js";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
+import { startDaemon } from "./utils/notificationDaemon.js";
 
 const app = express();
 
@@ -31,7 +32,7 @@ webpush.setVapidDetails(
   process.env.VAPID_PUBLIC_KEY as string,
   process.env.VAPID_PRIVATE_KEY as string,
 );
-  
+
 // Middleware per il parsing del corpo della richiesta in JSON
 app.use(cors(corsOptions)); // Permetti CORS solo per determinate origini
 app.use(express.json());
@@ -59,6 +60,7 @@ mongoose
   .connect(process.env.DB_URI as string)
   .then(() => {
     console.log("Connesso a MongoDB");
+    startDaemon();
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });

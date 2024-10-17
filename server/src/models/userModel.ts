@@ -112,7 +112,8 @@ const userSchema = new Schema<IUser>({
     },
     currentDate: {
       type: Date,
-      default: new Date()
+      default: new Date(),
+      required: true
     }
 });
 
