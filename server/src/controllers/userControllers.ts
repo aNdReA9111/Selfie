@@ -28,6 +28,7 @@ const loginUser = async (req: Request, res: Response) => {
 
     // creo il token
     const token = createToken(String(user._id));
+    console.log(token);
 
     res.status(200).json({
       _id: user._id,
