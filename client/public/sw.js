@@ -2,7 +2,6 @@
 self.addEventListener("push", (event) => {
   console.log("Push event received:", event);
   const data = event.data.json();
-  console.log(data.message);
 
   // Customize the notification
   // const options = {
@@ -12,10 +11,10 @@ self.addEventListener("push", (event) => {
   //
   event.waitUntil(
     // self.registration.showNotification(data.title, options)
-    self.registration.showNotification(data.message),
+    self.registration.showNotification(data.body),
   );
 });
-//
+
 // // DA RIVEDERE , importante per pomodoro
 // self.addEventListener("notificationclick", function (event) {
 //   console.log("Notification click received");
