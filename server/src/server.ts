@@ -13,6 +13,7 @@ import { eventRoutes } from "./routes/event.js";
 import { activityRoutes } from "./routes/activity.js";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
+import { startDaemon } from "./workers/notificationDaemon.js";
 
 const app = express();
 
@@ -23,12 +24,14 @@ const __dirname = dirname(__filename);
 //path relativo a dist
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
+console.log(process.env.PORT);
+
 //configurazione webpush
 webpush.setVapidDetails(
-  "leonardo.po@studio.unibo.it",
-  process.env.PUBLIC_VAPID_KEY as string,
-  process.env.PRIVATE_VAPID_KEY as string
-)
+  "mailto:leonardo.po@studio.unibo.it",
+  process.env.VAPID_PUBLIC_KEY as string,
+  process.env.VAPID_PRIVATE_KEY as string,
+);
 
 // Middleware per il parsing del corpo della richiesta in JSON
 app.use(cors(corsOptions)); // Permetti CORS solo per determinate origini
@@ -53,9 +56,11 @@ app.use("/api/activities", activityRoutes);
 
 // Connessione al database
 const PORT = Number(process.env.PORT as unknown) || 4000;
-mongoose.connect(process.env.DB_URI as string)
-  .then(() => { 
+mongoose
+  .connect(process.env.DB_URI as string)
+  .then(() => {
     console.log("Connesso a MongoDB");
+    startDaemon();
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
     });

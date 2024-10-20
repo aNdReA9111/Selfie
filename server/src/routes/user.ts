@@ -1,4 +1,5 @@
 import express from 'express';
+import { requireAuth } from '../middleware/requireAuth.js';
 
 const userRoutes = express.Router();
 
@@ -6,7 +7,7 @@ const userRoutes = express.Router();
 // import { requireAuth } from '../middleware/requireAuth.js'
 
 // controllers
-import { loginUser, signUpUser } from '../controllers/userControllers.js';
+import { removeSubscription, addSubscription, loginUser, signUpUser } from '../controllers/userControllers.js';
 
 
 // userRoutes.use(requireAuth);
@@ -20,8 +21,13 @@ userRoutes.post('/login', loginUser);
 
 
 // signup
-userRoutes.post('/signup',signUpUser );
+userRoutes.post('/signup',signUpUser);
 
+//route per push notification subscription
+userRoutes.post('/subscribe', requireAuth, addSubscription)
+
+//route per push notification unsubscription
+userRoutes.patch('/unsubscribe', requireAuth, removeSubscription)
 
 export {userRoutes};
  

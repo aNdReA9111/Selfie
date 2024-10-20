@@ -30,6 +30,7 @@ export interface IUser extends Document {
     data_nascita: Date;
     flags: IFlags;
     pushSubscriptions: IPushSubscription[];
+    dateOffset: number;
 }
 
 // Definire un'interfaccia che rappresenta i metodi statici del modello User
@@ -108,7 +109,11 @@ const userSchema = new Schema<IUser>({
     flags: {
         type: flagsSchema,
         default: { notifica_email: false, notifica_desktop: true, notifica_alert: true }
-    }
+    },
+    dateOffset: {
+      type: Number,
+      default: 0
+    },
 });
 
 // aggiungo il metodo statico per la regiostrarzione

@@ -24,6 +24,6 @@ notesRoutes.patch("/:id", updateNote);
 //eliminazione di una nota
 notesRoutes.delete("/:id", deleteNote);
 //eliminazione di tutte le note
-notesRoutes.delete("/", deleteAllNotes);
+notesRoutes.delete("/", deleteNotes);
 
 export { notesRoutes };

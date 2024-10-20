@@ -28,20 +28,19 @@ const loginUser = async (req: Request, res: Response) => {
 
     // creo il token
     const token = createToken(String(user._id));
+    console.log(token);
 
-    res
-      .status(200)
-      .json({
-        _id: user._id,
-        email,
-        token,
-        nome: user.nome,
-        cognome: user.cognome,
-        username: user.username,
-        data_nascita: user.data_nascita,
-        flags: user.flags,
-        pushSubscriptions: user.pushSubscriptions,
-      });
+    res.status(200).json({
+      _id: user._id,
+      email,
+      token,
+      nome: user.nome,
+      cognome: user.cognome,
+      username: user.username,
+      data_nascita: user.data_nascita,
+      flags: user.flags,
+      pushSubscriptions: user.pushSubscriptions,
+    });
   } catch (error: any) {
     res.status(400).json({ message: error.message });
   }
@@ -81,19 +80,17 @@ const signUpUser = async (req: Request, res: Response) => {
     // creo il token
     const token = createToken(String(user._id));
 
-    res
-      .status(201)
-      .json({
-        _id: user._id,
-        email,
-        token,
-        nome: user.nome,
-        cognome: user.cognome,
-        username: user.username,
-        data_nascita: user.data_nascita,
-        flags: user.flags,
-        pushSubscriptions: user.pushSubscriptions,
-      });
+    res.status(201).json({
+      _id: user._id,
+      email,
+      token,
+      nome: user.nome,
+      cognome: user.cognome,
+      username: user.username,
+      data_nascita: user.data_nascita,
+      flags: user.flags,
+      pushSubscriptions: user.pushSubscriptions,
+    });
   } catch (error: any) {
     res.status(400).json({ message: error.message });
   }
@@ -101,15 +98,17 @@ const signUpUser = async (req: Request, res: Response) => {
 
 // funzione che riceve la subscription per push notifications e la aggiunge all'utente
 const addSubscription = async (req: Req, res: Response) => {
-  const { user: _id, sub } = req.body;
-  const user = await UserModel.findOne({ _id });
+  const { user: _id, subscription: sub } = req.body;
+  console.log(_id, sub);
+  const user = await UserModel.findOne({ _id: _id });
   if (!user) {
+    console.log("User not found");
     return res.status(404).json({ message: "User not found" });
   }
 
   //notifica di conferma
-  webpush.sendNotification(sub, "Iscritto al nostro servizio di notifica !!");
-  
+  webpush.sendNotification(sub, JSON.stringify({message: "Subscription added successfully"}));
+
   user.pushSubscriptions.push(sub);
   await user.save();
   res.status(200).json({ message: "Subscription added successfully" });
@@ -117,7 +116,7 @@ const addSubscription = async (req: Req, res: Response) => {
 
 // funzione che rimuove la subscription per push notifications
 const removeSubscription = async (req: Req, res: Response) => {
-  const { user: _id, sub } = req.body;
+  const { user: _id, subscription: sub } = req.body;
   const user = await UserModel.findOne({ _id });
   if (!user) {
     return res.status(404).json({ message: "User not found" });

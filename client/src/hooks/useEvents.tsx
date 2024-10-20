@@ -28,7 +28,7 @@ export const useEvents = (): useEventsReturn => {
 
     const getEvents = async () => {
         try {
-            console.log(user);
+            // console.log(user);
             const response = await fetch(`http://localhost:4000/api/events/get/${user._id}`, {
                 method: 'GET',
                 headers: {
@@ -40,9 +40,9 @@ export const useEvents = (): useEventsReturn => {
                 throw new Error('Failed to fetch events');
             
             const data : IEvent[] = await response.json();
-            console.log(data)
+            // console.log(data)
             setEvents(sortEventsByNearest(data));
-            console.log(events);
+            // console.log(events);
         } catch (err) {
             if (err instanceof Error) {
                 setError(err.message);

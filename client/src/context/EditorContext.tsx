@@ -30,7 +30,6 @@ export const EditorContextProvider = ({ isEdit, isView }: { isEdit: boolean, isV
       }
     }
   }
-  console.log(defaultValues);
   const methods = useForm<NoteFormData>({
     defaultValues,
     resolver: zodResolver(formSchema),

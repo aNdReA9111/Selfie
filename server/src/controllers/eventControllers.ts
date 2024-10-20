@@ -15,6 +15,7 @@ const createEvent = async (req: Req, res: Response) => {
     recurrencyRule,
     attendees,
     notifications,
+    isRecurring,
     user: userId,
   } = req.body;
 
@@ -92,16 +93,13 @@ const getAllEvents = async (req: Req, res: Response) => {
     return res.status(404).json({ error: "User not found" });
   }
 
+
   try {
     let events: IEvent[];
     if (typeof date !== "string") {
       if (onlyRecurring) {
         events = await EventModel.find({
-          recurrencyRule: {
-            $elemMatch: {
-              isRecurring: onlyRecurring,
-            },
-          },
+          'recurrencyRule.isRecurring': onlyRecurring,
         });
       } else {
         events = await EventModel.find({
