@@ -15,6 +15,7 @@ const createEvent = async (req: Req, res: Response) => {
     recurrencyRule,
     attendees,
     notifications,
+    isRecurring,
     user: userId,
   } = req.body;
 

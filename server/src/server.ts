@@ -13,7 +13,7 @@ import { eventRoutes } from "./routes/event.js";
 import { activityRoutes } from "./routes/activity.js";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
-import { startDaemon } from "./utils/notificationDaemon.js";
+import { startDaemon } from "./workers/notificationDaemon.js";
 
 const app = express();
 

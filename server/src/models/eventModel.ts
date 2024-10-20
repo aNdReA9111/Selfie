@@ -46,6 +46,8 @@ interface IEvent extends Document {
   // recurrencyRule: IRRule;
   attendees?: IAttendee[];
   notifications?: INotification;
+  isRecurring: boolean;
+  nextDate?: Date;
   _id_user: string;
 }
 
@@ -237,6 +239,15 @@ const eventSchema = new Schema<IEvent>({
   notifications: {
     type: notificationSchema,
     required: false,
+  },
+  isRecurring: {
+    type: Boolean,
+    default: false,
+  },
+  nextDate: {
+    type: Date,
+    default: this.date,
+    required: function() { this.isRecurring === true },
   },
   _id_user: {
     type: String,
