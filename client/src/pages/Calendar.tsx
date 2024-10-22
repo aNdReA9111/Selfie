@@ -8,6 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import weekday from 'dayjs/plugin/weekday';
 import localeData from 'dayjs/plugin/localeData';
+import { EventModalForm } from '../components/EventModalForm';
 
 
 // Aggiungi i plugin necessari a dayjs
@@ -131,6 +132,7 @@ return (
             style={{ height: 500 }}
             popup
           />
+          <EventModalForm />
         </div>
       </div>
     </div>

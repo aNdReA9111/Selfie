@@ -1,18 +1,5 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
-//interfaccia per eventi ricorrenti ispirata a rrule di ICalendar
-// interface IRRule {
-//   isRecurring: boolean;
-//   frequency?: string;
-//   repetition?: number;
-//   interval: number;
-//   byday?: string[];
-//   bymonthday?: number[];
-//   bymonth?: number[];
-//   end?: string;
-//   endDate?: Date;
-// }
-
 interface INotification {
   notifica_email: boolean;
   notifica_desktop: boolean;
@@ -50,63 +37,6 @@ interface IEvent extends Document {
   nextDate?: Date;
   _id_user: string;
 }
-
-// const rruleSchema = new Schema<IRRule>({
-//   isRecurring: {
-//     type: Boolean,
-//     required: true,
-//   },
-//   frequency: {
-//     type: String,
-//     enum: ["DAILY", "WEEKLY", "MONTHLY", "YEARLY"],
-//     required: function () {
-//       return this.isRecurring;
-//     },
-//   },
-//   interval: { type: Number, default: 1 },
-//   end: {
-//     type: String,
-//     enum: ["date", "forever", "repetitions"],
-//     required: function () {
-//       return this.isRecurring;
-//     },
-//   },
-//   byday: {
-//     type: [String],
-//     enum: ["MO", "TU", "WE", "TH", "FR", "SA", "SU"],
-//     required: function () {
-//       return this.frequency === "WEEKLY";
-//     },
-//   },
-//   bymonthday: {
-//     type: [Number],
-//     min: 1,
-//     max: 31,
-//     required: function () {
-//       return this.frequency === "MONTHLY" || this.frequency === "YEARLY";
-//     },
-//   },
-//   bymonth: {
-//     type: [Number],
-//     min: 1,
-//     max: 12,
-//     required: function () {
-//       return this.frequency === "YEARLY";
-//     },
-//   },
-//   repetition: {
-//     type: Number,
-//     required: function () {
-//       return this.end === "repetitions";
-//     },
-//   },
-//   endDate: {
-//     type: Date,
-//     required: function () {
-//       return this.end === "date";
-//     },
-//   },
-// });
 
 const notificationSchema = new Schema<INotification>({
   notifica_email: {
@@ -246,7 +176,7 @@ const eventSchema = new Schema<IEvent>({
   },
   nextDate: {
     type: Date,
-    default: this.date,
+    // default: this.date,
     required: function() { this.isRecurring === true },
   },
   _id_user: {
