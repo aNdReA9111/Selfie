@@ -246,8 +246,10 @@ const eventSchema = new Schema<IEvent>({
   },
   nextDate: {
     type: Date,
-    default: this.date,
-    required: function() { this.isRecurring === true },
+    // default: this.date,
+    required: function () {
+      this.isRecurring === true;
+    },
   },
   _id_user: {
     type: String,
