@@ -10,3 +10,14 @@ img {
 a {
   text-decoration: none;
 }
+
+.form-check-input:checked {
+  background-color: #ff6f20 !important; /* Change this to your preferred color */
+  border-color: #ff6f20 !important;
+  box-shadow: 0 0 10px #ff6f20 !important;
+}
+
+.form-select:focus, .form-control:focus {
+  border-color: #ff6f20 !important;
+  box-shadow: 0 0 10px #ff6f20 !important;
+}
