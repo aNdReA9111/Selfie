@@ -6,7 +6,7 @@ const userRoutes = express.Router();
 // import { requireAuth } from '../middleware/requireAuth.js'
 
 // controllers
-import { loginUser, signUpUser } from '../controllers/userControllers.js';
+import { loginUser, signUpUser, searchUsersByUsernameSubstring } from '../controllers/userControllers.js';
 
 
 // userRoutes.use(requireAuth);
@@ -22,6 +22,8 @@ userRoutes.post('/login', loginUser);
 // signup
 userRoutes.post('/signup',signUpUser );
 
+// search
+userRoutes.post('/search', searchUsersByUsernameSubstring);
 
 export {userRoutes};
  

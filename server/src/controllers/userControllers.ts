@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { UserModel, IFlags } from '../models/userModel.js';
+import { UserModel, IFlags, IUser } from '../models/userModel.js';
 import jwt from 'jsonwebtoken';
 
 // configuro il .env
@@ -59,4 +59,19 @@ const signUpUser = async (req: Request, res: Response) => {
     }
 }
 
-export { loginUser, signUpUser };
+const searchUsersByUsernameSubstring = async (req: Request, res: Response) => {
+    const { substring } = req.body;
+
+    try {
+        const regex = new RegExp(`^${substring}`, 'i'); // Ignora maiuscole e minuscole
+        const users = await UserModel.find({ username: { $regex: regex } }, { _id: 0, username: 1 });
+
+        const matchedUsernames = users.map((user: IUser) => user.username);
+
+        res.status(200).json({ matchedUsernames });
+    } catch (error: any) {
+        res.status(400).json({ message: error.message });
+    }
+}
+
+export { loginUser, signUpUser, searchUsersByUsernameSubstring };
