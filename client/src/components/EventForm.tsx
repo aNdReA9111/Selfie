@@ -3,11 +3,11 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { eventFormSchema, EventFormData } from "../utils/types";
 // import { AttendeesForm } from "./AttendeesForm";
-// import { NotificationsForm } from "./NotificationsForm";
+import { NotificationsForm } from "./NotificationsForm";
 import { RRuleForm } from "./RRuleForm"
 
 export const EventForm = () => {
-  const { register, watch, handleSubmit, formState: { errors } } = useForm<EventFormData>({
+  const { setValue, register, watch, handleSubmit, formState: { errors } } = useForm<EventFormData>({
       resolver: zodResolver(eventFormSchema)
     }
   );
@@ -16,12 +16,19 @@ export const EventForm = () => {
 
   const onSubmit = async (data: EventFormData) => {
     console.log(data);
+
+    //1 creazione Event completo con dati dal form con creazione stringa rrule
+    //2 post al server
+    //3 dati di ritorno --> aggiorna context 
+    //4 genera eventi ricorrenti con rrule
   };
+
+  console.log(errors);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="row">
-        <div className="col-6">
+        <div className="col-sm-12 col-md-6">
           <div className="mb-3">
             <label htmlFor="title" className="form-label">Title</label>
             <input 
@@ -101,11 +108,15 @@ export const EventForm = () => {
             />
             <label className="form-check-label" htmlFor="isRecurring">Is this event recurring?</label>
           </div>
-          {isRecurring && (<RRuleForm watch={watch} register={register} errors={errors}/>)}
+          {isRecurring && (<RRuleForm watch={watch} register={register} errors={errors} setValue={setValue}/>)}
         </div>
-        <div className="col-6">
+        <div className="col-sm-12 col-md-6">
           {/*<AttendeesForm register={register} errors={errors} watch={watch}/>*/}
-          {/*<NotificationsForm register={register} errors={errors} watch={watch}/>*/}
+          <NotificationsForm register={register} errors={errors} watch={watch} setValue={setValue}/>
+          <button className="btn btn-primary mt-3" type="submit">
+            Submit
+            <i className="ms-2 bi bi-send"></i>
+          </button>
         </div>
       </div>
     </form>
