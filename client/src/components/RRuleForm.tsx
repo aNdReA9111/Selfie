@@ -15,7 +15,7 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({watch, register, e
   const frequency: string = watch('recurrencyRule.frequency');
   const [byMonthDay, setByMonthDay] = useState<boolean>(false);
   const [bySpecificDay, setBySpecificDay] = useState<boolean>(false);
-  console.log(errors.recurrencyRule);
+  const [endType, setEndType] = useState<string>('Never');
 
   const onInputModeChangeMonthly = () => {
     if(byMonthDay)
@@ -37,6 +37,19 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({watch, register, e
       setValue('recurrencyRule.bymonth', undefined);
     }
     setBySpecificDay(!bySpecificDay);
+
+  }
+
+  const onEndTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    if(event.target.value === 'forever') {
+      setValue('recurrencyRule.until', undefined);
+      setValue('recurrencyRule.count', undefined);
+    } else if(event.target.value === 'count') {
+      setValue('recurrencyRule.until', undefined);
+    } else {
+      setValue('recurrencyRule.count', undefined);
+    }
+    setEndType(event.target.value);
   }
 
   return (
@@ -61,6 +74,7 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({watch, register, e
           type="number"
           id="interval"
           min={1}
+          defaultValue={1}
           className={`form-control ${errors.recurrencyRule ? 'is-invalid' : ''}`}
           {...register('recurrencyRule.interval')}
         />
@@ -246,6 +260,44 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({watch, register, e
                 {errors.recurrencyRule && <div className="invalid-feedback">{errors.recurrencyRule.message}</div>}
               </div>
             </div>
+          </div>
+        )
+      }
+
+      {/*until*/}
+      <div className="mt-4 mb-3 d-flex align-items-center">
+        <label htmlFor="endType" className="form-label">End Recurrency</label>
+        <select id="endType" className="form-select ms-auto" value={endType} onChange={onEndTypeChange} aria-label="Select until">
+          <option value="forever">Never</option>
+          <option value="count">After</option>
+          <option value="until">On</option>
+        </select>
+      </div>
+      {
+        endType === 'until' && (
+          <div className="mb-3">
+            <input
+              type="datetime-local"
+              id="until"
+              className={`form-control ${errors.recurrencyRule ? 'is-invalid' : ''}`}
+              {...register('recurrencyRule.until')}
+            />
+            {errors.recurrencyRule && <div className="invalid-feedback">{errors.recurrencyRule.message}</div>}
+          </div>
+        )
+      }
+      {
+        endType === 'count' && (
+          <div className="mb-3 d-flex">
+            <input
+              type="number"
+              id="count"
+              defaultValue={1}
+              className={`w-50 form-control ${errors.recurrencyRule ? 'is-invalid' : ''}`}
+              {...register('recurrencyRule.count')}
+            />
+            {errors.recurrencyRule && <div className="invalid-feedback">{errors.recurrencyRule.message}</div>}
+            <p className="ms-5">occurences</p>
           </div>
         )
       }

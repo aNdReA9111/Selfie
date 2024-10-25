@@ -125,7 +125,6 @@ const freqEnum = z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]);
 const byDayEnum = z.enum(["MO", "TU", "WE", "TH", "FR", "SA", "SU"]);
 const byMonthEnum = z.array(createNumberFromString(12)).or(createNumberFromString(12)).optional(); // 1-12 for months
 const byMonthDay = z.array(createNumberFromString(31)).or(createNumberFromString(31)).optional(); // -31 to 31
-const byWeekNo = z.array(createNumberFromString(53)).optional(); // -53 to 53
 const bySetPos = z
   .array(createSetPosNumberFromString())
   .or(createSetPosNumberFromString())
@@ -140,7 +139,6 @@ const rruleSchema = z.object({
   byday: z.array(byDayEnum).or(byDayEnum).optional(), // Optional array of days of the week
   bymonthday: byMonthDay,
   bymonth: byMonthEnum,
-  byweekno: byWeekNo,
   bysetpos: bySetPos,
 });
 
@@ -220,13 +218,6 @@ export const eventFormSchema = eventSchema
     {
       message: "End date must be after start date",
       path: ["endDate"],
-    },
-  ).refine(
-    (data) => {
-      if(!data.isRecurring) {
-        data.recurrencyRule = undefined;
-      }
-      return data;
     },
   );
 

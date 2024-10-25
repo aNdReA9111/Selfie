@@ -13,8 +13,6 @@ export const NotificationsForm: React.FC<EventFormProps> = ({watch, register, er
   const desktopNotification: boolean | undefined = watch('notifications.notifica_desktop');
   const frequencyType: string | undefined  = watch('notifications.frequencyType');
 
-  console.log(errors.notifications);
-
   return (
     <>
       <h4>Notifications</h4>
@@ -45,6 +43,7 @@ export const NotificationsForm: React.FC<EventFormProps> = ({watch, register, er
               id="advance"
               min={1}
               max={5}
+              defaultValue={1}
               className={`form-control ms-2 w-25 ${errors.notifications?.advance ? 'is-invalid' : ''}`}
               {...register('notifications.advance')}
             />
@@ -54,7 +53,7 @@ export const NotificationsForm: React.FC<EventFormProps> = ({watch, register, er
 
           <div className="mb-3">
             <div className="form-check form-check-inline">
-              <input className="form-check-input" {...register('notifications.advanceType')} type="radio" name="notifications.advanceType" id="minuteAdvance" value="MINUTES"/>
+              <input className="form-check-input" {...register('notifications.advanceType')} type="radio" name="notifications.advanceType" id="minuteAdvance" value="MINUTES" defaultChecked/>
               <label className="form-check-label" htmlFor="minuteAdvance">Minutes</label>
             </div>
             <div className="form-check form-check-inline">
@@ -79,7 +78,7 @@ export const NotificationsForm: React.FC<EventFormProps> = ({watch, register, er
           <div className="mb-3 mt-5">
             <p>I want to receive notifications </p>
             <div className="form-check form-check-inline">
-              <input className="form-check-input" {...register('notifications.frequencyType')} type="radio" name="notifications.frequencyType" id="minutely" value="MINUTELY"/>
+              <input className="form-check-input" {...register('notifications.frequencyType')} type="radio" name="notifications.frequencyType" id="minutely" value="MINUTELY" defaultChecked/>
               <label className="form-check-label" htmlFor="minutely">Minutely</label>
             </div>
             {errors.notifications?.frequencyType && <div className="invalid-feedback">{errors.notifications.frequencyType.message}</div>}
@@ -103,6 +102,7 @@ export const NotificationsForm: React.FC<EventFormProps> = ({watch, register, er
                 type="number"
                 id="frequency"
                 min={1}
+                defaultValue={1}
                 className={`form-control ${errors.notifications?.frequency ? 'is-invalid' : ''}`}
                 {...register('notifications.frequency')}
               />
@@ -116,6 +116,7 @@ export const NotificationsForm: React.FC<EventFormProps> = ({watch, register, er
               type="number"
               id="repetitions"
               min={1}
+              defaultValue={1}
               className={`form-control ${errors.notifications?.repetitions ? 'is-invalid' : ''}`}
               {...register('notifications.repetitions')}
             />

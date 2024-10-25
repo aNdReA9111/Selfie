@@ -1,10 +1,26 @@
 import { useForm } from "react-hook-form";
-// import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { eventFormSchema, EventFormData } from "../utils/types";
 // import { AttendeesForm } from "./AttendeesForm";
 import { NotificationsForm } from "./NotificationsForm";
 import { RRuleForm } from "./RRuleForm"
+import { RRule } from "rrule";
+import { DateTime } from "luxon";
+
+//TODO: map per day weeks
+
+function toUTC(date: Date) {
+  const dateTime = DateTime.fromJSDate(date);
+  const utcDateTime = dateTime.toUTC();
+  return utcDateTime.toJSDate();
+}
+
+const frequenciesMap: Record<string, number> = {
+  'DAILY': RRule.DAILY,
+  'WEEKLY': RRule.WEEKLY,
+  'MONTHLY':RRule.MONTHLY,
+  'YEARLY': RRule.YEARLY
+}
 
 export const EventForm = () => {
   const { setValue, register, watch, handleSubmit, formState: { errors } } = useForm<EventFormData>({
@@ -17,7 +33,48 @@ export const EventForm = () => {
   const onSubmit = async (data: EventFormData) => {
     console.log(data);
 
-    //1 creazione Event completo con dati dal form con creazione stringa rrule
+    const notifications = {
+      notifica_email: data.notifications?.notifica_email,
+      notifica_desktop: data.notifications?.notifica_desktop,
+      advance: data.notifications?.advance,
+      advanceType: data.notifications?.advanceType,
+      repetitions: data.notifications?.repetitions,
+      frequencyType: data.notifications?.frequencyType,
+      frequency: data.notifications?.frequency,
+      text: data.notifications?.text,
+      before: (data.notifications?.notifica_desktop || data.notifications?.notifica_email) ? true: undefined
+    }
+
+    let rrule = undefined;
+    if(data.isRecurring && typeof data.recurrencyRule === 'object') {
+      rrule = new RRule({
+        freq: frequenciesMap[data.recurrencyRule.frequency],
+        interval: data.recurrencyRule.interval,
+        dtstart: toUTC(data.date),
+        count: data.recurrencyRule.count,
+        until: data.recurrencyRule.until ? toUTC(data.recurrencyRule?.until): undefined,
+        byweekday: data.recurrencyRule.byday,
+        bymonthday: data.recurrencyRule.bymonthday,
+        bymonth: data.recurrencyRule.bymonth,
+        bysetpos: data.recurrencyRule.bysetpos
+      })
+    }
+  
+    const event = {
+      title: data.title,
+      description: data.description,
+      start: toUTC(data.date),
+      end: toUTC(data.endDate),
+      duration: toUTC(data.endDate).getTime() - toUTC(data.date).getTime(),
+      isRecurring: data.isRecurring,
+      nextDate: toUTC(data.date),
+      location: data.location,
+      url: data.url,
+      notifications,
+      recurrencyRule: rrule? rrule.toString(): undefined
+    }
+
+    console.log(event)
     //2 post al server
     //3 dati di ritorno --> aggiorna context 
     //4 genera eventi ricorrenti con rrule
