@@ -19,9 +19,10 @@ export type TimeMachineContextType = {
   dispatch: React.Dispatch<TimeMachineAction>;
 };
 
+
 //custom types for notes context
 export const noteSchema = z.object({
-  _id: z.number().positive().optional(),
+  _id: z.string().optional(),
   author: z.string().min(2).max(30),
   title: z.string().min(2).max(50),
   content: z.string(),
@@ -50,7 +51,7 @@ export const formSchema = noteSchema.pick({
   tags: true,
 });
 
-//creazione tipi ts dall'oggetto zod
+//infering types from zod objects
 export type Note = z.infer<typeof noteSchema>;
 export type NoteFormData = z.infer<typeof formSchema>;
 export type NotesState = {
@@ -68,7 +69,7 @@ export type NotesAction =
     }
   | {
       type: "DELETE_ONE";
-      payload: number;
+      payload: string;
     }
   | {
       type: "DELETE_ALL";
@@ -91,7 +92,9 @@ export type NotesContextType = {
   dispatch: React.Dispatch<NotesAction>;
 };
 
-//calendar validation schemas
+
+//custom types for event context
+//form data preprocessing --> all data from form are strings
 const createNumberFromString = (max: number) => {
   return z.preprocess((val) => {
     if (typeof val === "string") {
@@ -123,14 +126,20 @@ const dateFromString = z.preprocess((val) => {
 
 const freqEnum = z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]);
 const byDayEnum = z.enum(["MO", "TU", "WE", "TH", "FR", "SA", "SU"]);
-const byMonthEnum = z.array(createNumberFromString(12)).or(createNumberFromString(12)).optional(); // 1-12 for months
-const byMonthDay = z.array(createNumberFromString(31)).or(createNumberFromString(31)).optional(); // -31 to 31
+const byMonthEnum = z
+  .array(createNumberFromString(12))
+  .or(createNumberFromString(12))
+  .optional(); //12 for months
+const byMonthDay = z
+  .array(createNumberFromString(31))
+  .or(createNumberFromString(31))
+  .optional(); //31 for month days
 const bySetPos = z
   .array(createSetPosNumberFromString())
   .or(createSetPosNumberFromString())
   .optional();
 
-// Recurrence Rule Schema
+//Recurrence Rule Schema
 const rruleSchema = z.object({
   frequency: freqEnum, // Mandatory frequency
   interval: createNumberFromString(50).optional(), // Optional, defaults to 1
@@ -142,7 +151,7 @@ const rruleSchema = z.object({
   bysetpos: bySetPos,
 });
 
-//attendee schema
+//Attendee schema
 const attendeeSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address"),
@@ -150,10 +159,9 @@ const attendeeSchema = z.object({
   responded: z.boolean().optional(),
 });
 
+//Notifications schema
 const notificationAdvanceEnum = z.enum(["DAYS", "HOURS", "MINUTES"]);
 const notificationsFrequencyEnum = z.enum(["MINUTELY", "HOURLY", "DAILY"]);
-
-//notifications schema
 const notificationsSchema = z
   .object({
     notifica_email: z.boolean().default(false).optional(),
@@ -168,8 +176,7 @@ const notificationsSchema = z
   })
   .refine(
     (data) => {
-      if(data.frequencyType === undefined)
-        return true
+      if (data.frequencyType === undefined) return true;
       if (data.repetitions !== undefined && data.frequencyType === "DAILY") {
         return data?.repetitions <= 5;
       }
@@ -179,8 +186,10 @@ const notificationsSchema = z
       message: "With daily frequency, repetitions must be 5 or less",
     },
   );
+
+//Event schema
 export const eventSchema = z.object({
-  _id: z.number().positive().optional(),
+  _id: z.string().optional(),
   title: z.string().min(2).max(30),
   description: z.string().min(2).max(150),
   date: dateFromString,
@@ -193,6 +202,7 @@ export const eventSchema = z.object({
   attendees: z.array(attendeeSchema).optional(),
   notifications: notificationsSchema.optional(),
   isRecurring: z.boolean(),
+  timezone: z.string(),
 });
 
 export const eventFormSchema = eventSchema
@@ -207,6 +217,7 @@ export const eventFormSchema = eventSchema
     attendees: true,
     notifications: true,
     isRecurring: true,
+    timezone: true
   })
   .refine(
     (data) => {
@@ -223,3 +234,30 @@ export const eventFormSchema = eventSchema
 
 export type Event = z.infer<typeof eventSchema>;
 export type EventFormData = z.infer<typeof eventFormSchema>;
+export type EventsState = {
+  events: Event[];
+};
+export type EventsAction =
+  | {
+      type: "SET_EVENTS";
+      payload: Event[];
+    }
+  | {
+      type: "CREATE_EVENT";
+      payload: Event;
+    }
+  | {
+      type: "DELETE_ONE";
+      payload: string;
+    }
+  | {
+      type: "DELETE_ALL";
+    }
+  | {
+      type: "EDIT_EVENT";
+      payload: Event;
+    };
+export type EventsContextType = {
+  events: Event[];
+  dispatch: React.Dispatch<EventsAction>;
+};

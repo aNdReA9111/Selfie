@@ -35,7 +35,7 @@ export const NoteCard = ({note}: {note: Note}) => {
       })
 
       if (res.ok) {
-        dispatch({ type: 'DELETE_ONE', payload: note._id || 0 });
+        dispatch({ type: 'DELETE_ONE', payload: note._id || '' });
       }
     } catch (error: any) {
       console.log(error);
