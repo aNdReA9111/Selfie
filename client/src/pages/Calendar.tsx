@@ -13,9 +13,8 @@ const localizer: DateLocalizer = luxonLocalizer(DateTime);
 //TODO: timezone per bene
 //TODO: generazione eventi ricorrenti
 //TODO: minor fix form
-//TODO: update evento, delete singolo evento
+//TODO: update evento, delete singolo evento, visualizzazione singolo evento
 //TODO: drag and drop, aggiunta di eventi direttamente del calendario
-//TODO: visualizzazione singolo evento
 
 
 // function generateRecurringEvents(events: Event[]): Event[] {
@@ -73,7 +72,7 @@ const CustomCalendar = () => {
     isLoading ? <h2>Loading...</h2> :
     error ? <h2>{error}</h2> : ( <div className="container mt-5">
       <div className="row justify-content-center">
-        <div className="col-md-8">
+        <div className="col-md-10">
           <BigCalendar
             localizer={localizer}
             events={events}
@@ -85,11 +84,11 @@ const CustomCalendar = () => {
             timeslots={4}
             // onSelectEvent={handleSelectEvent}
             // onSelectSlot={handleSelectSlot}
-            style={{ height: 500 }}
+            style={{ height: 600 }}
             popup
           />
           <EventModalForm />
-          <Button className="mt-3" variant="primary" onClick={handleDeleteAll}>
+          <Button className="mt-3" variant="danger" onClick={handleDeleteAll}>
             Delete All Events
             <i className="ms-2 bi bi-calendar2-x"></i>
           </Button>

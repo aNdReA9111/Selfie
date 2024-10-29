@@ -23,6 +23,7 @@ export const useEvents = (url: string, options = {}, dependencies = []) => {
           setError(null);
           //le date diventano string in json
           result.forEach((el: Event) => {
+            //FIX TIMEZONE QUI
             el.date = new Date(el.date);
             el.endDate = new Date(el.endDate);
             el.nextDate = el.nextDate ? new Date(el.nextDate): undefined;

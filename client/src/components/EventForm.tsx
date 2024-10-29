@@ -6,17 +6,15 @@ import { NotificationsForm } from "./NotificationsForm";
 import { RRuleForm } from "./RRuleForm"
 import { RRule, Weekday } from "rrule";
 import { DateTime } from "luxon";
-import { useState } from "react";
+import { useState, Dispatch, SetStateAction } from "react";
 import { useAuthContext } from "../hooks/useAuthContext";
 import { useEventsContext } from "../hooks/useEventsContext";
 import { timeZonesNames } from "@vvo/tzdb";
 import { Event } from "../utils/types";
 
 
-function toUTC(date: Date) {
-  const dateTime = DateTime.fromJSDate(date);
-  const utcDateTime = dateTime.toUTC();
-  return utcDateTime.toJSDate();
+function toUTC(date: Date, zone: string) {
+  return DateTime.fromJSDate(date).setZone(zone, { keepLocalTime: true }).toUTC().toJSDate();
 }
 
 const weekDaysMap: Record<string, Weekday> = {
@@ -36,7 +34,7 @@ const frequenciesMap: Record<string, number> = {
   'YEARLY': RRule.YEARLY
 }
 
-export const EventForm = () => {
+export const EventForm = ({ setShow }: { setShow: Dispatch<SetStateAction<boolean>> }) => {
   const { setValue, register, watch, handleSubmit, formState: { errors } } = useForm<EventFormData>({
       resolver: zodResolver(eventFormSchema)
     }
@@ -87,9 +85,9 @@ export const EventForm = () => {
       rrule = new RRule({
         freq: frequenciesMap[data.recurrencyRule.frequency],
         interval: data.recurrencyRule.interval,
-        dtstart: toUTC(data.date),
+        dtstart: toUTC(data.date, data.timezone),
         count: data.recurrencyRule.count,
-        until: data.recurrencyRule.until ? toUTC(data.recurrencyRule?.until): undefined,
+        until: data.recurrencyRule.until ? toUTC(data.recurrencyRule?.until, data.timezone): undefined,
         byweekday,
         bymonthday: data.recurrencyRule.bymonthday,
         bymonth: data.recurrencyRule.bymonth,
@@ -100,11 +98,11 @@ export const EventForm = () => {
     const event = {
       title: data.title,
       description: data.description,
-      date: toUTC(data.date),
-      endDate: toUTC(data.endDate),
-      duration: toUTC(data.endDate).getTime() - toUTC(data.date).getTime(),
+      date: toUTC(data.date, data.timezone),
+      endDate: toUTC(data.endDate, data.timezone),
+      duration: toUTC(data.endDate, data.timezone).getTime() - toUTC(data.date, data.timezone).getTime(),
       isRecurring: data.isRecurring,
-      nextDate: toUTC(rrule?.after(DateTime.now().toJSDate()) ?? data.date),
+      nextDate: toUTC(rrule?.after(DateTime.now().toJSDate()) || data.date, data.timezone),
       location: data.location,
       url: data.url,
       notifications,
@@ -113,7 +111,7 @@ export const EventForm = () => {
       timezone: data.timezone,
     }
 
-    console.log(JSON.stringify(event));
+    console.log(event);
 
     try {
       const res = await fetch('http://localhost:4000/api/events', {
@@ -125,18 +123,17 @@ export const EventForm = () => {
         body: JSON.stringify(event)
       });
       const data: Event = await res.json();
+      //SISTEMA TIMEZONE QUI
       data.date = new Date(data.date);
       data.endDate = new Date(data.endDate);
       data.nextDate = data.nextDate ? new Date(data.nextDate) : undefined;
-      console.log(data);
       if(res.ok) {
         dispatch({type: 'CREATE_EVENT', payload: data});
+        setShow(false);
       }
     } catch (error) {
       console.error(error);
     }
-
-    //TODO: genera eventi ricorrenti con rrule + integrazione con bigcalendar
   };
 
   return (
@@ -189,7 +186,7 @@ export const EventForm = () => {
 
           <div className="mb-3">
             <label htmlFor="timezone" className="form-label">Timezone</label>
-            <input id="timezone" className={`form-control ${errors.timezone ? 'is-invalid' : ''}`} {...register('timezone')} onFocus={() => setOpen(true)}/>
+            <input id="timezone" defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone} className={`form-control ${errors.timezone ? 'is-invalid' : ''}`} {...register('timezone')} onFocus={() => setOpen(true)}/>
             {errors.timezone && <div className="invalid-feedback">{errors.timezone.message}</div>}
             <ul onBlur={() => setOpen(false)} className={`list-group ${!open ? 'd-none' : ''} scrollable-list`}>
               {
@@ -242,7 +239,7 @@ export const EventForm = () => {
         <div className="col-sm-12 col-md-6">
           {/*<AttendeesForm register={register} errors={errors} watch={watch}/>*/}
           <NotificationsForm register={register} errors={errors} watch={watch} setValue={setValue}/>
-          <button className="btn btn-primary mt-3" type="submit">
+          <button className="btn btn-danger mt-3" type="submit">
             Submit
             <i className="ms-2 bi bi-send"></i>
           </button>
