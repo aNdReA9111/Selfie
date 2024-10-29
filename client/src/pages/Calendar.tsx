@@ -1,141 +1,101 @@
-import { useState, useEffect } from 'react';
-import dayjs from 'dayjs';
-
+import { useEvents } from '../hooks/useEvents';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { Calendar as BigCalendar, Event, dayjsLocalizer, DateLocalizer } from 'react-big-calendar';
-
-import 'bootstrap/dist/css/bootstrap.min.css';
-
-import weekday from 'dayjs/plugin/weekday';
-import localeData from 'dayjs/plugin/localeData';
+import { Calendar as BigCalendar, luxonLocalizer, DateLocalizer } from 'react-big-calendar';
 import { EventModalForm } from '../components/EventModalForm';
+import { EventsContextType } from '../utils/types';
+import { useEventsContext } from '../hooks/useEventsContext';
+import { useAuthContext } from '../hooks/useAuthContext';
+import { DateTime } from 'luxon';
+import { Button } from 'react-bootstrap';
+
+const localizer: DateLocalizer = luxonLocalizer(DateTime);
+
+//TODO: timezone per bene
+//TODO: generazione eventi ricorrenti
+//TODO: minor fix form
+//TODO: update evento, delete singolo evento
+//TODO: drag and drop, aggiunta di eventi direttamente del calendario
+//TODO: visualizzazione singolo evento
 
 
-// Aggiungi i plugin necessari a dayjs
-dayjs.extend(weekday);
-dayjs.extend(localeData);
-
-// DA MODIFICARE IN USEEVENTS 
-interface IEvent {
-  _id: string;
-  title: string;
-  description: string;
-  start: Date;
-  end: Date;
-  location?: string;
-  url?: string;
-  duration: number;
-  recurrencyRule: {
-    isRecurring: boolean;
-    frequency?: string;
-    repetition?: number;
-    interval: number;
-    byday?: string[];
-    bymonthday?: number[];
-    bymonth?: number[];
-    end?: string;
-    endDate?: Date;
-  };
-  attendees?: {
-    name: string;
-    email: string;
-    responded: boolean;
-    accepted: boolean;
-  }[];
-  notifications: {
-    notifica_email: boolean;
-    notifica_desktop: boolean;
-    notifica_alert: boolean;
-    text: string;
-  }[];
-  _id_user: string;
-}
-
-// Configura il localizer per Day.js
-const localizer: DateLocalizer = dayjsLocalizer(dayjs);
-
+// function generateRecurringEvents(events: Event[]): Event[] {
+//   let calendarEvents: Event[] = [];
+//   for(event of events) {
+//     if(event.isRecurring) {
+//       //generate recurring events and add them to the array
+//     } else {
+//       calendarEvents.push(event)
+//     }
+//   }
+//
+//   return calendarEvents;
+// }
 
 const CustomCalendar = () => {
-  const [events, setEvents] = useState<IEvent[]>([
-    {
-      _id: '1',
-      title: 'Evento di esempio',
-      description: 'Descrizione dell\'evento di esempio',
-      start: dayjs('2024-10-08T10:00:00').toDate(),
-      end: dayjs('2024-10-08T12:00:00').toDate(),
-      location: 'Location di esempio',
-      url: 'http://example.com',
-      duration: 120,
-      recurrencyRule: {
-        isRecurring: false,
-        interval: 1,
-      },
-      notifications: [
-        {
-          notifica_email: true,
-          notifica_desktop: false,
-          notifica_alert: true,
-          text: 'Notifica di esempio',
-        },
-      ],
-      _id_user: 'user1',
-    },
-  ]);
+  const { events, dispatch }: EventsContextType = useEventsContext();
+  const { user } = useAuthContext();
 
-  useEffect(() => {
-    // fetch dal db
-    
-  }, []);
-
-  const handleSelectEvent = (event: Event) => {
-    alert(event.title);
-  };
-
-  const handleSelectSlot = (slotInfo: any) => {
-    const title = window.prompt('Nome nuovo evento');
-    if (title) {
-      setEvents((prev) => [
-        ...prev,
-        
-        {
-          _id: (prev.length + 1).toString(),
-          title,
-          description: '',
-          start: slotInfo.start,
-          end: slotInfo.end,
-          location: '',
-          url: '',
-          duration: dayjs(slotInfo.end).diff(dayjs(slotInfo.start), 'seconds'),
-          recurrencyRule: {
-            isRecurring: false,
-            interval: 1,
-          },
-          notifications: [],
-          _id_user: 'user1',
-        },
-      ]);
+  const { isLoading, error } = useEvents("http://localhost:4000/api/events", {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${user.token}`,
     }
-  };
+  });
 
-return (
-    <div className="container mt-5">
+  const handleDeleteAll = async () => {
+    try {
+      const res = await fetch(`http://localhost:4000/api/events/`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user.token}`,
+        }
+      })
+
+      if (res.ok) {
+        dispatch({ type: 'DELETE_ALL' });
+      }
+    } catch (error: any) {
+      console.log(error);
+    }
+  }
+
+  // const handleSelectEvent = (event: BigCalendarEvent) => {
+  //   alert(event.title);
+  // };
+  //
+  // const handleSelectSlot = (slotInfo: any) => {
+  // };
+
+  console.log(events)
+
+  return (
+    isLoading ? <h2>Loading...</h2> :
+    error ? <h2>{error}</h2> : ( <div className="container mt-5">
       <div className="row justify-content-center">
         <div className="col-md-8">
           <BigCalendar
             localizer={localizer}
             events={events}
-            startAccessor="start"
-            endAccessor="end"
+            startAccessor="date"
+            endAccessor="endDate"
             selectable
-            onSelectEvent={handleSelectEvent}
-            onSelectSlot={handleSelectSlot}
+            views={['month', 'week', 'day']}
+            step={15}
+            timeslots={4}
+            // onSelectEvent={handleSelectEvent}
+            // onSelectSlot={handleSelectSlot}
             style={{ height: 500 }}
             popup
           />
           <EventModalForm />
+          <Button className="mt-3" variant="primary" onClick={handleDeleteAll}>
+            Delete All Events
+            <i className="ms-2 bi bi-calendar2-x"></i>
+          </Button>
         </div>
       </div>
-    </div>
+    </div> )
   );
 };
 

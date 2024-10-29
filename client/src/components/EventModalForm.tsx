@@ -7,8 +7,9 @@ export const EventModalForm = () => {
 
   return (
     <>
-      <Button variant="primary" onClick={() => setShow(true)}>
+      <Button variant="primary" className="mt-3 me-3" onClick={() => setShow(true)}>
         Create New Event
+        <i className="ms-2 bi bi-calendar-check"></i>
       </Button>
       <Modal
         show={show}
@@ -25,7 +26,7 @@ export const EventModalForm = () => {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <EventForm /> 
+          <EventForm />
         </Modal.Body>
       </Modal>
     </>

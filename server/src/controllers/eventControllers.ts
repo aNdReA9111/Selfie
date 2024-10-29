@@ -9,6 +9,7 @@ const createEvent = async (req: Req, res: Response) => {
     title,
     description,
     date,
+    endDate,
     location,
     url,
     duration,
@@ -16,6 +17,7 @@ const createEvent = async (req: Req, res: Response) => {
     attendees,
     notifications,
     isRecurring,
+    timezone,
     user: userId,
   } = req.body;
 
@@ -29,12 +31,15 @@ const createEvent = async (req: Req, res: Response) => {
       title,
       description,
       date,
+      endDate,
       location,
       url,
       duration,
+      isRecurring,
       recurrencyRule,
       attendees,
       notifications,
+      timezone,
       _id_user: userId,
     });
 

@@ -7,8 +7,11 @@ import { RRuleForm } from "./RRuleForm"
 import { RRule, Weekday } from "rrule";
 import { DateTime } from "luxon";
 import { useState } from "react";
-// import { useAuthContext } from "../hooks/useAuthContext";
+import { useAuthContext } from "../hooks/useAuthContext";
+import { useEventsContext } from "../hooks/useEventsContext";
 import { timeZonesNames } from "@vvo/tzdb";
+import { Event } from "../utils/types";
+
 
 function toUTC(date: Date) {
   const dateTime = DateTime.fromJSDate(date);
@@ -41,11 +44,11 @@ export const EventForm = () => {
   const isRecurring: boolean = watch('isRecurring');
   const [open, setOpen] = useState<boolean>(false); //for suggestions
   let suggestions: string[] = [];
-  
-  // const { user } = useAuthContext();
-  
+
+  const { user } = useAuthContext();
+  const { dispatch } = useEventsContext();
+
   const onSuggestionClick = (suggestion: string) => {
-    console.log("hello");
     setValue('timezone', suggestion);
     setOpen(false);
   }
@@ -53,9 +56,7 @@ export const EventForm = () => {
   suggestions = timeZonesNames.filter((tz) => tz.includes(watch('timezone')));
 
 
-
   const onSubmit = async (data: EventFormData) => {
-    console.log(data);
 
     const notifications = {
       notifica_email: data.notifications?.notifica_email,
@@ -71,13 +72,13 @@ export const EventForm = () => {
 
     let rrule = undefined;
     let byweekday = undefined;
-    
+
 
     if(data.isRecurring && typeof data.recurrencyRule === 'object') {
       //byday could be a single value or an array
       if(data.recurrencyRule.byday) {
         if (typeof data.recurrencyRule.byday !== 'string') {
-          byweekday = data.recurrencyRule.byday.map((day: string) => weekDaysMap[day]) 
+          byweekday = data.recurrencyRule.byday.map((day: string) => weekDaysMap[day])
         }
         else {
           byweekday = weekDaysMap[data.recurrencyRule.byday];
@@ -99,40 +100,44 @@ export const EventForm = () => {
     const event = {
       title: data.title,
       description: data.description,
-      start: toUTC(data.date),
-      end: toUTC(data.endDate),
+      date: toUTC(data.date),
+      endDate: toUTC(data.endDate),
       duration: toUTC(data.endDate).getTime() - toUTC(data.date).getTime(),
       isRecurring: data.isRecurring,
-      nextDate: toUTC(data.date),
+      nextDate: toUTC(rrule?.after(DateTime.now().toJSDate()) ?? data.date),
       location: data.location,
       url: data.url,
       notifications,
+      // attendees: data.attendees,
       recurrencyRule: rrule? rrule.toString(): undefined,
-      timezone: data.timezone
+      timezone: data.timezone,
     }
 
-    console.log(event)
-    
-    // try {
-    //   const response = await fetch('https://localhost:4000/api/events', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       'Authorization': `Bearer ${user?.token}`
-    //     },
-    //     body: JSON.stringify(event)
-    //   });
-    //   const data: Event = await response.json();
-    //   console.log(data);
-    // } catch (error) {
-    //   console.error(error);
-    // }
+    console.log(JSON.stringify(event));
 
-    //3 dati di ritorno --> aggiorna context
-    //4 genera eventi ricorrenti con rrule
+    try {
+      const res = await fetch('http://localhost:4000/api/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${user?.token}`
+        },
+        body: JSON.stringify(event)
+      });
+      const data: Event = await res.json();
+      data.date = new Date(data.date);
+      data.endDate = new Date(data.endDate);
+      data.nextDate = data.nextDate ? new Date(data.nextDate) : undefined;
+      console.log(data);
+      if(res.ok) {
+        dispatch({type: 'CREATE_EVENT', payload: data});
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
+    //TODO: genera eventi ricorrenti con rrule + integrazione con bigcalendar
   };
-
-  // console.log(errors);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -186,7 +191,7 @@ export const EventForm = () => {
             <label htmlFor="timezone" className="form-label">Timezone</label>
             <input id="timezone" className={`form-control ${errors.timezone ? 'is-invalid' : ''}`} {...register('timezone')} onFocus={() => setOpen(true)}/>
             {errors.timezone && <div className="invalid-feedback">{errors.timezone.message}</div>}
-            <ul onBlur={() => setOpen(false)} className={`list-group ${!open ? 'd-none' : ''}`}>
+            <ul onBlur={() => setOpen(false)} className={`list-group ${!open ? 'd-none' : ''} scrollable-list`}>
               {
                 suggestions.map((suggestion: string, index: number) => (
                   <li className="list-group-item" key={index} onClick={() => {onSuggestionClick(suggestion)}} style={{cursor: 'pointer'}}>

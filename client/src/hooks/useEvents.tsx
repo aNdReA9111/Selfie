@@ -1,62 +1,49 @@
-import { useState, useContext, useEffect } from 'react';
-import { AuthContext } from '../context/authContext';
+import { useEffect, useState } from 'react';
+import { useEventsContext } from './useEventsContext';
+import { Event } from '../utils/types';
 
-import {sortEventsByNearest } from '../utils/dateUtils';
+export const useEvents = (url: string, options = {}, dependencies = []) => {
+  const { dispatch } = useEventsContext();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-export interface IEvent {
-    _id?: string;
-    titolo: string;
-    descrizione: string;
-    data: Date;
-    frequenza: string[];
-    ripetizioni: string[];
-    _id_utente: string;
-    timezone: string;
-}
+  useEffect(() => {
+    let isCancelled = false;
 
-interface useEventsReturn {
-    events: IEvent[];
-    setEvents: React.Dispatch<React.SetStateAction<IEvent[]>>;
-    errorEv: string | null;
-    getEvents: () => Promise<void>;
-}
-
-export const useEvents = (): useEventsReturn => {
-    const [events, setEvents] = useState<IEvent[]>([]);
-    const [errorEv, setError] = useState<string | null>(null);
-    const { user } = useContext(AuthContext);
-
-    const getEvents = async () => {
-        try {
-            // console.log(user);
-            const response = await fetch(`http://localhost:4000/api/events/get/${user._id}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user.token}`
-                }
-            });
-            if (!response.ok) 
-                throw new Error('Failed to fetch events');
-            
-            const data : IEvent[] = await response.json();
-            // console.log(data)
-            setEvents(sortEventsByNearest(data));
-            // console.log(events);
-        } catch (err) {
-            if (err instanceof Error) {
-                setError(err.message);
-            } else {
-                setError('An unknown error occurred');
-            }
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch(url, { method: 'GET', ...options });
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
         }
+
+        const result: Event[] = await res.json();
+        if (!isCancelled) {
+          setIsLoading(false);
+          setError(null);
+          //le date diventano string in json
+          result.forEach((el: Event) => {
+            el.date = new Date(el.date);
+            el.endDate = new Date(el.endDate);
+            el.nextDate = el.nextDate ? new Date(el.nextDate): undefined;
+          });
+          dispatch({ type: 'SET_EVENTS', payload: result });
+        }
+      } catch (err: any) {
+        if (!isCancelled) {
+          setIsLoading(false);
+          setError(err.message);
+        }
+      }
     };
 
-    useEffect(() => {
-        if (user) {
-            getEvents();
-        }
-    }, [user]);
+    fetchEvents();
 
-    return { events, setEvents, errorEv, getEvents };
-};
+    // Cleanup function to prevent state update if component unmounts
+    return () => {
+      isCancelled = true;
+    };
+  }, [url, ...dependencies, dispatch]);
+
+  return { isLoading, error };
+}

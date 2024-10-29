@@ -10,6 +10,7 @@ const reducer = (state: EventsState, action: EventsAction): EventsState => {
         events: action.payload,
       }
     case 'CREATE_EVENT':
+      console.log(action.payload)
       return {
         events: [action.payload, ...state.events],
       };
