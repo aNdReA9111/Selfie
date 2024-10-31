@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useEvents } from '../hooks/useEvents';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { Calendar as BigCalendar, luxonLocalizer, DateLocalizer } from 'react-big-calendar';
@@ -7,34 +8,56 @@ import { useEventsContext } from '../hooks/useEventsContext';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { DateTime } from 'luxon';
 import { Button } from 'react-bootstrap';
+import { Event } from '../utils/types';
+import { RRule } from 'rrule';
 
 const localizer: DateLocalizer = luxonLocalizer(DateTime);
 
-//TODO: timezone per bene
-//TODO: generazione eventi ricorrenti
 //TODO: minor fix form
 //TODO: update evento, delete singolo evento, visualizzazione singolo evento
 //TODO: drag and drop, aggiunta di eventi direttamente del calendario
 
+function generateRecurringEvents(events: Event[]) {
+  let calendarEvents = [];
+  for(const event of events) {
+    if(event.isRecurring) {
+      //generate recurring events and add them to the array
+      const rrule = RRule.fromString(event.recurrenceRule as string);
+      const dates = rrule.all();
+      for(const date of dates) {
+        const calendarEvent = {
+          title: event.title,
+          start: date,
+          end: new Date(date.getTime() + (event.duration as number)),
+          resources: {
+            _id: event._id
+          }
+        }
+        calendarEvents.push(calendarEvent);
+      }
+    } else {
+      const calendarEvent = {
+        title: event.title,
+        start: event.date,
+        end: event.endDate,
+        resources: {
+          _id: event._id
+        }
+      }
+      calendarEvents.push(calendarEvent);
+    }
+  }
 
-// function generateRecurringEvents(events: Event[]): Event[] {
-//   let calendarEvents: Event[] = [];
-//   for(event of events) {
-//     if(event.isRecurring) {
-//       //generate recurring events and add them to the array
-//     } else {
-//       calendarEvents.push(event)
-//     }
-//   }
-//
-//   return calendarEvents;
-// }
+  return calendarEvents;
+}
 
 const CustomCalendar = () => {
   const { events, dispatch }: EventsContextType = useEventsContext();
+  //useMemo --> ricalcolo eventi sul calendario solo quando cambiano gli eventi sul context
+  const calendarEvents = useMemo(() => generateRecurringEvents(events), [events]);
   const { user } = useAuthContext();
 
-  const { isLoading, error } = useEvents("http://localhost:4000/api/events", {
+  const { isLoading, error } = useEvents("/api/events/", {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${user.token}`,
@@ -43,7 +66,7 @@ const CustomCalendar = () => {
 
   const handleDeleteAll = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/events/`, {
+      const res = await fetch('/api/events/', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -66,8 +89,6 @@ const CustomCalendar = () => {
   // const handleSelectSlot = (slotInfo: any) => {
   // };
 
-  console.log(events)
-
   return (
     isLoading ? <h2>Loading...</h2> :
     error ? <h2>{error}</h2> : ( <div className="container mt-5">
@@ -75,9 +96,7 @@ const CustomCalendar = () => {
         <div className="col-md-10">
           <BigCalendar
             localizer={localizer}
-            events={events}
-            startAccessor="date"
-            endAccessor="endDate"
+            events={calendarEvents}
             selectable
             views={['month', 'week', 'day']}
             step={15}

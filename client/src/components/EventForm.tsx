@@ -72,26 +72,26 @@ export const EventForm = ({ setShow }: { setShow: Dispatch<SetStateAction<boolea
     let byweekday = undefined;
 
 
-    if(data.isRecurring && typeof data.recurrencyRule === 'object') {
+    if(data.isRecurring && typeof data.recurrenceRule === 'object') {
       //byday could be a single value or an array
-      if(data.recurrencyRule.byday) {
-        if (typeof data.recurrencyRule.byday !== 'string') {
-          byweekday = data.recurrencyRule.byday.map((day: string) => weekDaysMap[day])
+      if(data.recurrenceRule.byday) {
+        if (typeof data.recurrenceRule.byday !== 'string') {
+          byweekday = data.recurrenceRule.byday.map((day: string) => weekDaysMap[day])
         }
         else {
-          byweekday = weekDaysMap[data.recurrencyRule.byday];
+          byweekday = weekDaysMap[data.recurrenceRule.byday];
         }
       }
       rrule = new RRule({
-        freq: frequenciesMap[data.recurrencyRule.frequency],
-        interval: data.recurrencyRule.interval,
+        freq: frequenciesMap[data.recurrenceRule.frequency],
+        interval: data.recurrenceRule.interval,
         dtstart: toUTC(data.date, data.timezone),
-        count: data.recurrencyRule.count,
-        until: data.recurrencyRule.until ? toUTC(data.recurrencyRule?.until, data.timezone): undefined,
+        count: data.recurrenceRule.count,
+        until: data.recurrenceRule.until ? toUTC(data.recurrenceRule?.until, data.timezone): undefined,
         byweekday,
-        bymonthday: data.recurrencyRule.bymonthday,
-        bymonth: data.recurrencyRule.bymonth,
-        bysetpos: data.recurrencyRule.bysetpos
+        bymonthday: data.recurrenceRule.bymonthday,
+        bymonth: data.recurrenceRule.bymonth,
+        bysetpos: data.recurrenceRule.bysetpos
       })
     }
 
@@ -107,7 +107,7 @@ export const EventForm = ({ setShow }: { setShow: Dispatch<SetStateAction<boolea
       url: data.url,
       notifications,
       // attendees: data.attendees,
-      recurrencyRule: rrule? rrule.toString(): undefined,
+      recurrenceRule: rrule? rrule.toString(): undefined,
       timezone: data.timezone,
     }
 
@@ -129,6 +129,7 @@ export const EventForm = ({ setShow }: { setShow: Dispatch<SetStateAction<boolea
       data.nextDate = data.nextDate ? new Date(data.nextDate) : undefined;
       if(res.ok) {
         dispatch({type: 'CREATE_EVENT', payload: data});
+        console.log("close");
         setShow(false);
       }
     } catch (error) {

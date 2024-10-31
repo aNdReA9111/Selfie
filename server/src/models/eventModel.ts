@@ -29,8 +29,7 @@ interface IEvent extends Document {
   location?: string;
   url?: string;
   duration: number;
-  recurrencyRule: string;
-  // recurrencyRule: IRRule;
+  recurrenceRule: string;
   attendees?: IAttendee[];
   notifications?: INotification;
   isRecurring: boolean;
@@ -167,7 +166,7 @@ const eventSchema = new Schema<IEvent>({
     type: Number,
     required: true,
   },
-  recurrencyRule: {
+  recurrenceRule: {
     type: String,
     required: function () {
       return this.isRecurring;

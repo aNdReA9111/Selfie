@@ -19,7 +19,6 @@ export type TimeMachineContextType = {
   dispatch: React.Dispatch<TimeMachineAction>;
 };
 
-
 //custom types for notes context
 export const noteSchema = z.object({
   _id: z.string().optional(),
@@ -91,7 +90,6 @@ export type NotesContextType = {
   notes: Note[];
   dispatch: React.Dispatch<NotesAction>;
 };
-
 
 //custom types for event context
 //form data preprocessing --> all data from form are strings
@@ -198,7 +196,7 @@ export const eventSchema = z.object({
   nextDate: z.date().optional(),
   location: z.string().optional(),
   url: z.string().url().optional().or(z.literal("")),
-  recurrencyRule: z.union([rruleSchema, z.string()]).optional(),
+  recurrenceRule: z.union([rruleSchema, z.string()]).optional(),
   attendees: z.array(attendeeSchema).optional(),
   notifications: notificationsSchema.optional(),
   isRecurring: z.boolean(),
@@ -213,11 +211,11 @@ export const eventFormSchema = eventSchema
     endDate: true,
     location: true,
     url: true,
-    recurrencyRule: true,
+    recurrenceRule: true,
     attendees: true,
     notifications: true,
     isRecurring: true,
-    timezone: true
+    timezone: true,
   })
   .refine(
     (data) => {
