@@ -259,3 +259,10 @@ export type EventsContextType = {
   events: Event[];
   dispatch: React.Dispatch<EventsAction>;
 };
+
+export type EventDetailsProps = {
+  event: Event | undefined;
+  date: Date | undefined;
+  show: boolean;
+  setShow: React.Dispatch<React.SetStateAction<boolean>>;
+};

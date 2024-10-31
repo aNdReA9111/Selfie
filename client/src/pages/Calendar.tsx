@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useEvents } from '../hooks/useEvents';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { Calendar as BigCalendar, luxonLocalizer, DateLocalizer } from 'react-big-calendar';
@@ -10,11 +10,12 @@ import { DateTime } from 'luxon';
 import { Button } from 'react-bootstrap';
 import { Event } from '../utils/types';
 import { RRule } from 'rrule';
+import { EventDetails } from '../components/EventDetails';
 
 const localizer: DateLocalizer = luxonLocalizer(DateTime);
 
 //TODO: minor fix form
-//TODO: update evento, delete singolo evento, visualizzazione singolo evento
+//TODO: update evento, delete singolo evento
 //TODO: drag and drop, aggiunta di eventi direttamente del calendario
 
 function generateRecurringEvents(events: Event[]) {
@@ -56,6 +57,9 @@ const CustomCalendar = () => {
   //useMemo --> ricalcolo eventi sul calendario solo quando cambiano gli eventi sul context
   const calendarEvents = useMemo(() => generateRecurringEvents(events), [events]);
   const { user } = useAuthContext();
+  const [showDetails, setShowDetails] = useState<boolean>(false);
+  const [currentEvent, setCurrentEvent] = useState<Event | undefined>(undefined);
+  const [date, setDate] = useState<Date | undefined>(undefined);
 
   const { isLoading, error } = useEvents("/api/events/", {
     headers: {
@@ -82,10 +86,12 @@ const CustomCalendar = () => {
     }
   }
 
-  // const handleSelectEvent = (event: BigCalendarEvent) => {
-  //   alert(event.title);
-  // };
-  //
+  const handleSelectEvent = (e: any) => {
+    setDate(e.start);
+    setCurrentEvent(events.find((el: Event) => el._id === e.resources._id));
+    setShowDetails(true);
+  };
+
   // const handleSelectSlot = (slotInfo: any) => {
   // };
 
@@ -101,12 +107,13 @@ const CustomCalendar = () => {
             views={['month', 'week', 'day']}
             step={15}
             timeslots={4}
-            // onSelectEvent={handleSelectEvent}
+            onSelectEvent={handleSelectEvent}
             // onSelectSlot={handleSelectSlot}
             style={{ height: 600 }}
             popup
           />
           <EventModalForm />
+          { currentEvent && <EventDetails event={currentEvent} date={date}  show={showDetails} setShow={setShowDetails} /> }
           <Button className="mt-3" variant="danger" onClick={handleDeleteAll}>
             Delete All Events
             <i className="ms-2 bi bi-calendar2-x"></i>
