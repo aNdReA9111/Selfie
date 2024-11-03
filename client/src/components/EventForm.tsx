@@ -1,42 +1,105 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { eventFormSchema, EventFormData } from "../utils/types";
+import { eventFormSchema, EventFormData, Frequency, ByDayEnum } from "../utils/types";
 // import { AttendeesForm } from "./AttendeesForm";
 import { NotificationsForm } from "./NotificationsForm";
 import { RRuleForm } from "./RRuleForm"
-import { RRule, Weekday } from "rrule";
+import { RRule } from "rrule";
 import { DateTime } from "luxon";
 import { useState, Dispatch, SetStateAction } from "react";
 import { useAuthContext } from "../hooks/useAuthContext";
 import { useEventsContext } from "../hooks/useEventsContext";
 import { timeZonesNames } from "@vvo/tzdb";
 import { Event } from "../utils/types";
+import { weekDaysMap, reverseWeekDaysMap, frequenciesMap, revereseFrequenciesMap } from "../utils/constants";
 
+function rruleStrToObj(rule: string, zone: string) {
+  const rrule = RRule.fromString(rule);
+
+  let byday;
+  if(rrule.options.byweekday) {
+    if (typeof rrule.options.byweekday !== 'string') {
+      byday = rrule.options.byweekday.map((day: number) => reverseWeekDaysMap[day])
+    }
+    else {
+      byday = reverseWeekDaysMap[rrule.options.byweekday];
+    }
+  }
+
+  return {
+    frequency: revereseFrequenciesMap[rrule.options.freq] as Frequency,
+    interval: rrule.options.interval,
+    count: rrule.options.count,
+    until: rrule.options.until ? DateTime.fromJSDate(rrule.options.until).setZone(zone).toFormat("yyyy-MM-dd'T'HH:mm") : undefined,
+    byday,
+    bymonthday: rrule.options.bymonthday,
+    bymonth: rrule.options.bymonth,  
+    bysetpos: rrule.options.bysetpos,
+  }
+}
 
 function toUTC(date: Date, zone: string) {
   return DateTime.fromJSDate(date).setZone(zone, { keepLocalTime: true }).toUTC().toJSDate();
 }
 
-const weekDaysMap: Record<string, Weekday> = {
-  'MO': RRule.MO,
-  'TU': RRule.TU,
-  'WE': RRule.WE,
-  'TH': RRule.TH,
-  'FR': RRule.FR,
-  'SA': RRule.SA,
-  'SU': RRule.SU
-}
 
-const frequenciesMap: Record<string, number> = {
-  'DAILY': RRule.DAILY,
-  'WEEKLY': RRule.WEEKLY,
-  'MONTHLY':RRule.MONTHLY,
-  'YEARLY': RRule.YEARLY
-}
+export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction<boolean>>, event?: Event }) => {
+  const defaultValues = {
+    title: event?.title || undefined,
+    description: event?.description || undefined,
+    date: event?.date ? DateTime.fromJSDate(event?.date).setZone(event?.timezone).toFormat("yyyy-MM-dd'T'HH:mm") : undefined,
+      endDate: event?.endDate ? DateTime.fromJSDate(event?.endDate).setZone(event?.timezone).toFormat("yyyy-MM-dd'T'HH:mm") : undefined,
+    isRecurring: event?.isRecurring || false,
+    notifications: event?.notifications || {
+      notifica_email: false,
+      notifica_desktop: false,
+      advance: undefined,
+      advanceType: "MINUTES",
+      repetitions: undefined,
+      frequencyType: "MINUTELY",
+      frequency: undefined,
+      text: 'default text',
+    },
+    timezone: event?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+    recurrenceRule: event?.recurrenceRule ? rruleStrToObj(event?.recurrenceRule as string, event?.timezone) : undefined,
+    attendees: event?.attendees || [],
+    location: event?.location || undefined,
+    url: event?.url || undefined,
+  };
 
-export const EventForm = ({ setShow }: { setShow: Dispatch<SetStateAction<boolean>> }) => {
   const { setValue, register, watch, handleSubmit, formState: { errors } } = useForm<EventFormData>({
-      resolver: zodResolver(eventFormSchema)
+      resolver: zodResolver(eventFormSchema),
+      defaultValues: {
+        title: defaultValues.title,
+        description: defaultValues.description,
+        date: defaultValues.date,
+        endDate: defaultValues.endDate,
+        isRecurring: defaultValues.isRecurring,
+        notifications: {
+          notifica_email: defaultValues.notifications?.notifica_email,
+          notifica_desktop: defaultValues.notifications?.notifica_desktop,
+          advance: defaultValues.notifications?.advance,
+          advanceType: defaultValues.notifications?.advanceType as "MINUTES" | "HOURS" | "DAYS",
+          repetitions: defaultValues.notifications?.repetitions,
+          frequencyType: defaultValues.notifications?.frequencyType,
+          frequency: defaultValues.notifications?.frequency,
+          text: defaultValues.notifications?.text
+        },
+        timezone: defaultValues.timezone,
+        recurrenceRule: defaultValues.recurrenceRule ? {
+          frequency: defaultValues.recurrenceRule?.frequency,
+          interval: defaultValues.recurrenceRule?.interval,
+          count: defaultValues.recurrenceRule?.count as number | undefined,
+          until: defaultValues.recurrenceRule?.until,
+          byday: defaultValues.recurrenceRule?.byday as ByDayEnum | ByDayEnum[] | undefined,
+          bymonthday: defaultValues.recurrenceRule?.bymonthday,
+          bymonth: defaultValues.recurrenceRule?.bymonth,
+          bysetpos: defaultValues.recurrenceRule?.bysetpos
+        } : undefined,
+        attendees: defaultValues.attendees,
+        location: defaultValues.location,
+        url: defaultValues.url,
+      } as Partial<EventFormData>,
     }
   );
   const isRecurring: boolean = watch('isRecurring');
@@ -74,28 +137,30 @@ export const EventForm = ({ setShow }: { setShow: Dispatch<SetStateAction<boolea
 
     if(data.isRecurring && typeof data.recurrenceRule === 'object') {
       //byday could be a single value or an array
-      if(data.recurrenceRule.byday) {
-        if (typeof data.recurrenceRule.byday !== 'string') {
-          byweekday = data.recurrenceRule.byday.map((day: string) => weekDaysMap[day])
+      if(data.recurrenceRule!.byday) {
+        if (typeof data.recurrenceRule!.byday !== 'string') {
+          byweekday = data.recurrenceRule!.byday.map((day: string) => weekDaysMap[day])
         }
         else {
-          byweekday = weekDaysMap[data.recurrenceRule.byday];
+          byweekday = weekDaysMap[data.recurrenceRule!.byday];
         }
       }
+
+      console.log(data.recurrenceRule);
       rrule = new RRule({
-        freq: frequenciesMap[data.recurrenceRule.frequency],
-        interval: data.recurrenceRule.interval,
+        freq: frequenciesMap[data.recurrenceRule!.frequency],
+        interval: data.recurrenceRule!.interval || undefined,
         dtstart: toUTC(data.date, data.timezone),
-        count: data.recurrenceRule.count,
-        until: data.recurrenceRule.until ? toUTC(data.recurrenceRule?.until, data.timezone): undefined,
+        count: data.recurrenceRule!.count,
+        until: data.recurrenceRule!.until ? toUTC(data.recurrenceRule!.until, data.timezone): undefined,
         byweekday,
-        bymonthday: data.recurrenceRule.bymonthday,
-        bymonth: data.recurrenceRule.bymonth,
-        bysetpos: data.recurrenceRule.bysetpos
+        bymonthday: data.recurrenceRule!.bymonthday,
+        bymonth: data.recurrenceRule!.bymonth,
+        bysetpos: data.recurrenceRule!.bysetpos
       })
     }
 
-    const event = {
+    const newEvent = {
       title: data.title,
       description: data.description,
       date: toUTC(data.date, data.timezone),
@@ -111,16 +176,15 @@ export const EventForm = ({ setShow }: { setShow: Dispatch<SetStateAction<boolea
       timezone: data.timezone,
     }
 
-    console.log(event);
 
     try {
-      const res = await fetch('http://localhost:4000/api/events', {
-        method: 'POST',
+      const res = await fetch('http://localhost:4000/api/events' + (event?._id ? `/${event._id}` : ''), {
+        method: event?._id ? 'PATCH' : 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${user?.token}`
         },
-        body: JSON.stringify(event)
+        body: JSON.stringify(newEvent)
       });
       const data: Event = await res.json();
       //SISTEMA TIMEZONE QUI
@@ -128,14 +192,15 @@ export const EventForm = ({ setShow }: { setShow: Dispatch<SetStateAction<boolea
       data.endDate = new Date(data.endDate);
       data.nextDate = data.nextDate ? new Date(data.nextDate) : undefined;
       if(res.ok) {
-        dispatch({type: 'CREATE_EVENT', payload: data});
-        console.log("close");
+        dispatch({type: event?._id ? 'EDIT_EVENT' : 'CREATE_EVENT', payload: data});
         setShow(false);
       }
     } catch (error) {
       console.error(error);
     }
   };
+
+  console.log(errors);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -187,7 +252,7 @@ export const EventForm = ({ setShow }: { setShow: Dispatch<SetStateAction<boolea
 
           <div className="mb-3">
             <label htmlFor="timezone" className="form-label">Timezone</label>
-            <input id="timezone" defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone} className={`form-control ${errors.timezone ? 'is-invalid' : ''}`} {...register('timezone')} onFocus={() => setOpen(true)}/>
+            <input id="timezone" className={`form-control ${errors.timezone ? 'is-invalid' : ''}`} {...register('timezone')} onFocus={() => setOpen(true)}/>
             {errors.timezone && <div className="invalid-feedback">{errors.timezone.message}</div>}
             <ul onBlur={() => setOpen(false)} className={`list-group ${!open ? 'd-none' : ''} scrollable-list`}>
               {

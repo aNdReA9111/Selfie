@@ -9,9 +9,9 @@ type EventFormProps = {
 };
 
 export const NotificationsForm: React.FC<EventFormProps> = ({watch, register, errors }) => {
-  const mailNotification: boolean | undefined = watch('notifications.notifica_email');
-  const desktopNotification: boolean | undefined = watch('notifications.notifica_desktop');
-  const frequencyType: string | undefined  = watch('notifications.frequencyType');
+  const mailNotification: boolean | undefined | null = watch('notifications.notifica_email');
+  const desktopNotification: boolean | undefined | null = watch('notifications.notifica_desktop');
+  const frequencyType: string | undefined | null  = watch('notifications.frequencyType');
 
   return (
     <>
@@ -53,7 +53,7 @@ export const NotificationsForm: React.FC<EventFormProps> = ({watch, register, er
 
           <div className="mb-3">
             <div className="form-check form-check-inline">
-              <input className="form-check-input" {...register('notifications.advanceType')} type="radio" name="notifications.advanceType" id="minuteAdvance" value="MINUTES" defaultChecked/>
+              <input className="form-check-input" {...register('notifications.advanceType')} type="radio" name="notifications.advanceType" id="minuteAdvance" value="MINUTES" />
               <label className="form-check-label" htmlFor="minuteAdvance">Minutes</label>
             </div>
             <div className="form-check form-check-inline">
@@ -78,7 +78,7 @@ export const NotificationsForm: React.FC<EventFormProps> = ({watch, register, er
           <div className="mb-3 mt-5">
             <p>I want to receive notifications </p>
             <div className="form-check form-check-inline">
-              <input className="form-check-input" {...register('notifications.frequencyType')} type="radio" name="notifications.frequencyType" id="minutely" value="MINUTELY" defaultChecked/>
+              <input className="form-check-input" {...register('notifications.frequencyType')} type="radio" name="notifications.frequencyType" id="minutely" value="MINUTELY" />
               <label className="form-check-label" htmlFor="minutely">Minutely</label>
             </div>
             {errors.notifications?.frequencyType && <div className="invalid-feedback">{errors.notifications.frequencyType.message}</div>}

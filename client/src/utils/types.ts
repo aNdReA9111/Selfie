@@ -124,26 +124,30 @@ const dateFromString = z.preprocess((val) => {
 
 const freqEnum = z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]);
 const byDayEnum = z.enum(["MO", "TU", "WE", "TH", "FR", "SA", "SU"]);
+export type ByDayEnum = z.infer<typeof byDayEnum>;
 const byMonthEnum = z
   .array(createNumberFromString(12))
   .or(createNumberFromString(12))
-  .optional(); //12 for months
+  .optional()
+  .nullable(); //12 for months
 const byMonthDay = z
   .array(createNumberFromString(31))
   .or(createNumberFromString(31))
-  .optional(); //31 for month days
+  .optional()
+  .nullable(); //31 for month days
 const bySetPos = z
   .array(createSetPosNumberFromString())
   .or(createSetPosNumberFromString())
-  .optional();
+  .optional()
+  .nullable();
 
 //Recurrence Rule Schema
 const rruleSchema = z.object({
   frequency: freqEnum, // Mandatory frequency
-  interval: createNumberFromString(50).optional(), // Optional, defaults to 1
+  interval: createNumberFromString(50).optional().nullable(), // Optional, defaults to 1
   until: dateFromString.optional(), // Optional, must be a valid date string
-  count: createNumberFromString(200).optional(), // Optional, specifies the number of occurrences
-  byday: z.array(byDayEnum).or(byDayEnum).optional(), // Optional array of days of the week
+  count: createNumberFromString(200).optional().nullable(), // Optional, specifies the number of occurrences
+  byday: z.array(byDayEnum).or(byDayEnum).optional().nullable(), // Optional array of days of the week
   bymonthday: byMonthDay,
   bymonth: byMonthEnum,
   bysetpos: bySetPos,
@@ -153,8 +157,8 @@ const rruleSchema = z.object({
 const attendeeSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address"),
-  accepted: z.boolean().optional(),
-  responded: z.boolean().optional(),
+  accepted: z.boolean().optional().nullable(),
+  responded: z.boolean().optional().nullable(),
 });
 
 //Notifications schema
@@ -162,21 +166,21 @@ const notificationAdvanceEnum = z.enum(["DAYS", "HOURS", "MINUTES"]);
 const notificationsFrequencyEnum = z.enum(["MINUTELY", "HOURLY", "DAILY"]);
 const notificationsSchema = z
   .object({
-    notifica_email: z.boolean().default(false).optional(),
-    notifica_desktop: z.boolean().default(false).optional(),
-    text: z.string().min(1).optional(), // Ensure text is a non-empty string
-    before: z.boolean().optional(),
-    advance: createNumberFromString(5).optional(),
-    repetitions: createNumberFromString(5).optional(),
-    frequency: createNumberFromString(5).optional(),
-    frequencyType: notificationsFrequencyEnum.optional(),
-    advanceType: notificationAdvanceEnum.optional(),
+    notifica_email: z.boolean().default(false).optional().nullable(),
+    notifica_desktop: z.boolean().default(false).optional().nullable(),
+    text: z.string().min(1).optional().nullable(), // Ensure text is a non-empty string
+    before: z.boolean().optional().nullable(),
+    advance: createNumberFromString(5).optional().nullable(),
+    repetitions: createNumberFromString(5).optional().nullable(),
+    frequency: createNumberFromString(5).optional().nullable(),
+    frequencyType: notificationsFrequencyEnum.optional().nullable(),
+    advanceType: notificationAdvanceEnum.optional().nullable(),
   })
   .refine(
     (data) => {
       if (data.frequencyType === undefined) return true;
       if (data.repetitions !== undefined && data.frequencyType === "DAILY") {
-        return data?.repetitions <= 5;
+        return data.repetitions && data?.repetitions <= 5;
       }
       return true;
     },
@@ -187,18 +191,18 @@ const notificationsSchema = z
 
 //Event schema
 export const eventSchema = z.object({
-  _id: z.string().optional(),
+  _id: z.string().optional().nullable(),
   title: z.string().min(2).max(30),
   description: z.string().min(2).max(150),
   date: dateFromString,
   endDate: dateFromString,
-  duration: z.number().positive().optional(),
-  nextDate: z.date().optional(),
-  location: z.string().optional(),
+  duration: z.number().positive().optional().nullable(),
+  nextDate: z.date().optional().nullable(),
+  location: z.string().optional().nullable(),
   url: z.string().url().optional().or(z.literal("")),
-  recurrenceRule: z.union([rruleSchema, z.string()]).optional(),
-  attendees: z.array(attendeeSchema).optional(),
-  notifications: notificationsSchema.optional(),
+  recurrenceRule: z.union([rruleSchema, z.string()]).optional().nullable(),
+  attendees: z.array(attendeeSchema).optional().nullable(),
+  notifications: notificationsSchema.optional().nullable(),
   isRecurring: z.boolean(),
   timezone: z.string(),
 });
@@ -266,3 +270,5 @@ export type EventDetailsProps = {
   show: boolean;
   setShow: React.Dispatch<React.SetStateAction<boolean>>;
 };
+
+export type Frequency = "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY" | undefined;

@@ -6,6 +6,7 @@ import { GetText } from 'rrule/dist/esm/nlp/totext';
 import { italianTranslations } from '../utils/constants';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { useEventsContext } from '../hooks/useEventsContext';
+import { EventModalForm } from './EventModalForm';
 
 
 const getItalian: GetText = (text: any) => (italianTranslations[text] || text);
@@ -64,26 +65,24 @@ export const EventDetails = ({event, date, show, setShow}: EventDetailsProps) =>
           <div className="container">
             <div className="d-flex justify-content-between align-items-center">
               <h3>{event.title}</h3>
-              <div className='d-flex'>
+              <div className='d-flex align-items-center'>
                 { !event.isRecurring && <Button variant="danger" className='me-2' onClick={handleDeleteEvent}>Elimina<i className="ms-2 bi bi-trash"></i></Button> }
-                <Button variant="warning" onClick={() => {}}>Modifica<i className="ms-2 bi bi-pen"></i></Button>
+                <EventModalForm event={event} />
               </div>
             </div>
             <p>{event.description}</p>
-            { event.location && <p>Luogo: {event.location}</p> }
             <div>
               {start2 && end2 && ( <h5>Nella timezone attuale: </h5> ) }
               <p><i className="bi bi-clock-fill me-2"></i>{start.toLocaleString(DateTime.DATETIME_SHORT)} - {end.toLocaleString(DateTime.DATETIME_SHORT)}</p>
             </div>
-            {event.url && <p><i className="bi bi-link-45deg me-2"></i>{event.url}</p>}
+            {event.url && <p><i className="bi bi-link-45deg me-2"></i><a href={event.url}>{event.url}</a></p>}
             {event.location && <p><i className="bi bi-geo-alt-fill me-2"></i>{event.location}</p>}
             {rruleString && <p>Pattern della ricorrenza: {rruleString}</p>}
             {
               start2 && end2 && (
                 <div>
-                  <h5>Nella timezone dell'evento: </h5>
-                  <p>Inizio: {start2.toLocaleString(DateTime.DATETIME_SHORT)}</p>
-                  <p>Fine: {end2.toLocaleString(DateTime.DATETIME_SHORT)}</p>
+                  {start2 && end2 && ( <h5>Nella timezone dell'evento: </h5> ) }
+                  <p><i className="bi bi-clock-fill me-2"></i>{start2.toLocaleString(DateTime.DATETIME_SHORT)} - {end2.toLocaleString(DateTime.DATETIME_SHORT)}</p>
                 </div>
               )
             }

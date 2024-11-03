@@ -14,8 +14,7 @@ import { EventDetails } from '../components/EventDetails';
 
 const localizer: DateLocalizer = luxonLocalizer(DateTime);
 
-//TODO: minor fix form
-//TODO: update evento, delete singolo evento
+//TODO: delete singolo evento ricorrente
 //TODO: drag and drop, aggiunta di eventi direttamente del calendario
 
 function generateRecurringEvents(events: Event[]) {

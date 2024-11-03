@@ -10,12 +10,13 @@ type RecurringEventFormProps = {
   setValue: UseFormSetValue<EventFormData>;
 };
 
+
 export const RRuleForm: React.FC<RecurringEventFormProps> = ({watch, register, errors, setValue}) => {
 
   const frequency: string = watch('recurrenceRule.frequency');
-  const [byMonthDay, setByMonthDay] = useState<boolean>(false);
-  const [bySpecificDay, setBySpecificDay] = useState<boolean>(false);
-  const [endType, setEndType] = useState<string>('Never');
+  const [byMonthDay, setByMonthDay] = useState<boolean>(!watch('recurrenceRule.bysetpos'));
+  const [bySpecificDay, setBySpecificDay] = useState<boolean>(!watch('recurrenceRule.bysetpos'));
+  const [endType, setEndType] = useState<string>(!watch('recurrenceRule.until') ? 'count' : 'until');
 
   const onInputModeChangeMonthly = () => {
     if(byMonthDay)
@@ -51,6 +52,13 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({watch, register, e
     }
     setEndType(event.target.value);
   }
+
+  const isMonthDayChecked = (day: number): boolean => {
+    let bymonthday = watch('recurrenceRule.bymonthday');
+    return ((typeof bymonthday !== 'number' && typeof bymonthday !== 'undefined') ? bymonthday!.includes(day) : bymonthday === day);
+  }
+
+  console.log(watch('recurrenceRule.bymonth'));
 
   return (
     <>
@@ -113,25 +121,25 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({watch, register, e
           <div className="d-flex">
             <div className="me-2">On: </div>
             <div className="btn-group">
-              <input type="checkbox" {...register('recurrenceRule.byday')} className="btn-check" value="MO" id="mo"/>
+              <input type="checkbox" {...register('recurrenceRule.byday')} className="btn-check" value="MO" id="mo" defaultChecked={watch('recurrenceRule.byday')?.includes('MO')}/>
               <label className="btn btn-primary" htmlFor="mo">MO</label>
 
-              <input type="checkbox" {...register('recurrenceRule.byday')} className="btn-check" value="TU" id="tu"/>
+              <input type="checkbox" {...register('recurrenceRule.byday')} className="btn-check" value="TU" id="tu" defaultChecked={watch('recurrenceRule.byday')?.includes('TU')}/>
               <label className="btn btn-primary" htmlFor="tu">TU</label>
 
-              <input type="checkbox" {...register('recurrenceRule.byday')} className="btn-check" value="WE" id="we"/>
+              <input type="checkbox" {...register('recurrenceRule.byday')} className="btn-check" value="WE" id="we" defaultChecked={watch('recurrenceRule.byday')?.includes('WE')}/>
               <label className="btn btn-primary" htmlFor="we">WE</label>
 
-              <input type="checkbox" {...register('recurrenceRule.byday')} className="btn-check" value="TH" id="th"/>
+              <input type="checkbox" {...register('recurrenceRule.byday')} className="btn-check" value="TH" id="th" defaultChecked={watch('recurrenceRule.byday')?.includes('TH')}/>
               <label className="btn btn-primary" htmlFor="th">TH</label>
 
-              <input type="checkbox" {...register('recurrenceRule.byday')} className="btn-check" value="FR" id="fr"/>
+              <input type="checkbox" {...register('recurrenceRule.byday')} className="btn-check" value="FR" id="fr" defaultChecked={watch('recurrenceRule.byday')?.includes('FR')}/>
               <label className="btn btn-primary" htmlFor="fr">FR</label>
 
-              <input type="checkbox" {...register('recurrenceRule.byday')} className="btn-check" value="SA" id="sa"/>
+              <input type="checkbox" {...register('recurrenceRule.byday')} className="btn-check" value="SA" id="sa" defaultChecked={watch('recurrenceRule.byday')?.includes('SA')}/>
               <label className="btn btn-primary" htmlFor="sa">SA</label>
 
-              <input type="checkbox" {...register('recurrenceRule.byday')} className="btn-check" value="SU" id="su"/>
+              <input type="checkbox" {...register('recurrenceRule.byday')} className="btn-check" value="SU" id="su" defaultChecked={watch('recurrenceRule.byday')?.includes('SU')}/>
               <label className="btn btn-primary" htmlFor="su">SU</label>
             </div>
           </div>
@@ -148,7 +156,7 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({watch, register, e
               <div className="btn-group d-flex flex-wrap">
                 {[...Array(31).keys()].map((i) => (
                   <>
-                    <input type="checkbox" {...register('recurrenceRule.bymonthday')} className="btn-check" value={`${i + 1}`}  key={uuidv4()} id={`${i + 1}`} disabled={!byMonthDay}/>
+                    <input defaultChecked={isMonthDayChecked(i + 1)} type="checkbox" {...register('recurrenceRule.bymonthday')} className="btn-check" value={`${i + 1}`}  key={uuidv4()} id={`${i + 1}`} disabled={!byMonthDay}/>
                     <label className="btn btn-primary" style={{borderRadius: '0.7rem'}} key={uuidv4()} htmlFor={`${i + 1}`}>{i + 1}</label>
                   </>
                 ))}
