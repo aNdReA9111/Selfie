@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { EventFormData } from "../utils/types";
 import { FieldErrors, UseFormRegister, UseFormWatch, UseFormSetValue } from "react-hook-form";
 import { v4 as uuidv4 } from 'uuid';
@@ -58,7 +58,6 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({watch, register, e
     return ((typeof bymonthday !== 'number' && typeof bymonthday !== 'undefined') ? bymonthday!.includes(day) : bymonthday === day);
   }
 
-  console.log(watch('recurrenceRule.bymonth'));
 
   return (
     <>
@@ -197,8 +196,9 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({watch, register, e
             <div className="form-check form-switch">
               <input className="form-check-input" type="checkbox" role="switch" id="bySpecificDay" onChange={_ => {}} checked={bySpecificDay} onClick={onInputModeChangeYearly}/>
               <label className="form-check-label" htmlFor="bySpecificDay">On </label>
+            { bySpecificDay && (<>
               <div className="container mb-3">
-                <select className="form-select" {...register('recurrenceRule.bymonthday')} id="setmonthday" aria-label="Select month day" disabled={!bySpecificDay}>
+                <select className="form-select" {...register('recurrenceRule.bymonthday')} id="setmonthday" aria-label="Select month day">
                   {[...Array(31).keys()].map((i: number) => {
                     return (i === 0 ? <option value={`${i + 1}`} key={uuidv4()}>{i + 1}</option> : <option value={`${i + 1}`} key={uuidv4()}>{i + 1}</option>);
                   })}
@@ -206,7 +206,7 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({watch, register, e
               </div>
               <div className="container mb-3">
                 <label htmlFor="setmonth" className="form-label">Of</label>
-                <select className="form-select" id="setmonth" {...register('recurrenceRule.bymonth')} aria-label="Select month" disabled={!bySpecificDay}>
+                <select className="form-select" id="setmonth" {...register('recurrenceRule.bymonth')} aria-label="Select month">
                   <option value="1">Janaury</option>
                   <option value="2">Februrary</option>
                   <option value="3">March</option>
@@ -221,11 +221,13 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({watch, register, e
                   <option value="12">December</option>
                 </select>
               </div>
-
+              </>)}
             </div>
+
             <div className="form-check form-switch flex">
               <input className="form-check-input" type="checkbox" role="switch" id="notBySpecificDay" onChange={_ => {}} checked={!bySpecificDay} onClick={onInputModeChangeYearly}/>
               <label className="form-check-label" htmlFor="notBySpecificDay"></label>
+              { !bySpecificDay && (<>
               <div className="container mb-3">
                 <label htmlFor="setpos2" className="form-label">On the</label>
                 <select className="form-select" id="setpos2" {...register('recurrenceRule.bysetpos')} aria-label="Select setpos" disabled={bySpecificDay}>
@@ -251,7 +253,7 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({watch, register, e
               </div>
               <div className="container mb-3">
                 <label htmlFor="setmonth2" className="form-label">Of</label>
-                <select className="form-select" id="setmonth2" {...register('recurrenceRule.bymonth')} aria-label="Select month" disabled={bySpecificDay}>
+                { !bySpecificDay && ( <select className="form-select" id="setmonth2" {...register('recurrenceRule.bymonth')} aria-label="Select month">
                   <option value="1">Janaury</option>
                   <option value="2">Februrary</option>
                   <option value="3">March</option>
@@ -264,9 +266,10 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({watch, register, e
                   <option value="10">October</option>
                   <option value="11">November</option>
                   <option value="12">December</option>
-                </select>
+                </select> ) }
                 {errors.recurrenceRule && <div className="invalid-feedback">{errors.recurrenceRule.message}</div>}
               </div>
+              </>) }
             </div>
           </div>
         )

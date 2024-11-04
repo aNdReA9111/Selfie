@@ -33,7 +33,7 @@ function rruleStrToObj(rule: string, zone: string) {
     until: rrule.options.until ? DateTime.fromJSDate(rrule.options.until).setZone(zone).toFormat("yyyy-MM-dd'T'HH:mm") : undefined,
     byday,
     bymonthday: rrule.options.bymonthday,
-    bymonth: rrule.options.bymonth,  
+    bymonth: rrule.options.bymonth,
     bysetpos: rrule.options.bysetpos,
   }
 }
@@ -118,6 +118,7 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
 
 
   const onSubmit = async (data: EventFormData) => {
+    console.log(data);
 
     const notifications = {
       notifica_email: data.notifications?.notifica_email,
