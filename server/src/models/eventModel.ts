@@ -1,22 +1,8 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
-//interfaccia per eventi ricorrenti ispirata a rrule di ICalendar
-// interface IRRule {
-//   isRecurring: boolean;
-//   frequency?: string;
-//   repetition?: number;
-//   interval: number;
-//   byday?: string[];
-//   bymonthday?: number[];
-//   bymonth?: number[];
-//   end?: string;
-//   endDate?: Date;
-// }
-
 interface INotification {
   notifica_email: boolean;
   notifica_desktop: boolean;
-  notifica_alert: boolean;
   text: string;
   before?: boolean; //true per eventi, false per attività con con data finale
   advance?: number; //quanto prima o dopo voglio la notifica
@@ -39,74 +25,18 @@ interface IEvent extends Document {
   title: string;
   description: string;
   date: Date;
+  endDate: Date;
   location?: string;
   url?: string;
   duration: number;
-  recurrencyRule: string;
-  // recurrencyRule: IRRule;
+  recurrenceRule: string;
   attendees?: IAttendee[];
   notifications?: INotification;
   isRecurring: boolean;
   nextDate?: Date;
   _id_user: string;
+  timezone: string;
 }
-
-// const rruleSchema = new Schema<IRRule>({
-//   isRecurring: {
-//     type: Boolean,
-//     required: true,
-//   },
-//   frequency: {
-//     type: String,
-//     enum: ["DAILY", "WEEKLY", "MONTHLY", "YEARLY"],
-//     required: function () {
-//       return this.isRecurring;
-//     },
-//   },
-//   interval: { type: Number, default: 1 },
-//   end: {
-//     type: String,
-//     enum: ["date", "forever", "repetitions"],
-//     required: function () {
-//       return this.isRecurring;
-//     },
-//   },
-//   byday: {
-//     type: [String],
-//     enum: ["MO", "TU", "WE", "TH", "FR", "SA", "SU"],
-//     required: function () {
-//       return this.frequency === "WEEKLY";
-//     },
-//   },
-//   bymonthday: {
-//     type: [Number],
-//     min: 1,
-//     max: 31,
-//     required: function () {
-//       return this.frequency === "MONTHLY" || this.frequency === "YEARLY";
-//     },
-//   },
-//   bymonth: {
-//     type: [Number],
-//     min: 1,
-//     max: 12,
-//     required: function () {
-//       return this.frequency === "YEARLY";
-//     },
-//   },
-//   repetition: {
-//     type: Number,
-//     required: function () {
-//       return this.end === "repetitions";
-//     },
-//   },
-//   endDate: {
-//     type: Date,
-//     required: function () {
-//       return this.end === "date";
-//     },
-//   },
-// });
 
 const notificationSchema = new Schema<INotification>({
   notifica_email: {
@@ -117,19 +47,19 @@ const notificationSchema = new Schema<INotification>({
     type: Boolean,
     required: true,
   },
-  notifica_alert: {
-    type: Boolean,
-    required: true,
-  },
   text: {
     type: String,
-    required: true,
+    // required: function (): boolean {
+    //   return (
+    //     false || this.notifica_desktop || this.notifica_email
+    //   );
+    // },
   },
   before: {
     type: Boolean,
     required: function () {
       return (
-        this.notifica_alert || this.notifica_desktop || this.notifica_email
+        this.notifica_desktop || this.notifica_email
       );
     },
   },
@@ -137,7 +67,7 @@ const notificationSchema = new Schema<INotification>({
     type: Number,
     required: function () {
       return (
-        this.notifica_alert || this.notifica_desktop || this.notifica_email
+        this.notifica_desktop || this.notifica_email
       );
     },
   },
@@ -146,7 +76,7 @@ const notificationSchema = new Schema<INotification>({
     enum: ["DAYS", "HOURS", "MINUTES"],
     required: function () {
       return (
-        this.notifica_alert || this.notifica_desktop || this.notifica_email
+        this.notifica_desktop || this.notifica_email
       );
     },
   },
@@ -156,7 +86,7 @@ const notificationSchema = new Schema<INotification>({
     max: 5,
     required: function () {
       return (
-        this.notifica_alert || this.notifica_desktop || this.notifica_email
+        this.notifica_desktop || this.notifica_email
       );
     },
   },
@@ -164,7 +94,7 @@ const notificationSchema = new Schema<INotification>({
     type: Number,
     required: function () {
       return (
-        this.notifica_alert || this.notifica_desktop || this.notifica_email
+        this.notifica_desktop || this.notifica_email
       );
     },
   },
@@ -173,7 +103,7 @@ const notificationSchema = new Schema<INotification>({
     enum: ["MINUTELY", "HOURLY", "DAILY"],
     required: function () {
       return (
-        this.notifica_alert || this.notifica_desktop || this.notifica_email
+        this.notifica_desktop || this.notifica_email
       );
     },
   },
@@ -216,9 +146,17 @@ const eventSchema = new Schema<IEvent>({
     type: Date,
     required: true,
   },
+  endDate: {
+    type: Date,
+    required: true,
+  },
   location: {
     type: String,
     required: false,
+  },
+  timezone: {
+    type: String,
+    required: true,
   },
   url: {
     type: String,
@@ -228,9 +166,11 @@ const eventSchema = new Schema<IEvent>({
     type: Number,
     required: true,
   },
-  recurrencyRule: {
+  recurrenceRule: {
     type: String,
-    required: true,
+    required: function () {
+      return this.isRecurring;
+    },
   },
   attendees: {
     type: [attendeeSchema],

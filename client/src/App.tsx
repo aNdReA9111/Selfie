@@ -9,7 +9,7 @@ import Login from './pages/Login'
 import SignUp from './pages/Signup'
 
 // Bootstrap
-import 'bootstrap/dist/css/bootstrap.min.css';
+// import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { useAuthContext } from './hooks/useAuthContext';
 
