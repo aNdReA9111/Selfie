@@ -48,7 +48,7 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
     title: event?.title || undefined,
     description: event?.description || undefined,
     date: event?.date ? DateTime.fromJSDate(event?.date).setZone(event?.timezone).toFormat("yyyy-MM-dd'T'HH:mm") : undefined,
-      endDate: event?.endDate ? DateTime.fromJSDate(event?.endDate).setZone(event?.timezone).toFormat("yyyy-MM-dd'T'HH:mm") : undefined,
+    endDate: event?.endDate ? DateTime.fromJSDate(event?.endDate).setZone(event?.timezone).toFormat("yyyy-MM-dd'T'HH:mm") : undefined,
     isRecurring: event?.isRecurring || false,
     notifications: event?.notifications || {
       notifica_email: false,

@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { NoteCard } from '../components/NoteCard';
+import { NotesSearchBar } from '../components/NotesSearchBar';
 import { Note, NotesContextType } from '../utils/types';
 import { useNotesContext } from '../hooks/useNotesContext';
 import { useAuthContext } from '../hooks/useAuthContext';
 import Spinner from 'react-bootstrap/Spinner';
-import { Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 
@@ -13,13 +13,14 @@ export const NotesPreview = () => {
   const { user } = useAuthContext();
   const [ error, setError ] = useState('');
   const [ isLoading, setIsLoading ] = useState(false);
+  const [ search, setSearch ] = useState<string>('');
 
   useEffect(() => {
     const fetchNotes = async () => {
       setIsLoading(true);
       setError('');
       try {
-        const res =  await fetch("http://localhost:4000/api/notes", {
+        const res =  await fetch("api/notes", {
           method: "GET",
           headers: {
             'Content-Type': 'application/json',
@@ -49,12 +50,13 @@ export const NotesPreview = () => {
   }, [user, dispatch])
 
   return (
-    <>
-      <div className="container d-flex flex-wrap">
+    <div className="container d-flex flex-column align-items-center">
+      <NotesSearchBar search={search} setSearch={setSearch}/>
+      <div className="container d-flex flex-wrap mt-4">
         {
           notes.length === 0
           ? <p>No notes yet</p>
-          : notes.map((note: Note) => <NoteCard key={note._id} note={note} />)
+          : notes.filter((note: Note) => note.title.toLowerCase().includes(search.toLowerCase())).map((note: Note) => <NoteCard key={note._id} note={note} />)
         }
         {
           error !== '' && <p>{error}</p>
@@ -66,10 +68,7 @@ export const NotesPreview = () => {
             </Spinner>
         }
       </div>
-      <Link to="/notes/add">Add note</Link>
-      { notes.length > 1 && <Button variant="primary" onClick={() => dispatch({type: "SORT_BY_DATE"})}>Sort by Date</Button> }
-      { notes.length > 1 && <Button variant="primary" onClick={() => dispatch({type: "SORT_BY_TITLE"})}>Sort by Title</Button> }
-      { notes.length > 1 && <Button variant="primary" onClick={() => dispatch({type: "SORT_BY_CONTENT"})}>Sort by Content length</Button> }
-    </>
+      <Link className="btn btn-primary mt-3" to="/notes/add">Add note</Link>
+    </div>
   );
 }

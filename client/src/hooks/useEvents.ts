@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useEventsContext } from './useEventsContext';
 import { Event } from '../utils/types';
 
-export const useEvents = (url: string, options = {}, dependencies = []) => {
+export const useEvents = (url: string, query = {}, options = {}, dependencies = []) => {
   const { dispatch } = useEventsContext();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -12,7 +12,8 @@ export const useEvents = (url: string, options = {}, dependencies = []) => {
 
     const fetchEvents = async () => {
       try {
-        const res = await fetch(url, { method: 'GET', ...options });
+        const params = new URLSearchParams(query).toString();
+        const res = await fetch(url + params, { method: 'GET', ...options });
         if (!res.ok) {
           throw new Error(`HTTP error! Status: ${res.status}`);
         }

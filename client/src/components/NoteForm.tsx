@@ -20,7 +20,7 @@ export const NoteForm = ({isEdit, isView}: {isEdit: boolean, isView: boolean}) =
     };
     try {
       if (isEdit) {
-        const res = await fetch(`http://localhost:4000/api/notes/${id}`, {
+        const res = await fetch(`/api/notes/${id}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -43,7 +43,7 @@ export const NoteForm = ({isEdit, isView}: {isEdit: boolean, isView: boolean}) =
         }
       }
       else {
-        const res = await fetch(`http://localhost:4000/api/notes`, {
+        const res = await fetch(`/api/notes`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

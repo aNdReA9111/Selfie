@@ -1,5 +1,4 @@
-import Button from 'react-bootstrap/Button';
-import Card from 'react-bootstrap/Card';
+import { Button, ButtonGroup, Card } from 'react-bootstrap';
 import { Note } from '../utils/types';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -26,7 +25,7 @@ export const NoteCard = ({note}: {note: Note}) => {
 
   const handleDelete = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/notes/${note._id}`, {
+      const res = await fetch(`api/notes/${note._id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -43,18 +42,20 @@ export const NoteCard = ({note}: {note: Note}) => {
   }
 
   return (
-    <Card className="m-2 w-25">
-      <Card.Body>
+    <Card style={{ minWidth: '18rem', flexShrink: 0 }} className="m-2 w-25">
+      <Card.Body className='d-flex flex-column'>
         <Card.Title>{note.title}</Card.Title>
         <Card.Subtitle className="mb-2 text-muted">{new Date(note.created).toLocaleDateString()}</Card.Subtitle>
-        <Card.Text>
+        <Card.Text className='flex-grow-1'>
           {/*ANCHE LA PREVIEW DEVE ESSERE  IN MARKDOWN*/}
-          {<section dangerouslySetInnerHTML={{__html: html.length > 200 ? html.slice(0, 200) + '...' : html }}></section>}
+          {<p dangerouslySetInnerHTML={{__html: html.length > 200 ? html.slice(0, 200) + '...' : html }}></p>}
         </Card.Text>
-        <Link to={`/notes/${note._id}`}>See more</Link>
-        {/*solo proprietario può modificare o eliminare, chi è nella lista no*/}
-        {isOwner && <Button variant="primary" onClick={handleDelete}>Delete</Button> }
-        {isOwner && <Link to={`/notes/edit/${note._id}`}>Edit</Link> }
+        <ButtonGroup className='m-2'>
+          <Link className='btn btn-primary' to={`/notes/${note._id}`}><i className='bi bi-eye'></i></Link>
+          {/*solo proprietario può modificare o eliminare, chi è nella lista no*/}
+          {isOwner && <Button variant="danger" onClick={handleDelete}><i className="bi bi-trash"></i></Button> }
+          {isOwner && <Link className='btn btn-warning' to={`/notes/edit/${note._id}`}><i className="bi bi-pencil-square"></i></Link> }
+        </ButtonGroup>
       </Card.Body>
     </Card>
   );

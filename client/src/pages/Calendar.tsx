@@ -60,7 +60,7 @@ const CustomCalendar = () => {
   const [currentEvent, setCurrentEvent] = useState<Event | undefined>(undefined);
   const [date, setDate] = useState<Date | undefined>(undefined);
 
-  const { isLoading, error } = useEvents("/api/events/", {
+  const { isLoading, error } = useEvents("/api/events/", undefined, {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${user.token}`,

@@ -1,5 +1,24 @@
 import { z } from "zod";
 
+//date-string preprocessing
+const dateFromString = z.preprocess((val) => {
+  if (typeof val === "string") {
+    const parsed = new Date(val);
+    return isNaN(parsed.getTime()) ? undefined : parsed;
+  }
+  return val; // If it's already a number, return it
+}, z.date());
+
+//date-string preprocessing, but optional
+const dateFromStringOptional = z.preprocess((val) => {
+  if (typeof val === "string") {
+    const parsed = new Date(val);
+    return isNaN(parsed.getTime()) ? undefined : parsed;
+  }
+  return val; // If it's already a number, return it
+}, z.date().optional());
+
+
 //custom types for time machine context
 export type TimeMachineState = {
   offset: number;
@@ -18,6 +37,36 @@ export type TimeMachineContextType = {
   offset: number;
   dispatch: React.Dispatch<TimeMachineAction>;
 };
+
+//note filters schema
+export const noteFilterSchema = z.object({
+  public: z.boolean().optional(),
+  group: z.boolean().optional(),
+  private: z.boolean().optional(),
+  start: dateFromStringOptional,
+  end: dateFromStringOptional,
+  tags: z
+    .union([
+      z.string().transform((str) => str.split(",").map((s) => s.trim())),
+      z.array(z.string()),
+    ])
+    .optional(),
+}).refine((data) => {
+    if (data.start && data.end) {
+      return data.start.getTime() <= data.end.getTime();
+    }
+    else if (!data.start && !data.end) {
+      return true;
+    }
+    else return false;
+  },
+  {
+    message: "Start date must be before end date",
+    path: ["start"],
+  })
+;
+
+export type NoteFilterType = z.infer<typeof noteFilterSchema>;
 
 //custom types for notes context
 export const noteSchema = z.object({
@@ -113,14 +162,6 @@ const createSetPosNumberFromString = () => {
     return val; // If it's already a number, return it
   }, z.number().int().min(-1).max(4));
 };
-
-const dateFromString = z.preprocess((val) => {
-  if (typeof val === "string") {
-    const parsed = new Date(val);
-    return isNaN(parsed.getTime()) ? undefined : parsed;
-  }
-  return val; // If it's already a number, return it
-}, z.date());
 
 const freqEnum = z.enum(["DAILY", "WEEKLY", "MONTHLY", "YEARLY"]);
 const byDayEnum = z.enum(["MO", "TU", "WE", "TH", "FR", "SA", "SU"]);
