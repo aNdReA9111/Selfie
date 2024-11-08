@@ -128,4 +128,20 @@ const removeSubscription = async (req: Req, res: Response) => {
 
 //qui andrà una route per invio di notifiche --> estensione 27 del pomodoro
 
-export { loginUser, signUpUser, addSubscription, removeSubscription };
+
+const searchUsersByUsernameSubstring = async (req: Request, res: Response) => {
+    const { substring } = req.body;
+
+    try {
+        const regex = new RegExp(`^${substring}`, 'i'); // Ignora maiuscole e minuscole
+        const users = await UserModel.find({ username: { $regex: regex } }, { _id: 0, username: 1 });
+
+        const matchedUsernames = users.map((user: IUser) => user.username);
+
+        res.status(200).json({ matchedUsernames });
+    } catch (error: any) {
+        res.status(400).json({ message: error.message });
+    }
+}
+
+export { loginUser, signUpUser, addSubscription, removeSubscription, searchUsersByUsernameSubstring };

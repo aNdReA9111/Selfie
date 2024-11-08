@@ -10,6 +10,7 @@ import { corsOptions } from "./utils/corsOption.js";
 import { userRoutes } from "./routes/user.js";
 import { notesRoutes } from "./routes/note.js";
 import { eventRoutes } from "./routes/event.js";
+import { messageRoutes } from "./routes/message.js";
 import { activityRoutes } from "./routes/activity.js";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
@@ -52,6 +53,7 @@ app.use((req: Request, _: Response, next: any) => {
 app.use("/api/users", userRoutes);
 app.use("/api/notes", notesRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/messages", messageRoutes);
 app.use("/api/activities", activityRoutes);
 
 // Connessione al database

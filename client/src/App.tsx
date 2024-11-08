@@ -8,6 +8,7 @@ import About from './pages/About';
 import Login from './pages/Login'
 import SignUp from './pages/Signup'
 
+
 // Bootstrap
 // import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -16,6 +17,7 @@ import { useAuthContext } from './hooks/useAuthContext';
 
 // Components
 import MyNavbar from './components/MyNavbar';
+import { Chat } from './components/Chat';
 import { Editor } from './components/Editor';
 import MyNotification from './components/MyNotification';
 
@@ -43,6 +45,8 @@ function App() {
           <Route Component={() => (!user ? <Login /> : <Navigate to="/" />)} path="/login"></Route>
           <Route Component={() => (!user ? <SignUp /> : <Navigate to="/" />)} path="/signup"></Route>
         </Routes>
+
+        {user ? <Chat/> : null }
       </Router>
     </>
   )
