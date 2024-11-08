@@ -33,7 +33,7 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 //configurazione webpush
 webpush.setVapidDetails(
   "mailto:leonardo.po@studio.unibo.it",
-  process.env.VITE_VAPID_PUBLIC_KEY as string,
+  process.env.VAPID_PUBLIC_KEY as string,
   process.env.VAPID_PRIVATE_KEY as string,
 );
 

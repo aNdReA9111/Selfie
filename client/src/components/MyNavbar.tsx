@@ -1,122 +1,111 @@
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import { Link } from 'react-router-dom';
-
+import { Container } from 'react-bootstrap';
 import { useLogout } from '../hooks/useLogout';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { NavDropdown } from 'react-bootstrap';
-
-// import { useEvents, IEvent } from '../hooks/useEvents'
+import { BsHouseDoor, BsCalendar3, BsStickyFill, BsClock, BsInfoCircle, BsPersonCircle } from 'react-icons/bs';
+import logo from '../assets/logo.png';
+import { generateColorFromString } from '../utils/colorUtils';
+import '../css/navbar.css';
 
 const MyNavbar = () => {
   const { user } = useAuthContext();
   const logout = useLogout();
-  // const { events, setEvents } = useEvents();
 
   const handleLogout = () => {
       logout();
   }
 
-  // function handleRemoveNotification(_id: string): void {
-  //   fetch(`http://localhost:4000/api/events/delete/${user._id}/${_id}`, {
-  //     method: 'DELETE',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       'Authorization': `Bearer ${user.token}`
-  //     },
-  //   }).then(async response => {
-  //       if (!response.ok)
-  //         throw new Error(response.statusText);
-  //
-  //       const data = await response.json();
-  //       setEvents(events.filter(ev => ev._id !== data._id));
-  //
-  //     })
-  //     .catch(error => {
-  //       console.error('There was a problem with the fetch operation:', error);
-  //     });
-  // }
-
   return (
-      <Navbar className="bg-danger justify-content-between">
-        <Navbar.Brand>Selfie</Navbar.Brand>
-        <Nav className="mr-auto">
-          {user && (
-            <>
-              <Nav.Link as={Link} style={{color:'white'}} to="/" >
-                Home
-              </Nav.Link>
+      <Navbar bg="danger" variant="dark" expand="lg" className="py-1">
+        <Container fluid>
+          <Navbar.Brand as={Link} to="/" className="d-flex align-items-center">
+            <img
+              src={logo}
+              height="20"
+              width="100"
+              className="d-inline-block align-top me-2"
+              alt="Selfie Logo"
+            />
+            Selfie
+          </Navbar.Brand>
+          
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="me-auto">
+              {user && (
+                <>
+                  <Nav.Link as={Link} to="/" className="text-white d-flex align-items-center">
+                    <BsHouseDoor className="me-1" /> Home
+                  </Nav.Link>
 
-              <Nav.Link as={Link} style={{color:'white'}} to="/calendar" >
-                Calendario
-              </Nav.Link>
+                  <Nav.Link as={Link} to="/calendar" className="text-white d-flex align-items-center">
+                    <BsCalendar3 className="me-1" /> Calendario
+                  </Nav.Link>
 
-              <Nav.Link as={Link} style={{color:'white'}} to="/notes" >
-                Notes
-              </Nav.Link>
+                  <Nav.Link as={Link} to="/notes" className="text-white d-flex align-items-center">
+                    <BsStickyFill className="me-1" /> Notes
+                  </Nav.Link>
 
-              <Nav.Link as={Link} style={{color:'white'}} to="/pomodoro" >
-                Pomodoro
-              </Nav.Link>
+                  <Nav.Link as={Link} to="/pomodoro" className="text-white d-flex align-items-center">
+                    <BsClock className="me-1" /> Pomodoro
+                  </Nav.Link>
 
-              <Nav.Link as={Link} style={{color:'white'}} to="/about" >
-                About
-              </Nav.Link>
-            </>
-          )}
+                  <Nav.Link as={Link} to="/about" className="text-white d-flex align-items-center">
+                    <BsInfoCircle className="me-1" /> About
+                  </Nav.Link>
+                </>
+              )}
 
-          {!user && (
-            <>
-              <Nav.Link as={Link} style={{color:'white'}} to="/login" >
-                Login
-              </Nav.Link>
+              {!user && (
+                <>
+                  <Nav.Link as={Link} to="/login" className="text-white">
+                    Login
+                  </Nav.Link>
 
-              <Nav.Link as={Link} style={{color:'white'}} to="/signup" >
-                Sign Up
-              </Nav.Link>
-            </>
-          )}
-        </Nav>
-        {user && (
-          <Nav className="ml-3">
-            <Nav.Item>
-              <NavDropdown title="Account" id="basic-nav-dropdown" align="end">
-                <NavDropdown.Item as={Link} to="/account-settings">Impostazioni account</NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
-              </NavDropdown>
-            </Nav.Item>
-
-            {/*<Nav.Item>
-              <NavDropdown title="Notifica" id="basic-nav-dropdown" align="end">
-                  {
-                    Array.isArray(events) && events.map((ev : IEvent, index : number) => (
-                      <React.Fragment key={index}>
-                        <div className="d-flex align-items-center justify-content-between px-3 py-2">
-                          <Nav.Item className="flex-grow-1">
-                            {ev.titolo}
-                          </Nav.Item>
-                          
-                          <button 
-                            className="btn btn-danger btn-sm ml-2" 
-                            onClick={() => ev._id && handleRemoveNotification(ev._id)}
-                            title={""}
-                          >
-                          </button>
-                        </div>
-                        {
-                          index < events.length - 1 && <NavDropdown.Divider />
-                        }
-                      </React.Fragment>
-                    ))
-                  }
-              </NavDropdow>
-            </Nav.Item>*/}
-          </Nav>
-        )}
+                  <Nav.Link as={Link} to="/signup" className="text-white">
+                    Sign Up
+                  </Nav.Link>
+                </>
+              )}
+            </Nav>
+            
+            {user && (
+              <Nav>
+                <NavDropdown 
+                  title={
+                    <span className="text-white d-flex align-items-center">
+                      <div 
+                        className="avatar-circle" 
+                        style={{ 
+                          backgroundColor: generateColorFromString(user.username)
+                        }}
+                      >
+                        {user.username[0].toUpperCase()}
+                      </div>
+                      Account
+                    </span>
+                  } 
+                  id="basic-nav-dropdown" 
+                  align="end"
+                  className="custom-dropdown"
+                >
+                  <NavDropdown.Item as={Link} to="/account-settings">
+                    Impostazioni account
+                  </NavDropdown.Item>
+                  <NavDropdown.Divider />
+                  <NavDropdown.Item onClick={handleLogout}>
+                    Logout
+                  </NavDropdown.Item>
+                </NavDropdown>
+              </Nav>
+            )}
+          </Navbar.Collapse>
+        </Container>
       </Navbar>
   );
-
 };
 
 export default MyNavbar;

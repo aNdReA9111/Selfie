@@ -1,0 +1,129 @@
+.about-content {
+    font-family: 'Poppins', sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.about-section {
+    padding: 1rem;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.9);
+    transition: transform 0.3s ease;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(220, 53, 69, 0.1);
+}
+
+.about-section:hover {
+    transform: translateY(-5px);
+}
+
+.feature-list {
+    text-align: left;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.feature-list p {
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.feature-list p:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.tech-stack {
+    font-family: 'Courier New', monospace;
+    background-color: rgba(220, 53, 69, 0.1);
+    padding: 1rem;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+.about-footer {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+.credits-section {
+    margin-top: 3rem;
+    padding: 2rem !important;
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe6e6 100%);
+}
+
+.developers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.developer-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(220, 53, 69, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.developer-card:hover {
+    transform: translateY(-5px);
+}
+
+.developer-name {
+    color: #dc3545;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.developer-matricola {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.developer-email {
+    color: #dc3545;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.developer-email:hover {
+    color: #900;
+}
+
+.github-section {
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+.github-link {
+    display: inline-flex;
+    align-items: center;
+    color: #333;
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    background: white;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.github-link:hover {
+    color: #dc3545;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.2);
+}
+
+@media (max-width: 768px) {
+    .developers-grid {
+        grid-template-columns: 1fr;
+    }
+} 

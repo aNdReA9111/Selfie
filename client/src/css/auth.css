@@ -1,0 +1,227 @@
+.auth-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe6e6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    font-family: 'Poppins', sans-serif;
+}
+
+.auth-box {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(220, 53, 69, 0.15);
+    width: 100%;
+    max-width: 1000px;
+    min-height: 600px;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+}
+
+.auth-left {
+    flex: 1;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+    z-index: 1;
+}
+
+.auth-left img {
+    width: 80%;
+    max-width: 300px;
+    height: auto;
+    margin-bottom: 2rem;
+    animation: float 6s ease-in-out infinite;
+    filter: none;
+}
+
+.auth-left::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 10%;
+    height: 80%;
+    width: 1px;
+    background: linear-gradient(to bottom, 
+        transparent, 
+        rgba(220, 53, 69, 0.5), 
+        transparent
+    );
+}
+
+.auth-right {
+    flex: 1;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: white;
+    z-index: 1;
+}
+
+.auth-title {
+    color: #dc3545;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.auth-subtitle {
+    color: #666;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+}
+
+.auth-form {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.auth-form .form-control {
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    border: 2px solid #eee;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.auth-form .form-control:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+}
+
+.auth-button {
+    width: 100%;
+    background: linear-gradient(45deg, #dc3545, #900) !important;
+    border: none !important;
+    padding: 0.75rem !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    border-radius: 8px !important;
+    margin: 1.5rem 0 1rem 0 !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.auth-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+}
+
+.auth-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.auth-links a {
+    color: #dc3545;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.auth-links a:hover {
+    color: #900;
+}
+
+.auth-error {
+    color: #dc3545;
+    text-align: center;
+    margin: 1rem 0;
+    padding: 0.75rem;
+    background-color: rgba(220, 53, 69, 0.1);
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .auth-container {
+        padding: 1rem;
+    }
+
+    .auth-box {
+        flex-direction: column;
+        min-height: auto;
+    }
+
+    .auth-left {
+        padding: 2rem;
+    }
+
+    .auth-left::after {
+        display: none;
+    }
+
+    .auth-right {
+        padding: 2rem;
+    }
+
+    .auth-left img {
+        max-width: 200px;
+        margin-bottom: 1rem;
+    }
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-15px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.about-content {
+    font-family: 'Poppins', sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.about-section {
+    padding: 1rem;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.9);
+    transition: transform 0.3s ease;
+}
+
+.about-section:hover {
+    transform: translateY(-5px);
+}
+
+.feature-list {
+    text-align: left;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.feature-list p {
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.feature-list p:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.tech-stack {
+    font-family: 'Courier New', monospace;
+    background-color: rgba(220, 53, 69, 0.1);
+    padding: 1rem;
+    border-radius: 5px;
+    display: inline-block;
+}
