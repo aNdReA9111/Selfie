@@ -1,16 +1,9 @@
-import express, { Router } from "express";
-import {
-    getMessages, 
-    sendMessage
-} from "../controllers/messagesController.js";
-import { requireAuth } from "../middleware/requireAuth.js";
+import express from 'express';
+import { getMessages, sendMessage } from '../controllers/messagesController.js';
 
+const messageRoutes = express.Router();
 
-
-const messageRoutes: Router = express.Router();
-// messageRoutes.use(requireAuth);
-
-messageRoutes.get("/get", getMessages);
-messageRoutes.post("/send/:username_sender", sendMessage);
+messageRoutes.get('/get/:id', getMessages);
+messageRoutes.post('/send/:sender_id', sendMessage);
 
 export { messageRoutes };
