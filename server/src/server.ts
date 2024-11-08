@@ -30,12 +30,10 @@ const __dirname = dirname(__filename);
 //path relativo a dist
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
-console.log(process.env.PORT);
-
 //configurazione webpush
 webpush.setVapidDetails(
   "mailto:leonardo.po@studio.unibo.it",
-  process.env.VAPID_PUBLIC_KEY as string,
+  process.env.VITE_VAPID_PUBLIC_KEY as string,
   process.env.VAPID_PRIVATE_KEY as string,
 );
 
