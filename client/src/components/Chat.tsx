@@ -1,6 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
 import { ListGroup, FormControl, Button, InputGroup } from 'react-bootstrap';
-import $ from 'jquery';
 import { AuthContext } from '../context/authContext';
 import '../css/chat.css';
 import { FaArrowLeft } from 'react-icons/fa';
