@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { useLogin } from '../hooks/useLogin';
 import { Link } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
@@ -11,9 +11,20 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const { login, error, isLoading } = useLogin();
 
-    const handleSubmit = async (e: any) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        await login(email, password);
+        
+        // Validazione base
+        if (!email || !password) {
+            alert('Per favore, compila tutti i campi');
+            return;
+        }
+
+        try {
+            await login(email, password);
+        } catch (err) {
+            console.error('Errore durante il login:', err);
+        }
     }
 
     return (
@@ -27,26 +38,33 @@ const Login = () => {
                     <p className="auth-subtitle">Accedi al tuo account Selfie</p>
                     
                     <Form className="auth-form" onSubmit={handleSubmit}>
-                        <Form.Control
-                            type="email"
-                            placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
+                        <Form.Group className="mb-3">
+                            <Form.Control
+                                type="email"
+                                placeholder="Email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                        </Form.Group>
                         
-                        <Form.Control
-                            type="password"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
+                        <Form.Group className="mb-3">
+                            <Form.Control
+                                type="password"
+                                placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                minLength={6}
+                            />
+                        </Form.Group>
                         
                         <Button 
                             type="submit" 
                             disabled={isLoading}
                             className="auth-button"
                         >
-                            Accedi
+                            {isLoading ? 'Accesso in corso...' : 'Accedi'}
                         </Button>
                         
                         {error && <div className="auth-error">{error}</div>}

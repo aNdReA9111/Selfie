@@ -56,27 +56,30 @@ export const Chat = () => {
         fetchActiveChats();
     }, []);
 
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const value: string = e.target.value;
         setSearchTerm(value);
 
         if (value.length > 2) {
-            $.ajax({
-                url: 'http://localhost:4000/api/users/search',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify({ substring: value }),
-                success: (data: { matchedUsernames: string[] }) => {
-                    setSearchResults(data.matchedUsernames);
-                },
-                error: (jqXHR: JQuery.jqXHR, textStatus: string, errorThrown: string) => {
-                    console.error('Error searching users:', textStatus, errorThrown);
-                    console.error('jqXHR status:', jqXHR.status);
-                    console.error('jqXHR response:', jqXHR.responseText);
-                    setSearchResults([]);
+            try {
+                const response = await fetch('/api/users/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ substring: value })
+                });
 
+                if (!response.ok) {
+                    throw new Error('Search failed');
                 }
-            });
+
+                const data = await response.json();
+                setSearchResults(data.matchedUsernames);
+            } catch (error) {
+                console.error('Error searching users:', error);
+                setSearchResults([]);
+            }
         } else {
             setSearchResults([]);
         }

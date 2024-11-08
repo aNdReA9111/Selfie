@@ -5,7 +5,7 @@ import { Container } from 'react-bootstrap';
 import { useLogout } from '../hooks/useLogout';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { NavDropdown } from 'react-bootstrap';
-import { BsHouseDoor, BsCalendar3, BsStickyFill, BsClock, BsInfoCircle, BsPersonCircle } from 'react-icons/bs';
+import { BsHouseDoor, BsCalendar3, BsStickyFill, BsClock, BsInfoCircle } from 'react-icons/bs';
 import logo from '../assets/logo.png';
 import { generateColorFromString } from '../utils/colorUtils';
 import '../css/navbar.css';

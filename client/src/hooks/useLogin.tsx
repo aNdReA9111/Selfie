@@ -13,38 +13,34 @@ export const useLogin = (): UseLoginReturn => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { dispatch } = useAuthContext();
 
-
     const login = async (email: string, password: string) => {
         setIsLoading(true);
         setError(null);
 
         try {
-            const response = await fetch('http://localhost:4000/api/users/login', {
+            const response = await fetch('/api/users/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
             });
-            
-            
-            // Controllo se la risposta è ok prima di fare il parsing
+
+            const json = await response.json();
+
             if (!response.ok) {
-                const errorResponse = await response.json(); // Ottieni il testo invece del JSON
                 setIsLoading(false);
-                setError(errorResponse.message);
+                setError(json.error || 'Errore durante il login');
                 return;
             }
-    
-            const json = await response.json();
-    
-            // Salvo lo user nel local storage e dispatch
+
+            // Salvo nel localStorage e aggiorno il context
             localStorage.setItem('user', JSON.stringify(json));
             dispatch({ type: 'LOGIN', payload: json });
             setIsLoading(false);
-        } catch (error) {
-            setIsLoading(false);
-            setError('Qualcosa è andato storto, riprova più tardi.');
-        }
 
+        } catch (error: any) {
+            setIsLoading(false);
+            setError('Errore di connessione al server');
+        }
     }
 
     return { login, isLoading, error };
