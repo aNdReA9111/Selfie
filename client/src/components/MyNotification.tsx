@@ -1,53 +1,72 @@
-import { useEffect, useState, useContext } from 'react';
-import { useEvents } from '../hooks/useEvents';
+import { useEffect, useContext } from 'react';
 import { AuthContext } from '../context/authContext';
 
-import { diffDateFromNow } from '../utils/dateUtils';
-
-
 const MyNotification = () => {
-    const [permission, setPermission] = useState<NotificationPermission>(Notification.permission);
-    const { events } = useEvents();
-    const { user } = useContext(AuthContext);
-  
-    const showNotification = (title: string, options?: NotificationOptions) => {
-      if (permission === 'granted') {
-        new Notification(title, options);
-      } else {
-        console.warn('Notification permission not granted');
-      }
-    };
-  
-    const askNotificationPermission = () => {
-      if (permission !== 'granted') {
-        Notification.requestPermission().then((perm) => {
-          setPermission(perm);
-          if (perm === 'granted') {
-            showNotification('Grazie per aver attivato le notifiche!');
-          }
-        });
-      }
-    };
-  
-    useEffect(() => {
-      if(user && user.flags.notifica_desktop) {
-        askNotificationPermission();
-        if (permission === 'granted') {
-          events.forEach((event) => {
-            if(diffDateFromNow(event.data, 'Europe/Rome', event.timezone) <= 0){
-              showNotification(`Scaduto: ${event.titolo}`, {
-                body: `${event.descrizione}`,
-                icon: 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.freepik.com%2Ficons%2Falert&psig=AOvVaw3KC7Eg244OcU46PqoSh1kV&ust=1727039051808000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqGAoTCIDjgf331IgDFQAAAAAdAAAAABDNAQ'
-              });
+  const { user } = useContext(AuthContext);
 
-              // qui va la cancellazione dell'evento dal DB
-            }
-          });
+  const check = () => {
+    if(!('serviceWorker' in navigator))
+      throw new Error("Service Worker non supportato");
+    if(!('PushManager' in window))
+      throw new Error("No support per Push API");
+  }
+
+  const askNotificationPermission = async () => {
+    const permission = await Notification.requestPermission();
+    if (permission === 'default' || permission === 'denied') {
+      throw new Error('No support for push notifications');
+    }
+    return permission;
+  };
+
+  async function subscribeUserToPush(registration: any) {
+    const applicationServerKey = urlB64ToUint8Array(import.meta.env.VITE_VAPID_PUBLIC_KEY);
+    try {
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey,
+      });
+      return subscription;
+    } catch (error) {
+      throw new Error('Failed to subscribe the user: ' + error);
+    }
+  }
+
+
+  // Helper to convert VAPID key
+  function urlB64ToUint8Array(base64String: string) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
+  }
+
+  useEffect(() => {
+    const enablePushNotifications = async () => {
+      if(user && user.flags.notifica_desktop && Notification.permission !== 'granted') {
+        check();
+        const reg = await navigator.serviceWorker.register("/sw.js");
+        const permission =  await askNotificationPermission();
+        if(permission === 'granted') {
+          const subscription = await subscribeUserToPush(reg);
+          if(subscription){
+            const res = await fetch('http://localhost:4000/api/users/subscribe', {
+              body: JSON.stringify({ subscription }),
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${user.token}`
+              }
+            })
+            console.log(res);
+          }
         }
       }
-    }, [events]);
+    }
+    enablePushNotifications();
+  }, []);
 
-    return null;
+  return null;
 };
 
 export default MyNotification;

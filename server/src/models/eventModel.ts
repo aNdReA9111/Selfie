@@ -1,132 +1,209 @@
-import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Schema, Document, Model } from "mongoose";
+
+interface INotification {
+  notifica_email: boolean;
+  notifica_desktop: boolean;
+  text: string;
+  before?: boolean; //true per eventi, false per attività con con data finale
+  advance?: number; //quanto prima o dopo voglio la notifica
+  repetitions?: number; //quante notifiche voglio ricevere
+  frequency?: number; //con quale frequenza voglio ricevere le notifiche
+  frequencyType?: string; //con quale frequenza voglio ricevere le notifiche
+  advanceType?: string; //giorni, ore, minuti
+}
+
+interface IAttendee {
+  name: string;
+  email: string;
+  responded: boolean;
+  accepted: boolean;
+}
 
 // Definire un'interfaccia che rappresenta le proprietà di un documento Event
 interface IEvent extends Document {
-    _id: Schema.Types.ObjectId;
-    titolo: string;
-    descrizione: string;
-    data: Date;
-    frequenza: [string];
-    ripetizioni: [string];
-    _id_utente: string;
-    timezone?: string;
+  _id: Schema.Types.ObjectId;
+  title: string;
+  description: string;
+  date: Date;
+  endDate: Date;
+  location?: string;
+  url?: string;
+  duration: number;
+  recurrenceRule: string;
+  attendees?: IAttendee[];
+  notifications?: INotification;
+  isRecurring: boolean;
+  nextDate?: Date;
+  _id_user: string;
+  timezone: string;
 }
 
-// Definire un'interfaccia che rappresenta i metodi statici del modello Event
-interface IEventModel extends Model<IEvent> {
-    createEvent(titolo: string, descrizione: string, data: Date, frequenza: [string], ripetizioni: [string], timezone: string, _id_utente: string): Promise<IEvent>;
-    getEventById(_id: string, _id_utente : string): Promise<IEvent>;
-    getAllEvents(_id_utente: string): Promise<IEvent[]>;
-    deleteEventById(_id: string, _id_utente: string): Promise<IEvent>;
-    deleteAllEvents(_id_utente: string): Promise<void>;
-}
+const notificationSchema = new Schema<INotification>({
+  notifica_email: {
+    type: Boolean,
+    required: true,
+  },
+  notifica_desktop: {
+    type: Boolean,
+    required: true,
+  },
+  text: {
+    type: String,
+    // required: function (): boolean {
+    //   return (
+    //     false || this.notifica_desktop || this.notifica_email
+    //   );
+    // },
+  },
+  before: {
+    type: Boolean,
+    required: function () {
+      return (
+        this.notifica_desktop || this.notifica_email
+      );
+    },
+  },
+  advance: {
+    type: Number,
+    required: function () {
+      return (
+        this.notifica_desktop || this.notifica_email
+      );
+    },
+  },
+  advanceType: {
+    type: String,
+    enum: ["DAYS", "HOURS", "MINUTES"],
+    required: function () {
+      return (
+        this.notifica_desktop || this.notifica_email
+      );
+    },
+  },
+  repetitions: {
+    type: Number,
+    min: 1,
+    max: 5,
+    required: function () {
+      return (
+        this.notifica_desktop || this.notifica_email
+      );
+    },
+  },
+  frequency: {
+    type: Number,
+    required: function () {
+      return (
+        this.notifica_desktop || this.notifica_email
+      );
+    },
+  },
+  frequencyType: {
+    type: String,
+    enum: ["MINUTELY", "HOURLY", "DAILY"],
+    required: function () {
+      return (
+        this.notifica_desktop || this.notifica_email
+      );
+    },
+  },
+});
 
+const attendeeSchema = new Schema<IAttendee>({
+  name: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+  },
+  responded: {
+    type: Boolean,
+    required: true,
+  },
+  accepted: {
+    type: Boolean,
+    required: true,
+  },
+});
 
 // Definire lo schema di Mongoose
 const eventSchema = new Schema<IEvent>({
-    _id: {
-        type: Schema.Types.ObjectId,
-        auto: true
+  _id: {
+    type: Schema.Types.ObjectId,
+    auto: true,
+  },
+  title: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  date: {
+    type: Date,
+    required: true,
+  },
+  endDate: {
+    type: Date,
+    required: true,
+  },
+  location: {
+    type: String,
+    required: false,
+  },
+  timezone: {
+    type: String,
+    required: true,
+  },
+  url: {
+    type: String,
+    required: false,
+  },
+  duration: {
+    type: Number,
+    required: true,
+  },
+  recurrenceRule: {
+    type: String,
+    required: function () {
+      return this.isRecurring;
     },
-    titolo: {
-        type: String,
-        required: true
+  },
+  attendees: {
+    type: [attendeeSchema],
+    required: false,
+  },
+  notifications: {
+    type: notificationSchema,
+    required: false,
+  },
+  isRecurring: {
+    type: Boolean,
+    default: false,
+  },
+  nextDate: {
+    type: Date,
+    // default: this.date,
+    required: function () {
+      this.isRecurring === true;
     },
-    descrizione: {
-        type: String,
-        required: true
-    },
-    data: {
-        type: Date,
-        required: true
-    },
-    frequenza: {
-        type: [String],
-        required: true,
-        enum: ['nessuna', 'giornaliero', 'settimanale', 'mensile', 'annuale'],
-        default: ['nessuna']
-    },
-
-    ripetizioni: {
-        type: [String],
-        match: [/^(none|0-9]+[mhdMy])$/, 'Il campo ripetizioni deve essere nel formato [0-9][m,h,d,M,y] o "none"'],
-        default: ['none']
-    },
-    _id_utente: {
-        type: String,
-        required: true
-    },
-    timezone: {
-        type: String,
-        default: 'Europe/Rome',
-        required: false
-    }
+  },
+  _id_user: {
+    type: String,
+    required: true,
+  },
 });
 
+const EventModel: Model<IEvent> = mongoose.model<IEvent>("event", eventSchema);
 
-// aggiungo il metodo statico per la creazione di un evento
-eventSchema.statics.createEvent = async function(titolo: string, descrizione: string, data: Date, frequenza: [string], ripetizioni: [string], timezone: string, _id_utente: string): Promise<IEvent> {
-
-    // validazione
-    if (!titolo || !descrizione || !data || !frequenza || !ripetizioni || !_id_utente)
-        throw new Error('Tutti i campi sono obbligatori');
-
-    // creazione dell'evento
-    const event = await this.create({ titolo, descrizione, data, frequenza, ripetizioni, timezone, _id_utente });
-    return event;
-}
-
-// aggiungo il metodo statico per la ricerca di un evento
-eventSchema.statics.getEventById = async function(_id: string, _id_utente: string): Promise<IEvent> {
-    const event = await this.findById(_id);
-
-    if (!event) 
-        throw new Error('Evento non trovato');
-
-    // Verifica se l'utente è il proprietario dell'evento
-    if (!(String(event._id_utente) === _id_utente)) 
-        throw new Error('Non sei autorizzato a visualizzare questo evento');
-
-    return event;
-}
-
-// aggiungo il metodo statico per la ricerca di tutti gli eventi di un utente
-eventSchema.statics.getAllEvents = async function(_id_utente: string): Promise<IEvent[]> {
-    const events = await this.find({ _id_utente });
-
-    if (events.length === 0)
-        throw new Error('Nessun evento trovato per l\'utente specificato');
-
-    return events;
-}
-
-// aggiungo il metodo statico per la cancellazione di un evento
-eventSchema.statics.deleteEventById = async function(_id: string, _id_utente: string): Promise<IEvent> {
-    // Trova l'evento
-    const event = await this.findById(_id);
-
-    // Verifica se l'evento esiste
-    if (!event)
-        throw new Error('Evento non trovato');
-    
-    // Verifica se l'utente è il proprietario dell'evento
-    if (!(String(event._id_utente) === _id_utente))
-        throw new Error('Non sei autorizzato a cancellare questo evento');
-    
-
-    // Cancella l'evento
-    await this.findByIdAndDelete(_id);
-    return event;
-}
-
-// aggiungo il metodo statico per la cancellazione di tutti gli eventi di un utente
-eventSchema.statics.deleteAllEvents = async function(_id_utente: string): Promise<void> {
-    const result = await this.deleteMany({ _id_utente });
-    if (result.deletedCount === 0)
-        throw new Error('Nessun evento trovato per l\'utente specificato');
-}
-
-
-const EventModel = mongoose.model<IEvent, IEventModel>('Event', eventSchema);
-
-export { IEvent, EventModel };
+export {
+  IEvent,
+  EventModel,
+  IAttendee,
+  attendeeSchema,
+  INotification,
+  notificationSchema,
+};

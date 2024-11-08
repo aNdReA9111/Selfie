@@ -2,6 +2,16 @@ import bcrypt from 'bcrypt';
 import validator from 'validator';
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
+// Interfaccia che rappresenta le proprietà di un documento PushSubscription
+interface IPushSubscription {
+  endpoint: string;
+  expirationTime: number;
+  keys: {
+    p256dh: string;
+    auth: string;
+  };
+}
+
 export interface IFlags extends Document {
     notifica_email: boolean;
     notifica_desktop: boolean;
@@ -19,6 +29,8 @@ export interface IUser extends Document {
     role: string;
     data_nascita: Date;
     flags: IFlags;
+    pushSubscriptions: IPushSubscription[];
+    dateOffset: number;
 }
 
 // Definire un'interfaccia che rappresenta i metodi statici del modello User
@@ -85,10 +97,23 @@ const userSchema = new Schema<IUser>({
         type: Date,
         required: true
     },
+    pushSubscriptions: [
+      {
+        endpoint: { type: String, required: true },
+        keys: {
+          p256dh: { type: String, required: true },
+          auth: { type: String, required: true }
+        }
+      }
+    ],
     flags: {
         type: flagsSchema,
         default: { notifica_email: false, notifica_desktop: true, notifica_alert: true }
-    }
+    },
+    dateOffset: {
+      type: Number,
+      default: 0
+    },
 });
 
 // aggiungo il metodo statico per la regiostrarzione

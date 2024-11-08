@@ -1,7 +1,3 @@
-import React from 'react';
-
-// Bootstrap
-// import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import { Link } from 'react-router-dom';
@@ -10,36 +6,36 @@ import { useLogout } from '../hooks/useLogout';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { NavDropdown } from 'react-bootstrap';
 
-import { useEvents, IEvent } from '../hooks/useEvents'
+// import { useEvents, IEvent } from '../hooks/useEvents'
 
 const MyNavbar = () => {
   const { user } = useAuthContext();
   const logout = useLogout();
-  const { events, setEvents } = useEvents();
+  // const { events, setEvents } = useEvents();
 
   const handleLogout = () => {
       logout();
   }
 
-  function handleRemoveNotification(_id: string): void {
-    fetch(`http://localhost:4000/api/events/delete/${user._id}/${_id}`, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${user.token}`
-      },
-    }).then(async response => {
-        if (!response.ok)
-          throw new Error(response.statusText);
-
-        const data = await response.json();
-        setEvents(events.filter(ev => ev._id !== data._id));
-
-      })
-      .catch(error => {
-        console.error('There was a problem with the fetch operation:', error);
-      });
-  }
+  // function handleRemoveNotification(_id: string): void {
+  //   fetch(`http://localhost:4000/api/events/delete/${user._id}/${_id}`, {
+  //     method: 'DELETE',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       'Authorization': `Bearer ${user.token}`
+  //     },
+  //   }).then(async response => {
+  //       if (!response.ok)
+  //         throw new Error(response.statusText);
+  //
+  //       const data = await response.json();
+  //       setEvents(events.filter(ev => ev._id !== data._id));
+  //
+  //     })
+  //     .catch(error => {
+  //       console.error('There was a problem with the fetch operation:', error);
+  //     });
+  // }
 
   return (
       <Navbar className="bg-danger justify-content-between">
@@ -91,7 +87,7 @@ const MyNavbar = () => {
               </NavDropdown>
             </Nav.Item>
 
-            <Nav.Item>
+            {/*<Nav.Item>
               <NavDropdown title="Notifica" id="basic-nav-dropdown" align="end">
                   {
                     Array.isArray(events) && events.map((ev : IEvent, index : number) => (
@@ -100,9 +96,10 @@ const MyNavbar = () => {
                           <Nav.Item className="flex-grow-1">
                             {ev.titolo}
                           </Nav.Item>
-                          <button
-                            className="btn btn-danger btn-sm ml-2"
-                            onClick={() => handleRemoveNotification(ev._id)}
+                          
+                          <button 
+                            className="btn btn-danger btn-sm ml-2" 
+                            onClick={() => ev._id && handleRemoveNotification(ev._id)}
                             title={""}
                           >
                           </button>
@@ -113,8 +110,8 @@ const MyNavbar = () => {
                       </React.Fragment>
                     ))
                   }
-              </NavDropdown>
-            </Nav.Item>
+              </NavDropdow>
+            </Nav.Item>*/}
           </Nav>
         )}
       </Navbar>

@@ -62,7 +62,6 @@ export const NoteForm = ({isEdit, isView}: {isEdit: boolean, isView: boolean}) =
     } catch (error: any) {
       console.log(error);
     }
-    console.log(note); //al posto del console.log ci sarà una post al server
   }
 
   return (
