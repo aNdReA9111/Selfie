@@ -9,13 +9,15 @@ const createEvent = async (req: Req, res: Response) => {
     title,
     description,
     date,
+    endDate,
     location,
     url,
     duration,
-    recurrencyRule,
+    recurrenceRule,
     attendees,
     notifications,
     isRecurring,
+    timezone,
     user: userId,
   } = req.body;
 
@@ -29,12 +31,15 @@ const createEvent = async (req: Req, res: Response) => {
       title,
       description,
       date,
+      endDate,
       location,
       url,
       duration,
-      recurrencyRule,
+      isRecurring,
+      recurrenceRule,
       attendees,
       notifications,
+      timezone,
       _id_user: userId,
     });
 
@@ -99,7 +104,7 @@ const getAllEvents = async (req: Req, res: Response) => {
     if (typeof date !== "string") {
       if (onlyRecurring) {
         events = await EventModel.find({
-          'recurrencyRule.isRecurring': onlyRecurring,
+          isRecurring: onlyRecurring,
         });
       } else {
         events = await EventModel.find({
