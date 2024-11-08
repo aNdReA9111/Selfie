@@ -21,7 +21,7 @@ const Signup = () => {
             alert("Le password non coincidono");
             return;
         }
-        await signup({ username, email, firstName, lastName, password, birthDate });
+        await signup({ username, email, firstName, lastName, password, birthDate, desktopNotifications: true, browserNotifications: true, emailNotifications: true });
     }
 
     return (
