@@ -31,6 +31,7 @@ export const useLogin = (): UseLoginReturn => {
                 setError(json.error || 'Errore durante il login');
                 return;
             }
+            
             // Salvo lo user nel local storage e dispatch
             localStorage.setItem('user', JSON.stringify(json));
             dispatch({ type: 'LOGIN', payload: json });
