@@ -25,10 +25,15 @@ export const loginUser = async (req: Request, res: Response) => {
         const user = await UserModel.login(email, password);
         const token = createToken(String(user._id));
 
-        res.status(200).json({
+        res.status(200).cookie("token", token, {
+            httpOnly: true,
+            sameSite: "strict",
+            maxAge: 3 * 24 * 60 * 60 * 1000, // 3 giorni
+        }).json({
             _id: user._id,
             email,
-            token,
+            token,  // vedere se tenere o meno
+            isAuthenticated: true,
             nome: user.nome,
             cognome: user.cognome,
             username: user.username,
@@ -73,11 +78,15 @@ export const signUpUser = async (req: Request, res: Response) => {
         );
 
         const token = createToken(String(user._id));
-
-        res.status(201).json({
+        res.status(201).cookie("token", token, {
+            httpOnly: true,
+            sameSite: "strict",
+            maxAge: 3 * 24 * 60 * 60 * 1000, // 3 giorni
+        }).json({
             _id: user._id,
             email,
-            token,
+            token,  // vedere se tenere o meno
+            isAuthenticated: true,
             nome: user.nome,
             cognome: user.cognome,
             username: user.username,
@@ -140,3 +149,9 @@ export const searchUsers = async (req: Request, res: Response) => {
         res.status(400).json({ error: 'Error searching users' });
     }
 }; 
+
+// logout controller
+export const logoutUser = async (req: Request, res: Response) => {
+    res.clearCookie("token");
+    res.status(200).json({ message: "Logout successful" });
+};

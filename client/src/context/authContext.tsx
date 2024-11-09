@@ -21,6 +21,9 @@ export const AuthContextProvider = ({ children }: any) => {
     useEffect(() =>{
         const user = localStorage.getItem('user');
         if (user !== null) {
+            // rimuovo user dal local storage
+            localStorage.removeItem('user');
+
             const parsedUser = JSON.parse(user);
             // console.log(parsedUser);
             dispatch({type: 'LOGIN', payload: parsedUser});

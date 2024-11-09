@@ -1,8 +1,9 @@
-import { useState, useEffect, useContext } from 'react';
-import { ListGroup, FormControl, Button, InputGroup } from 'react-bootstrap';
+import { useState, useEffect, useContext, useRef } from 'react';
+import { ListGroup, FormControl, Button } from 'react-bootstrap';
 import { AuthContext } from '../context/authContext';
 import '../css/chat.css';
 import { FaArrowLeft } from 'react-icons/fa';
+import { generateColorFromString } from '../utils/colorUtils';
 
 interface MessageGroup {
     date: string;
@@ -20,40 +21,74 @@ export const Chat = () => {
     const [view, setView] = useState<'chats' | 'search' | 'messages'>('chats');
     const { user } = useContext(AuthContext);
     const [messageText, setMessageText] = useState<string>('');
+    const messageListRef = useRef<HTMLDivElement>(null);
+
+    const scrollToBottom = () => {
+        if (messageListRef.current) {
+            messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+        }
+    };
 
     useEffect(() => {
-        const fetchActiveChats = () => {
-            fetch(`http://localhost:4000/api/messages/get/${user?._id}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
-                }
-            })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then((data: IMessage[]) => {
-                const uniqueUsers = new Set<string>();
-                data.forEach((message) => {
-                    uniqueUsers.add(message.from);
-                    uniqueUsers.add(message.to);
-                });
-                uniqueUsers.delete(user?.username);
-                const userList = Array.from(uniqueUsers);
-                setActiveChats(userList);
-                setAllMessages(data);
-            })
-            .catch((error) => {
-                console.error('Error fetching active chats:', error);
-            });
-        };
+        let interval: NodeJS.Timeout;
+        
+        if (user?._id && isOpen) {
+            const fetchMessages = () => {
+                fetch(`/api/messages/get/${user?._id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        credentials: "include",
+                    }
+                })
+                .then((response) => response.json())
+                .then((data: IMessage[]) => {
+                    const sortedMessages = [...data].sort((a, b) => 
+                        new Date(b.datetime).getTime() - new Date(a.datetime).getTime()
+                    );
 
-        fetchActiveChats();
-    }, []);
+                    const uniqueUsers = new Set<string>();
+                    const orderedChats: string[] = [];
+
+                    sortedMessages.forEach((message) => {
+                        const otherUser = message.from === user?.username ? message.to : message.from;
+                        if (!uniqueUsers.has(otherUser) && otherUser !== user?.username) {
+                            uniqueUsers.add(otherUser);
+                            orderedChats.push(otherUser);
+                        }
+                    });
+
+                    setActiveChats(orderedChats);
+                    setAllMessages(data);
+                    
+                    if (selectedChat) {
+                        const filteredMessages = data.filter(
+                            (message) =>
+                                (message.from === user?.username && message.to === selectedChat) ||
+                                (message.from === selectedChat && message.to === user?.username)
+                        );
+                        setMessages(filteredMessages);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error fetching messages:', error);
+                });
+            };
+
+            fetchMessages();
+            interval = setInterval(fetchMessages, 3000);
+        }
+
+        return () => {
+            if (interval) {
+                clearInterval(interval);
+            }
+        };
+    }, [user?._id, isOpen, selectedChat]);
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages, view]);
 
     const handleSearchChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const value: string = e.target.value;
@@ -64,7 +99,8 @@ export const Chat = () => {
                 const response = await fetch('/api/users/search', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        credentials: "include", // Include i cookie in una richiesta cross-origin
                     },
                     body: JSON.stringify({ substring: value })
                 });
@@ -113,24 +149,20 @@ export const Chat = () => {
     const sendMessage = (message: string) => {
         if (!user?.username || !selectedChat || !message.trim()) return;
 
-        fetch(`http://localhost:4000/api/messages/send/${user?._id}`, {
+        fetch(`/api/messages/send/${user?._id}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${localStorage.getItem('token')}`
+                credentials: "include",
             },
             body: JSON.stringify({ text: message, to: selectedChat })
         })
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
+        .then((response) => response.json())
         .then((data: IMessage) => {
-            setMessages([...messages, data]);
-            setAllMessages([...allMessages, data]);
+            setMessages(prev => [...prev, data]);
+            setAllMessages(prev => [...prev, data]);
             setMessageText('');
+            scrollToBottom();
         })
         .catch((error) => {
             console.error('Error sending message:', error);
@@ -194,7 +226,10 @@ export const Chat = () => {
                                                 onClick={() => handleChatClick(chatId)}
                                                 className="chat-list-item"
                                             >
-                                                <div className="chat-avatar">
+                                                <div 
+                                                    className="chat-avatar"
+                                                    style={{ backgroundColor: generateColorFromString(chatId) }}
+                                                >
                                                     {chatId.charAt(0).toUpperCase()}
                                                 </div>
                                                 <div className="chat-info">
@@ -237,8 +272,17 @@ export const Chat = () => {
                                             key={index}
                                             action
                                             onClick={() => handleUserClick(username)}
+                                            className="chat-list-item"
                                         >
-                                            {username}
+                                            <div 
+                                                className="chat-avatar"
+                                                style={{ backgroundColor: generateColorFromString(username) }}
+                                            >
+                                                {username.charAt(0).toUpperCase()}
+                                            </div>
+                                            <div className="chat-info">
+                                                <div className="chat-username">{username}</div>
+                                            </div>
                                         </ListGroup.Item>
                                     ))}
                                 </ListGroup>
@@ -246,56 +290,68 @@ export const Chat = () => {
                         )}
 
                         {view === 'messages' && selectedChat && (
-                            <>
-                                <Button variant="link" onClick={() => setView('chats')} className="back-button">
-                                    <FaArrowLeft />
-                                </Button>
-                                <h5>{selectedChat}</h5>
-                                <div className="message-list">
-                                    <ListGroup>
-                                        {groupMessagesByDate(messages).map((group, groupIndex) => (
-                                            <div key={groupIndex}>
-                                                <div className="date-separator">
-                                                    <span>{group.date}</span>
-                                                </div>
-                                                {group.messages.map((message, messageIndex) => (
-                                                    <ListGroup.Item
-                                                        key={messageIndex}
-                                                        className={`message-item ${message.from === user?.username ? 'right' : 'left'}`}
-                                                    >
-                                                        <div className="message-text">{message.text}</div>
-                                                        <div className="message-time">{formatTime(message.datetime)}</div>
-                                                    </ListGroup.Item>
-                                                ))}
-                                            </div>
-                                        ))}
-                                    </ListGroup>
+                            <div className="messages-container">
+                                <div className="messages-header">
+                                    <Button variant="link" onClick={() => setView('chats')} className="back-button">
+                                        <FaArrowLeft />
+                                    </Button>
+                                    <div className="selected-user-info">
+                                        <div 
+                                            className="chat-avatar"
+                                            style={{ backgroundColor: generateColorFromString(selectedChat) }}
+                                        >
+                                            {selectedChat.charAt(0).toUpperCase()}
+                                        </div>
+                                        <span className="selected-username">{selectedChat}</span>
+                                    </div>
                                 </div>
-                            </>
+                                
+                                <div className="messages-content">
+                                    <div className="message-list" ref={messageListRef}>
+                                        <ListGroup>
+                                            {groupMessagesByDate(messages).map((group, groupIndex) => (
+                                                <div key={groupIndex}>
+                                                    <div className="date-separator">
+                                                        <span>{group.date}</span>
+                                                    </div>
+                                                    {group.messages.map((message, messageIndex) => (
+                                                        <ListGroup.Item
+                                                            key={messageIndex}
+                                                            className={`message-item ${message.from === user?.username ? 'right' : 'left'}`}
+                                                        >
+                                                            <div className="message-text">{message.text}</div>
+                                                            <div className="message-time">{formatTime(message.datetime)}</div>
+                                                        </ListGroup.Item>
+                                                    ))}
+                                                </div>
+                                            ))}
+                                        </ListGroup>
+                                    </div>
+                                </div>
+
+                                <div className="input-group">
+                                    <FormControl
+                                        type="text"
+                                        placeholder="Type a message..."
+                                        value={messageText}
+                                        onChange={(e) => setMessageText(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && messageText.trim()) {
+                                                sendMessage(messageText);
+                                            }
+                                        }}
+                                    />
+                                    <Button 
+                                        variant="primary" 
+                                        onClick={() => sendMessage(messageText)}
+                                        disabled={!messageText.trim()}
+                                    >
+                                        Send
+                                    </Button>
+                                </div>
+                            </div>
                         )}
                     </div>
-                    {view === 'messages' && (
-                        <InputGroup className="input-group">
-                            <FormControl
-                                type="text"
-                                placeholder="Type a message..."
-                                value={messageText}
-                                onChange={(e) => setMessageText(e.target.value)}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && messageText.trim()) {
-                                        sendMessage(messageText);
-                                    }
-                                }}
-                            />
-                            <Button 
-                                variant="primary" 
-                                onClick={() => sendMessage(messageText)}
-                                disabled={!messageText.trim()}
-                            >
-                                Send
-                            </Button>
-                        </InputGroup>
-                    )}
                 </div>
             )}
         </>

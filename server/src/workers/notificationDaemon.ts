@@ -223,7 +223,7 @@ function sendNotification(
 // Controllo ed eventuale invio di notifiche
 async function checkAndSendNotifications() {
   //utenti che possono ricevere le notifiche
-  const users: IUser[] = await UserModel.find({
+  const users = await UserModel.find({
     $or: [
       { notifications: { $exists: true } },
       { "flags.notifica_desktop": true },
@@ -238,7 +238,7 @@ async function checkAndSendNotifications() {
     const timeMachineDate: number = now + (user.dateOffset || 0);
     // const fiveDaysMs = MILLIS_IN_DAY * 5;
     try {
-      let events: IEvent[] | null = await EventModel.find({
+      const events = await EventModel.find({
         $and: [
           {
             $or: [

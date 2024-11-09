@@ -20,7 +20,7 @@ const MyNotification = () => {
   };
 
   async function subscribeUserToPush(registration: any) {
-    const applicationServerKey = urlB64ToUint8Array(import.meta.env.VITE_VAPID_PUBLIC_KEY);
+    const applicationServerKey = urlB64ToUint8Array(process.env.VAPID_PUBLIC_KEY as string);
     try {
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
@@ -50,12 +50,12 @@ const MyNotification = () => {
         if(permission === 'granted') {
           const subscription = await subscribeUserToPush(reg);
           if(subscription){
-            const res = await fetch('http://localhost:4000/api/users/subscribe', {
+            const res = await fetch('/api/users/subscribe', {
               body: JSON.stringify({ subscription }),
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${user.token}`
+                credentials: "include",
               }
             })
             console.log(res);

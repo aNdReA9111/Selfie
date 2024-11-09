@@ -7,7 +7,7 @@ import { RRuleForm } from "./RRuleForm"
 import { RRule } from "rrule";
 import { DateTime } from "luxon";
 import { useState, Dispatch, SetStateAction } from "react";
-import { useAuthContext } from "../hooks/useAuthContext";
+// import { useAuthContext } from "../hooks/useAuthContext";
 import { useEventsContext } from "../hooks/useEventsContext";
 import { timeZonesNames } from "@vvo/tzdb";
 import { Event } from "../utils/types";
@@ -106,7 +106,7 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
   const [open, setOpen] = useState<boolean>(false); //for suggestions
   let suggestions: string[] = [];
 
-  const { user } = useAuthContext();
+  // const { user } = useAuthContext();
   const { dispatch } = useEventsContext();
 
   const onSuggestionClick = (suggestion: string) => {
@@ -183,7 +183,7 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
         method: event?._id ? 'PATCH' : 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user?.token}`
+          credentials: "include",
         },
         body: JSON.stringify(newEvent)
       });

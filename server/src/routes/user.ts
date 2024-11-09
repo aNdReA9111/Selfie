@@ -5,7 +5,8 @@ import {
     addSubscription, 
     loginUser, 
     signUpUser,
-    searchUsers
+    searchUsers,
+    logoutUser
 } from '../controllers/userController.js';
 
 const router = express.Router();
@@ -21,8 +22,11 @@ router.post('/login', loginUser);
 // signup
 router.post('/signup', signUpUser);
 
+// logout
+router.post('/logout', logoutUser);
+
 // search users
-router.post('/search', searchUsers);
+router.post('/search', requireAuth, searchUsers);
 
 //route per push notification subscription
 router.post('/subscribe', requireAuth, addSubscription);
