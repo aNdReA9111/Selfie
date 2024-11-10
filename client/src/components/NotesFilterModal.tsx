@@ -12,7 +12,7 @@ type NotesFilterModalProps = {
 }
 
 export const NotesFilterModal: React.FC<NotesFilterModalProps> = ({ showFilters, setShowFilters }: NotesFilterModalProps) => {
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<NoteFilterType>({
+  const { register, handleSubmit, formState: { errors } } = useForm<NoteFilterType>({
     defaultValues: {
       tags: [],
       start: undefined,
@@ -27,7 +27,6 @@ export const NotesFilterModal: React.FC<NotesFilterModalProps> = ({ showFilters,
   const { user } = useAuthContext();
   const { dispatch } = useNotesContext();
 
-  const query = watch();
   const fetchNotes = async (query: NoteFilterType) => {
     try {
       const queryString = new URLSearchParams(
@@ -54,9 +53,9 @@ export const NotesFilterModal: React.FC<NotesFilterModalProps> = ({ showFilters,
           )
         ).toString();
 
-      const res = await fetch("/api/notes?" + queryString, { 
-        headers: { 'Authorization': `Bearer ${user.token}` }, 
-        method: 'GET',  
+      const res = await fetch("/api/notes?" + queryString, {
+        headers: { 'Authorization': `Bearer ${user.token}` },
+        method: 'GET',
       });
       if (!res.ok) {
         throw new Error(`HTTP error! Status: ${res.status}`);

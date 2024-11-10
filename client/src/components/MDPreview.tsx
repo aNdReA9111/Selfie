@@ -11,8 +11,6 @@ export const MDPreview = () => {
 
   const title = watch('title');
   const content = watch('content');
-  // console.log(title, content);
-
 
   useEffect(() => {
     const parseMD = async () => {
@@ -26,8 +24,8 @@ export const MDPreview = () => {
 
   return (
     //correggi d-none solo in caso NON sia isView
-    <div id="preview" className="container d-md-block h-100 overflow-scroll">
-      {content && <section dangerouslySetInnerHTML={{__html: html}}></section>}
+    <div id="preview" className="mt-4 ms-2 container h-100 overflow-scroll">
+      {(content || title) && <section dangerouslySetInnerHTML={{__html: html}}></section>}
     </div>
   );
 }

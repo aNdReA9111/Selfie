@@ -52,7 +52,7 @@ export const NotesPreview = () => {
   return (
     <div className="container d-flex flex-column align-items-center">
       <NotesSearchBar search={search} setSearch={setSearch}/>
-      <div className="container d-flex flex-wrap justify-content-center mt-4">
+      <div style={{ maxHeight: '80svh' }} className="container d-flex flex-wrap justify-content-center mt-4 overflow-y-scroll">
         {
           notes.length === 0
           ? <p>No notes yet</p>

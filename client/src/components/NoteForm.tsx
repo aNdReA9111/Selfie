@@ -65,40 +65,84 @@ export const NoteForm = ({isEdit, isView}: {isEdit: boolean, isView: boolean}) =
   }
 
   return (
-    !isView && (
-    <form className={`container flex-column align-items-start justify-content-center mb-5 h-75`} onSubmit={handleSubmit(onSubmit)}>
-      <div className="input-group mb-4 p-2">
-        <label className="input-group-text" id="title">Title</label>
-        <input type="text" {...register('title')} className="form-control" placeholder="Note Title" aria-label="Note Title" aria-describedby="title"/>
-        {errors.title && <p>{errors.title.message}</p>}
+  !isView && (
+    <form className="container d-flex flex-column align-items-start justify-content-start ps-3 pt-5 vh-100" onSubmit={handleSubmit(onSubmit)}>
+
+      {/* Title Field */}
+      <div className="form-floating mb-4 w-100">
+        <input
+          type="text"
+          {...register('title')}
+          className={`form-control ${errors.title ? 'is-invalid' : ''}`}
+          placeholder="Note Title"
+          id="title"
+        />
+        <label htmlFor="title">Title</label>
+        {errors.title && <div className="invalid-feedback">{errors.title.message}</div>}
       </div>
 
-      <div className="input-group mb-4 p-2 h-100">
-        <label className="input-group-text" id="text">Note Text</label>
-        <textarea {...register('content')}  className="form-control h-100" aria-label="Note Text" aria-describedby="text"></textarea>
-        {errors.content && <p>{errors.content.message}</p>}
+      {/* Content Field */}
+      <div style = {{maxHeight: '40svh'}} className="flex-grow-1 form-floating mb-4 w-100">
+        <textarea
+          {...register('content')}
+          className={`form-control h-100 ${errors.content ? 'is-invalid' : ''}`}
+          placeholder="Note Text"
+          id="content"
+        ></textarea>
+        <label htmlFor="content">Note Text</label>
+        {errors.content && <div className="invalid-feedback">{errors.content.message}</div>}
       </div>
 
-      <div className="input-group mb-4 p-2">
+      {/* Open to Public Checkbox */}
+      <div className="form-check mb-4">
+        <input
+          className="form-check-input"
+          {...register('open')}
+          type="checkbox"
+          id="open"
+        />
         <label className="form-check-label" htmlFor="open">
           Click if open to public
         </label>
-        <input className="form-check-input" {...register('open')} type="checkbox" value="" id="open"/>
-        {errors.open && <p>{errors.open.message}</p>}
+        {errors.open && <div className="invalid-feedback">{errors.open.message}</div>}
       </div>
 
-      <div className="input-group mb-4 p-2">
-        <label className="input-group-text" id="tagsLabel" htmlFor="tags">Tags</label>
-        <input type="text" {...register('tags')} id="tags" className="form-control" placeholder="Write your tags..." aria-label="Note Tags" aria-describedby="tagsLabel"/>
-        {errors.tags && <p>{errors.tags.message}</p>}
+      {/* Tags Field */}
+      <div className="form-floating mb-4 w-100">
+        <input
+          type="text"
+          {...register('tags')}
+          className={`form-control ${errors.tags ? 'is-invalid' : ''}`}
+          placeholder="Write your tags..."
+          id="tags"
+          aria-describedby="tagsHelper"
+        />
+        <label htmlFor="tags">Tags</label>
+        <div id="tagsHelper" className="form-text">Example: tag1, tag2</div>
+        {errors.tags && <div className="invalid-feedback">{errors.tags.message}</div>}
       </div>
 
-      <div className="input-group mb-4 p-2">
-        <label className="input-group-text" id="usersLabel" htmlFor="users">Users</label>
-        <input type="text" {...register('allowedUsers')} id="users" className="form-control" placeholder="Write allowed users..." aria-label="Allowed Users" aria-describedby="usersLabel"/>
-        {errors.allowedUsers && <p>{errors.allowedUsers.message}</p>}
+      {/* Allowed Users Field */}
+      <div className="form-floating mb-4 w-100">
+        <input
+          type="text"
+          {...register('allowedUsers')}
+          className={`form-control ${errors.allowedUsers ? 'is-invalid' : ''}`}
+          placeholder="Write allowed users..."
+          id="users"
+          aria-describedby="usersHelper"
+        />
+        <label htmlFor="users">Users</label>
+        <div id="usersHelper" className="form-text">Example: user1, user2</div>
+        {errors.allowedUsers && <div className="invalid-feedback">{errors.allowedUsers.message}</div>}
       </div>
-      <button className="btn btn-primary" type="submit">{isEdit ? 'Update Note' : 'Create Note'}</button>
-    </form>)
-  );
+
+      {/* Submit Button */}
+      <button className="btn btn-primary" type="submit">
+        {isEdit ? 'Update Note' : 'Create Note'}
+      </button>
+    </form>
+  )
+);
+
 }
