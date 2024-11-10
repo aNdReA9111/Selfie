@@ -5,7 +5,7 @@ import { Note, NotesContextType } from '../utils/types';
 import { useNotesContext } from '../hooks/useNotesContext';
 import { useAuthContext } from '../hooks/useAuthContext';
 import Spinner from 'react-bootstrap/Spinner';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 
 
 export const NotesPreview = () => {
@@ -52,7 +52,7 @@ export const NotesPreview = () => {
   return (
     <div className="container d-flex flex-column align-items-center">
       <NotesSearchBar search={search} setSearch={setSearch}/>
-      <div className="container d-flex flex-wrap mt-4">
+      <div className="container d-flex flex-wrap justify-content-center mt-4">
         {
           notes.length === 0
           ? <p>No notes yet</p>
@@ -68,7 +68,6 @@ export const NotesPreview = () => {
             </Spinner>
         }
       </div>
-      <Link className="btn btn-primary mt-3" to="/notes/add">Add note</Link>
     </div>
   );
 }

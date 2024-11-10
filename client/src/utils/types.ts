@@ -40,9 +40,9 @@ export type TimeMachineContextType = {
 
 //note filters schema
 export const noteFilterSchema = z.object({
-  public: z.boolean().optional(),
+  pub: z.boolean().optional(),
   group: z.boolean().optional(),
-  private: z.boolean().optional(),
+  priv: z.boolean().optional(),
   start: dateFromStringOptional,
   end: dateFromStringOptional,
   tags: z

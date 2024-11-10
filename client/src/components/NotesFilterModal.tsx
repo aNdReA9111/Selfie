@@ -1,9 +1,9 @@
 import { Button, Modal } from "react-bootstrap";
 import { useAuthContext } from "../hooks/useAuthContext";
 import { useForm } from "react-hook-form";
-import { useNotes } from "../hooks/useNotes";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { noteFilterSchema, NoteFilterType } from "../utils/types";
+import { noteFilterSchema, NoteFilterType, Note } from "../utils/types";
+import { useNotesContext } from "../hooks/useNotesContext";
 // import { DateTime } from "luxon";
 
 type NotesFilterModalProps = {
@@ -17,33 +17,69 @@ export const NotesFilterModal: React.FC<NotesFilterModalProps> = ({ showFilters,
       tags: [],
       start: undefined,
       end: undefined,
-      public: false,
-      private: true,
+      pub: false,
+      priv: true,
       group: true,
     },
     resolver: zodResolver(noteFilterSchema)
   });
 
   const { user } = useAuthContext();
-  const query = watch();
+  const { dispatch } = useNotesContext();
 
-  
-  const {isLoading, error} = useNotes("/api/notes/", query, {
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${user.token}`,
+  const query = watch();
+  const fetchNotes = async (query: NoteFilterType) => {
+    try {
+      const queryString = new URLSearchParams(
+        Object.fromEntries(
+          Object.entries(query)
+            .filter(([_, value]) => {
+            // Filter out `undefined`, empty strings, and empty arrays
+              if (value === undefined || (Array.isArray(value) && value.length === 0)) {
+                return false; // Exclude these entries
+              }
+              return true; // Keep other values
+            })
+            .map(([key, value]) => {
+              if (Array.isArray(value)) {
+                return [key, value.join(',')];
+              } else if (value instanceof Date) {
+                return [key, value.toISOString()];
+              } else if (typeof value === 'boolean') {
+                return [key, value.toString()];
+              } else {
+                return [key, String(value)];
+              }
+            })
+          )
+        ).toString();
+
+      const res = await fetch("/api/notes?" + queryString, { 
+        headers: { 'Authorization': `Bearer ${user.token}` }, 
+        method: 'GET',  
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status}`);
+      }
+
+      const result: Note[] = await res.json();
+      //le date diventano string in json
+      result.forEach((el: Note) => {
+        el.created = new Date(el.created);
+        el.updated = new Date(el.updated);
+      });
+      dispatch({ type: 'SET_NOTES', payload: result });
     }
-  }); 
+    catch (err: any) {
+      console.log(err);
+    }
+  };
 
   const onSubmit = (data: NoteFilterType) => {
     console.log(data);
+    fetchNotes(data);
     setShowFilters(false);
   };
-
-  console.log(isLoading, error);
-  console.log(query);
-  // console.log(errors);
-  // console.log(watch('start'));
 
   return (
     <>
@@ -78,13 +114,13 @@ export const NotesFilterModal: React.FC<NotesFilterModalProps> = ({ showFilters,
               {errors.end && <div className="invalid-feedback">{errors.end.message}</div>}
             </div>
             <div className="mb-3 form-check">
-              <input type="checkbox" {...register('public')} className="form-check-input" id="public"/>
-              {errors.public && <div className="invalid-feedback">{errors.public.message}</div>}
+              <input type="checkbox" {...register('pub')} className="form-check-input" id="public"/>
+              {errors.pub && <div className="invalid-feedback">{errors.pub.message}</div>}
               <label className="form-check-label" htmlFor="public">Note Pubbliche</label>
             </div>
             <div className="mb-3 form-check">
-              <input type="checkbox" {...register('private')} className="form-check-input" id="private"/>
-              {errors.private && <div className="invalid-feedback">{errors.private.message}</div>}
+              <input type="checkbox" {...register('priv')} className="form-check-input" id="private"/>
+              {errors.priv && <div className="invalid-feedback">{errors.priv.message}</div>}
               <label className="form-check-label" htmlFor="private">Note Private</label>
             </div>
             <div className="mb-3 form-check">

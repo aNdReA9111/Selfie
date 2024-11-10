@@ -14,6 +14,7 @@ const __dirname = dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 import { EventModel } from "../models/eventModel.js";
+import { IUser } from "../models/userModel.js";
 
 const createToken = (_id: string) => {
   return jwt.sign({ _id }, process.env.SECRET as string, { expiresIn: "3d" });
@@ -107,7 +108,10 @@ const addSubscription = async (req: Req, res: Response) => {
   }
 
   //notifica di conferma
-  webpush.sendNotification(sub, JSON.stringify({message: "Subscription added successfully"}));
+  webpush.sendNotification(
+    sub,
+    JSON.stringify({ message: "Subscription added successfully" }),
+  );
 
   user.pushSubscriptions.push(sub);
   await user.save();
@@ -128,20 +132,28 @@ const removeSubscription = async (req: Req, res: Response) => {
 
 //qui andrà una route per invio di notifiche --> estensione 27 del pomodoro
 
-
 const searchUsersByUsernameSubstring = async (req: Request, res: Response) => {
-    const { substring } = req.body;
+  const { substring } = req.body;
 
-    try {
-        const regex = new RegExp(`^${substring}`, 'i'); // Ignora maiuscole e minuscole
-        const users = await UserModel.find({ username: { $regex: regex } }, { _id: 0, username: 1 });
+  try {
+    const regex = new RegExp(`^${substring}`, "i"); // Ignora maiuscole e minuscole
+    const users = await UserModel.find(
+      { username: { $regex: regex } },
+      { _id: 0, username: 1 },
+    );
 
-        const matchedUsernames = users.map((user: IUser) => user.username);
+    const matchedUsernames = users.map((user: IUser) => user.username);
 
-        res.status(200).json({ matchedUsernames });
-    } catch (error: any) {
-        res.status(400).json({ message: error.message });
-    }
-}
+    res.status(200).json({ matchedUsernames });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
 
-export { loginUser, signUpUser, addSubscription, removeSubscription, searchUsersByUsernameSubstring };
+export {
+  loginUser,
+  signUpUser,
+  addSubscription,
+  removeSubscription,
+  searchUsersByUsernameSubstring,
+};

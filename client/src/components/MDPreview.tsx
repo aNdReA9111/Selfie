@@ -26,7 +26,7 @@ export const MDPreview = () => {
 
   return (
     //correggi d-none solo in caso NON sia isView
-    <div id="preview" className="container d-none d-md-block h-100 overflow-scroll">
+    <div id="preview" className="container d-md-block h-100 overflow-scroll">
       {content && <section dangerouslySetInnerHTML={{__html: html}}></section>}
     </div>
   );

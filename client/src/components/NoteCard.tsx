@@ -42,7 +42,7 @@ export const NoteCard = ({note}: {note: Note}) => {
   }
 
   return (
-    <Card style={{ minWidth: '18rem', flexShrink: 0 }} className="m-2 w-25">
+    <Card style={{ minWidth: '18rem', flexShrink: 0 }} className="m-2 w-25 shadow">
       <Card.Body className='d-flex flex-column'>
         <Card.Title>{note.title}</Card.Title>
         <Card.Subtitle className="mb-2 text-muted">{new Date(note.created).toLocaleDateString()}</Card.Subtitle>
