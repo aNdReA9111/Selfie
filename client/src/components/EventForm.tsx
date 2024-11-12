@@ -179,7 +179,7 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
 
 
     try {
-      const res = await fetch('http://localhost:4000/api/events' + (event?._id ? `/${event._id}` : ''), {
+      const res = await fetch('/api/events' + (event?._id ? `/${event._id}` : ''), {
         method: event?._id ? 'PATCH' : 'POST',
         headers: {
           'Content-Type': 'application/json',
