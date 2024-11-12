@@ -39,19 +39,20 @@ export const MDPreview = ({ isView }: { isView: boolean }) => {
   }
 
   return (
-    <div id="preview" className="mt-4 ms-2 container-fluid h-100 overflow-scroll d-flex flex-column align-items-center">
+    <div id="preview" className="mt-4 mx-2 container-fluid h-100 overflow-scroll d-flex flex-column justify-content-around align-items-center">
       {(content || title || tags) && (
         <>
 
         {/*markdown preview*/}
         <section
-          className="ms-3"
+          style={{ minHeight: "80svh" }}
+          className="container-sm ms-3"
           dangerouslySetInnerHTML={{ __html: html }}
         ></section>
 
         {/*tags and buttons*/}
-        <div className="mt-4 d-flex justify-content-between">
-          <div className="d-flex justufy-content-start flex-grow-1">
+        <div className="my-4 container-sm d-flex justify-content-between">
+          <div className="d-flex justufy-content-start">
             {normalizedTags.length > 0 &&
               normalizedTags.map(
                 (tag, index) =>
@@ -67,8 +68,8 @@ export const MDPreview = ({ isView }: { isView: boolean }) => {
             }
           </div>
           <div className="d-flex">
-            { isView && <button className="btn btn-secondary ms-3 opacity-75" onClick={() => navigator.clipboard.writeText(`\n# ${title}\n${content}`)}><i className="bi bi-copy me-2"></i>Copia</button> }
-            { isView && <button className="btn btn-secondary ms-3 opacity-75" onClick={duplicateNote}><i className="bi bi-file-earmark-plus me-2"></i>Duplica</button> }
+            { isView && <button className="btn btn-secondary ms-3 opacity-75" onClick={() => navigator.clipboard.writeText(`\n# ${title}\n${content}`)}><i className="bi bi-copy"></i></button> }
+            { isView && <button className="btn btn-secondary ms-3 opacity-75" onClick={duplicateNote}><i className="bi bi-file-earmark-plus"></i></button> }
           </div>
         </div>
       </>
