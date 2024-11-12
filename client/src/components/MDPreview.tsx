@@ -45,13 +45,13 @@ export const MDPreview = ({ isView }: { isView: boolean }) => {
 
         {/*markdown preview*/}
         <section
-          style={{ minHeight: "80svh" }}
+          style={{ minHeight: "75svh" }}
           className="container-sm ms-3"
           dangerouslySetInnerHTML={{ __html: html }}
         ></section>
 
         {/*tags and buttons*/}
-        <div className="my-4 container-sm d-flex justify-content-between">
+        <div className="my-4 container-fluid d-flex justify-content-between">
           <div className="d-flex justufy-content-start">
             {normalizedTags.length > 0 &&
               normalizedTags.map(
@@ -59,7 +59,7 @@ export const MDPreview = ({ isView }: { isView: boolean }) => {
                   tag !== "" && (
                     <span
                       key={index}
-                      className="badge rounded-pill text-bg-secondary p-2 ms-3 mb-3"
+                      className="badge rounded-pill text-bg-danger opcaity-50 p-2 ms-3 mb-3 fs-5"
                     >
                       {tag}
                     </span>
@@ -67,9 +67,9 @@ export const MDPreview = ({ isView }: { isView: boolean }) => {
               )
             }
           </div>
-          <div className="d-flex">
-            { isView && <button className="btn btn-secondary ms-3 opacity-75" onClick={() => navigator.clipboard.writeText(`\n# ${title}\n${content}`)}><i className="bi bi-copy"></i></button> }
-            { isView && <button className="btn btn-secondary ms-3 opacity-75" onClick={duplicateNote}><i className="bi bi-file-earmark-plus"></i></button> }
+          <div className="d-flex me-2">
+            { isView && <button className="btn btn-secondary ms-3 opacity-75" onClick={() => navigator.clipboard.writeText(`\n# ${title}\n${content}`)}><i className="bi bi-copy fs-6"></i></button> }
+            { isView && <button className="btn btn-warning ms-3 opacity-75" onClick={duplicateNote}><i className="bi bi-file-earmark-plus fs-6"></i></button> }
           </div>
         </div>
       </>

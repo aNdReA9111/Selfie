@@ -1,37 +1,37 @@
 import express from 'express';
 import { requireAuth } from '../middleware/requireAuth.js';
+import { 
+    removeSubscription, 
+    addSubscription, 
+    loginUser, 
+    signUpUser,
+    searchUsers,
+    logoutUser
+} from '../controllers/userControllers.js';
 
-const userRoutes = express.Router();
+const router = express.Router();
 
-// middleware usato per proteggere le routes tramite autenticazione
-// import { requireAuth } from '../middleware/requireAuth.js'
-
-// controllers
-import { removeSubscription, addSubscription, loginUser, signUpUser, searchUsersByUsernameSubstring } from '../controllers/userControllers.js';
-
-// userRoutes.use(requireAuth);
-
-userRoutes.use((req, res, next) => {
-  console.log(`Request passed through /users router: ${req.method} ${req.url}`);
-  next();
+router.use((req, res, next) => {
+    console.log(`Request passed through /users router: ${req.method} ${req.url}`);
+    next();
 });
+
 // login
-userRoutes.post('/login', loginUser);
+router.post('/login', loginUser);
 
 // signup
-userRoutes.post('/signup',signUpUser);
+router.post('/signup', signUpUser);
 
-// search
-userRoutes.post('/search', searchUsersByUsernameSubstring);
+// logout
+router.post('/logout', logoutUser);
+
+// search users
+router.post('/search', requireAuth, searchUsers);
 
 //route per push notification subscription
-userRoutes.post('/subscribe', requireAuth, addSubscription)
+router.post('/subscribe', requireAuth, addSubscription);
 
 //route per push notification unsubscription
-userRoutes.patch('/unsubscribe', requireAuth, removeSubscription)
+router.patch('/unsubscribe', requireAuth, removeSubscription);
 
-
-export {userRoutes};
- 
-
-
+export { router as userRoutes };

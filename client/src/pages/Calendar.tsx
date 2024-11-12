@@ -5,7 +5,6 @@ import { Calendar as BigCalendar, luxonLocalizer, DateLocalizer } from 'react-bi
 import { EventModalForm } from '../components/EventModalForm';
 import { EventsContextType } from '../utils/types';
 import { useEventsContext } from '../hooks/useEventsContext';
-import { useAuthContext } from '../hooks/useAuthContext';
 import { DateTime } from 'luxon';
 import { Button } from 'react-bootstrap';
 import { Event } from '../utils/types';
@@ -55,7 +54,6 @@ const CustomCalendar = () => {
   const { events, dispatch }: EventsContextType = useEventsContext();
   //useMemo --> ricalcolo eventi sul calendario solo quando cambiano gli eventi sul context
   const calendarEvents = useMemo(() => generateRecurringEvents(events), [events]);
-  const { user } = useAuthContext();
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [currentEvent, setCurrentEvent] = useState<Event | undefined>(undefined);
   const [date, setDate] = useState<Date | undefined>(undefined);
@@ -63,7 +61,7 @@ const CustomCalendar = () => {
   const { isLoading, error } = useEvents("/api/events/", undefined, {
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${user.token}`,
+      credentials: "include",
     }
   });
 
@@ -73,7 +71,7 @@ const CustomCalendar = () => {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`,
+          credentials: "include",
         }
       })
 

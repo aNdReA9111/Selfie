@@ -28,6 +28,10 @@ export const sendMessage = async (req: Request, res: Response) => {
     const { text, to } = req.body;
 
     try {
+        if (!sender_id || !text || !to) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
         const sender: IUser | null = await UserModel.findById(sender_id);
         if (!sender) {
             return res.status(404).json({ message: "Sender not found" });
@@ -38,15 +42,27 @@ export const sendMessage = async (req: Request, res: Response) => {
             return res.status(404).json({ message: "Receiver not found" });
         }
 
-        const newMessage: IMessage = await MessageModel.create({
-            text,
+        const messageData = {
+            text: text.trim(),
             datetime: new Date(),
             from: sender.username,
             to: receiver.username
-        });
+        };
 
-        res.status(200).json(newMessage);
+        try {
+            const createdMessage = await MessageModel.create(messageData);
+            return res.status(200).json(createdMessage);
+        } catch (mongoError) {
+            return res.status(400).json({ 
+                message: "Error creating message", 
+                error: (mongoError as Error).message 
+            });
+        }
+
     } catch (error) {
-        res.status(500).json({ message: "Internal server error", error });
+        return res.status(500).json({ 
+            message: "Internal server error", 
+            error: (error as Error).message 
+        });
     }
 };

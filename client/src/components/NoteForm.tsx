@@ -24,7 +24,7 @@ export const NoteForm = ({isEdit, isView}: {isEdit: boolean, isView: boolean}) =
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${user.token}`,
+            credentials: "include",
           },
           body: JSON.stringify({
             title: note.title,
@@ -47,7 +47,7 @@ export const NoteForm = ({isEdit, isView}: {isEdit: boolean, isView: boolean}) =
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${user.token}`,
+            credentials: "include",
           },
           body: JSON.stringify(note),
         })

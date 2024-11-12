@@ -5,16 +5,21 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import webpush from "web-push";
+
+// Middleware
 import cors from "cors";
 import { corsOptions } from "./utils/corsOption.js";
+
+import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
+import { startDaemon } from "./workers/notificationDaemon.js";
+
+// Routes
 import { userRoutes } from "./routes/user.js";
 import { notesRoutes } from "./routes/note.js";
 import { eventRoutes } from "./routes/event.js";
 import { messageRoutes } from "./routes/message.js";
 import { activityRoutes } from "./routes/activity.js";
-import mongoose from "mongoose";
-import cookieParser from "cookie-parser";
-import { startDaemon } from "./workers/notificationDaemon.js";
 
 const app = express();
 
@@ -24,8 +29,6 @@ const __dirname = dirname(__filename);
 
 //path relativo a dist
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
-
-console.log(process.env.PORT);
 
 //configurazione webpush
 webpush.setVapidDetails(

@@ -1,0 +1,20 @@
+.avatar-circle {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+.custom-dropdown {
+    color: white;
+}
+
+.dropdown-toggle::after{
+    display: none;
+}

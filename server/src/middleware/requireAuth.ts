@@ -13,14 +13,10 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
   //verifico che un utente sia autenticato
-  const { authorization } = req.headers;
+  const token = req.cookies.token;
 
-  if (!authorization) {
+  if (!token)
     return res.status(401).json({ error: "Richiesto token di autenticazione" });
-  }
-
-  const token = authorization.split(" ")[1];
-  // console.log(token);
 
   try {
     const { _id } = jwt.verify(
@@ -36,3 +32,4 @@ const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 export { requireAuth };
+

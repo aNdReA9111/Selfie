@@ -29,7 +29,7 @@ export const NoteCard = ({note}: {note: Note}) => {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${user.token}`,
+          credentials: "include",
         }
       })
 

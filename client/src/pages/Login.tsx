@@ -1,60 +1,83 @@
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import { useLogin } from '../hooks/useLogin';
 import { Link } from 'react-router-dom';
-
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import TimeMachine from '../components/TimeMachine';
+import logo from '../assets/logo.png';
+import '../css/auth.css';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const { login, error, isLoading } = useLogin();
 
-    const handleSubmit = async (e: any) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        await login(email, password);
+        
+        // Validazione base
+        if (!email || !password) {
+            alert('Per favore, compila tutti i campi');
+            return;
+        }
+
+        try {
+            await login(email, password);
+        } catch (err) {
+            console.error('Errore durante il login:', err);
+        }
     }
 
     return (
-       <>
-        <TimeMachine/>
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', background: 'linear-gradient(to bottom, #6A0000, #FF0000)' }}>
-            <h1 style={{ color: 'white', marginBottom: '10vh' }}>Selfie</h1>
-            <Form className='mb-3' onSubmit={handleSubmit} style={{ width: '300px', padding: '20px', border: '1px solid red', borderRadius: '10px', backgroundColor: 'white' }}>
-                <h3 style={{ textAlign: 'center'}}>Login</h3>
-
-                <Form.Group controlId="formBasicEmail" className='mb-3'>
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control
-                        type="string"
-                        placeholder="Enter email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
-                </Form.Group>
-
-                <Form.Group controlId="formBasicPassword" className='mb-3'>
-                    <Form.Label>Password</Form.Label>
-                    <Form.Control
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                </Form.Group>
-
-                <Button variant="primary" type="submit" disabled={isLoading} style={{ backgroundColor: 'red', borderColor: 'red', width: '100%' }}>
-                    Login
-                </Button>
-                
-                {error && <div className='error' style={{ color: 'red', marginTop: '10px' }}>{error}</div>}
-                <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                    Non hai un account? <Link to="/signup" style={{ color: 'red' }}>Registrati</Link>
+        <div className="auth-container">
+            <div className="auth-box">
+                <div className="auth-left">
+                    <img src={logo} alt="Selfie" />
                 </div>
-            </Form>
+                <div className="auth-right">
+                    <h1 className="auth-title">Bentornato</h1>
+                    <p className="auth-subtitle">Accedi al tuo account Selfie</p>
+                    
+                    <Form className="auth-form" onSubmit={handleSubmit}>
+                        <Form.Group className="mb-3">
+                            <Form.Control
+                                type="email"
+                                placeholder="Email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                        </Form.Group>
+                        
+                        <Form.Group className="mb-3">
+                            <Form.Control
+                                type="password"
+                                placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                minLength={6}
+                            />
+                        </Form.Group>
+                        
+                        <Button 
+                            type="submit" 
+                            disabled={isLoading}
+                            className="auth-button"
+                            onClick={handleSubmit}
+                        >
+                            {isLoading ? 'Accesso in corso...' : 'Accedi'}
+                        </Button>
+                        
+                        {error && <div className="auth-error">{error}</div>}
+
+                        <div className="auth-links">
+                            <span>Non hai un account?</span>
+                            <Link to="/signup">Registrati</Link>
+                        </div>
+                    </Form>
+                </div>
+            </div>
         </div>
-      </>
     )
 };
 

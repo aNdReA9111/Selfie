@@ -1,10 +1,8 @@
 import { Button, Modal } from "react-bootstrap";
-import { useAuthContext } from "../hooks/useAuthContext";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { noteFilterSchema, NoteFilterType, Note } from "../utils/types";
 import { useNotesContext } from "../hooks/useNotesContext";
-// import { DateTime } from "luxon";
 
 type NotesFilterModalProps = {
   showFilters: boolean;
@@ -12,7 +10,7 @@ type NotesFilterModalProps = {
 }
 
 export const NotesFilterModal: React.FC<NotesFilterModalProps> = ({ showFilters, setShowFilters }: NotesFilterModalProps) => {
-  const { register, handleSubmit, formState: { errors } } = useForm<NoteFilterType>({
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<NoteFilterType>({
     defaultValues: {
       tags: [],
       start: undefined,
@@ -24,7 +22,6 @@ export const NotesFilterModal: React.FC<NotesFilterModalProps> = ({ showFilters,
     resolver: zodResolver(noteFilterSchema)
   });
 
-  const { user } = useAuthContext();
   const { dispatch } = useNotesContext();
 
   const fetchNotes = async (query: NoteFilterType) => {
@@ -54,7 +51,7 @@ export const NotesFilterModal: React.FC<NotesFilterModalProps> = ({ showFilters,
         ).toString();
 
       const res = await fetch("/api/notes?" + queryString, {
-        headers: { 'Authorization': `Bearer ${user.token}` },
+        credentials: "include",
         method: 'GET',
       });
       if (!res.ok) {
@@ -78,6 +75,10 @@ export const NotesFilterModal: React.FC<NotesFilterModalProps> = ({ showFilters,
     console.log(data);
     fetchNotes(data);
     setShowFilters(false);
+  };
+
+  const onReset = () => {
+    reset();
   };
 
   return (
@@ -127,7 +128,10 @@ export const NotesFilterModal: React.FC<NotesFilterModalProps> = ({ showFilters,
               {errors.group && <div className="invalid-feedback">{errors.group.message}</div>}
               <label className="form-check-label" htmlFor="group">Note di Gruppo</label>
             </div>
-            <button type="submit" className="btn btn-danger">Submit<i className="ms-3 bi bi-funnel me-2"></i></button>
+            <div className="d-flex justify-content-around">
+              <button type="submit" className="btn btn-danger">Submit<i className="ms-3 bi bi-funnel me-2"></i></button>
+              <button className="btn btn-danger" onClick={onReset}>Reset<i className="ms-3 bi bi-x-square me-2"></i></button>
+            </div>
           </form>
         </Modal.Body>
       </Modal>

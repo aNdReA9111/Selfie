@@ -20,11 +20,11 @@ export const NotesPreview = () => {
       setIsLoading(true);
       setError('');
       try {
-        const res =  await fetch("api/notes", {
+        const res =  await fetch("/api/notes", {
           method: "GET",
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${user.token}`,
+            credentials: "include"
           }
         })
 
