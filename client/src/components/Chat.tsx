@@ -31,7 +31,7 @@ export const Chat = () => {
 
     useEffect(() => {
         let interval: NodeJS.Timeout;
-        
+
         if (user?._id && isOpen) {
             const fetchMessages = () => {
                 fetch(`/api/messages/get/${user?._id}`, {
@@ -43,7 +43,7 @@ export const Chat = () => {
                 })
                 .then((response) => response.json())
                 .then((data: IMessage[]) => {
-                    const sortedMessages = [...data].sort((a, b) => 
+                    const sortedMessages = [...data].sort((a, b) =>
                         new Date(b.datetime).getTime() - new Date(a.datetime).getTime()
                     );
 
@@ -60,7 +60,7 @@ export const Chat = () => {
 
                     setActiveChats(orderedChats);
                     setAllMessages(data);
-                    
+
                     if (selectedChat) {
                         const filteredMessages = data.filter(
                             (message) =>
@@ -176,7 +176,7 @@ export const Chat = () => {
 
     const groupMessagesByDate = (messages: IMessage[]): MessageGroup[] => {
         const groups: { [key: string]: IMessage[] } = {};
-        
+
         messages.forEach(message => {
             const date = new Date(message.datetime);
             const dateStr = date.toLocaleDateString('it-IT', {
@@ -184,7 +184,7 @@ export const Chat = () => {
                 month: 'long',
                 year: 'numeric'
             });
-            
+
             if (!groups[dateStr]) {
                 groups[dateStr] = [];
             }
@@ -226,7 +226,7 @@ export const Chat = () => {
                                                 onClick={() => handleChatClick(chatId)}
                                                 className="chat-list-item"
                                             >
-                                                <div 
+                                                <div
                                                     className="chat-avatar"
                                                     style={{ backgroundColor: generateColorFromString(chatId) }}
                                                 >
@@ -236,7 +236,7 @@ export const Chat = () => {
                                                     <div className="chat-username">{chatId}</div>
                                                     <div className="chat-preview">
                                                         {allMessages
-                                                            .filter(msg => 
+                                                            .filter(msg =>
                                                                 (msg.from === chatId && msg.to === user?.username) ||
                                                                 (msg.to === chatId && msg.from === user?.username)
                                                             )
@@ -274,7 +274,7 @@ export const Chat = () => {
                                             onClick={() => handleUserClick(username)}
                                             className="chat-list-item"
                                         >
-                                            <div 
+                                            <div
                                                 className="chat-avatar"
                                                 style={{ backgroundColor: generateColorFromString(username) }}
                                             >
@@ -296,7 +296,7 @@ export const Chat = () => {
                                         <FaArrowLeft />
                                     </Button>
                                     <div className="selected-user-info">
-                                        <div 
+                                        <div
                                             className="chat-avatar"
                                             style={{ backgroundColor: generateColorFromString(selectedChat) }}
                                         >
@@ -305,7 +305,7 @@ export const Chat = () => {
                                         <span className="selected-username">{selectedChat}</span>
                                     </div>
                                 </div>
-                                
+
                                 <div className="messages-content">
                                     <div className="message-list" ref={messageListRef}>
                                         <ListGroup>
@@ -341,8 +341,8 @@ export const Chat = () => {
                                             }
                                         }}
                                     />
-                                    <Button 
-                                        variant="primary" 
+                                    <Button
+                                        variant="primary"
                                         onClick={() => sendMessage(messageText)}
                                         disabled={!messageText.trim()}
                                     >

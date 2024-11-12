@@ -18,8 +18,8 @@ import { startDaemon } from "./workers/notificationDaemon.js";
 import { userRoutes } from "./routes/user.js";
 import { notesRoutes } from "./routes/note.js";
 import { eventRoutes } from "./routes/event.js";
-import { activityRoutes } from "./routes/activity.js";
 import { messageRoutes } from "./routes/message.js";
+import { activityRoutes } from "./routes/activity.js";
 
 const app = express();
 
