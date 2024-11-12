@@ -35,7 +35,7 @@ export const MDPreview = ({ isView }: { isView: boolean }) => {
     : [];
 
   const duplicateNote = () => {
-    navigate(`/notes/duplicate${id}`);
+    navigate(`/notes/duplicate/${id}`);
   }
 
   return (

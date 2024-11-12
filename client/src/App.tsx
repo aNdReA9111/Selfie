@@ -7,13 +7,7 @@ import { NotesPreview } from './pages/NotesPage';
 import About from './pages/About';
 import Login from './pages/Login'
 import SignUp from './pages/Signup'
-
-
-// Bootstrap
-// import 'bootstrap/dist/css/bootstrap.min.css';
-
 import { useAuthContext } from './hooks/useAuthContext';
-
 
 // Components
 import MyNavbar from './components/MyNavbar';
@@ -33,6 +27,7 @@ function App() {
           <Route Component={() => (user ? <Home /> :  <Navigate to="/login" />)} path="/" />
           <Route Component={() => (user ? <Calendar /> : <Navigate to="/login" />)} path="/calendar"></Route>
           <Route Component={() => (user ? <Pomodoro /> : <Navigate to="/login" />)} path="/pomodoro"></Route>
+
           {/*distingue le due route dell'editor con un boolean*/}
           <Route Component={() => (user ? <Editor isEdit={true} isView={false} isDuplicate={false}/> : <Navigate to="/login" />)} path="/notes/edit/:id"></Route>
           <Route Component={() => (user ? <Editor isEdit={false} isView={false} isDuplicate={false}/> : <Navigate to="/login" />)} path="/notes/add"></Route>
