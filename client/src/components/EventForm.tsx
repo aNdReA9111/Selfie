@@ -12,6 +12,7 @@ import { useEventsContext } from "../hooks/useEventsContext";
 import { timeZonesNames } from "@vvo/tzdb";
 import { Event } from "../utils/types";
 import { weekDaysMap, reverseWeekDaysMap, frequenciesMap, revereseFrequenciesMap } from "../utils/constants";
+import { PomodoroForm } from "./PomodoroForm";
 
 function rruleStrToObj(rule: string, zone: string) {
   const rrule = RRule.fromString(rule);
@@ -65,6 +66,8 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
     attendees: event?.attendees || [],
     location: event?.location || undefined,
     url: event?.url || undefined,
+    isPomodoro: event?.isPomodoro || false,
+    pomodoroSetting: event?.pomodoroSetting || { studioTime: 25, riposoTime: 5, nCicli: 2},
   };
 
   const { setValue, register, watch, handleSubmit, formState: { errors } } = useForm<EventFormData>({
@@ -99,10 +102,13 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
         attendees: defaultValues.attendees,
         location: defaultValues.location,
         url: defaultValues.url,
+        isPomodoro: defaultValues.isPomodoro,
+        pomodoroSetting: defaultValues.pomodoroSetting,
       } as Partial<EventFormData>,
     }
   );
   const isRecurring: boolean = watch('isRecurring');
+  const isPomodoro: boolean = watch('isPomodoro');
   const [open, setOpen] = useState<boolean>(false); //for suggestions
   let suggestions: string[] = [];
 
@@ -175,6 +181,8 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
       // attendees: data.attendees,
       recurrenceRule: rrule? rrule.toString(): undefined,
       timezone: data.timezone,
+      isPomodoro: data.isPomodoro,
+      pomodoroSetting: data.pomodoroSetting,
     }
 
 
@@ -302,6 +310,17 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
             <label className="form-check-label" htmlFor="isRecurring">Is this event recurring?</label>
           </div>
           {isRecurring && (<RRuleForm watch={watch} register={register} errors={errors} setValue={setValue}/>)}
+          <div className="mb-3 form-check">
+            <input
+              type="checkbox"
+              id="isPomodoro"
+              className="form-check-input"
+              {...register('isPomodoro')}
+            />
+            <label className="form-check-label" htmlFor="isPomodoro">Does this event include a Pomodoro session?</label>
+          </div>
+          {isPomodoro && (<PomodoroForm watch={watch} register={register} setValue={setValue}/>)}
+        
         </div>
         <div className="col-sm-12 col-md-6">
           {/*<AttendeesForm register={register} errors={errors} watch={watch}/>*/}

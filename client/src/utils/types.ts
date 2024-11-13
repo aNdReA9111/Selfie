@@ -153,6 +153,12 @@ const rruleSchema = z.object({
   bysetpos: bySetPos,
 });
 
+const pomodoroSettingSchema = z.object({
+  studioTime: z.number(),
+  riposoTime: z.number(),
+  nCicli: z.number()
+})
+
 //Attendee schema
 const attendeeSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -205,6 +211,8 @@ export const eventSchema = z.object({
   notifications: notificationsSchema.optional().nullable(),
   isRecurring: z.boolean(),
   timezone: z.string(),
+  isPomodoro: z.boolean(),
+  pomodoroSetting: pomodoroSettingSchema,
 });
 
 export const eventFormSchema = eventSchema
@@ -220,6 +228,8 @@ export const eventFormSchema = eventSchema
     notifications: true,
     isRecurring: true,
     timezone: true,
+    isPomodoro: true,
+    pomodoroSetting: true,
   })
   .refine(
     (data) => {

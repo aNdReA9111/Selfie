@@ -7,9 +7,10 @@ import { italianTranslations } from '../utils/constants';
 // import { useAuthContext } from '../hooks/useAuthContext';
 import { useEventsContext } from '../hooks/useEventsContext';
 import { EventModalForm } from './EventModalForm';
-
+import { useNavigate } from 'react-router-dom';
 
 const getItalian: GetText = (text: any) => (italianTranslations[text] || text);
+const navigate = useNavigate();
 
 export const EventDetails = ({event, date, show, setShow}: EventDetailsProps) => {
   if(!event) return null;
@@ -44,6 +45,13 @@ export const EventDetails = ({event, date, show, setShow}: EventDetailsProps) =>
       });
     }
   }
+  
+  const navigateToPomodoro = () => {
+    const studio: Number = event.pomodoroSetting.studioTime;
+    const riposo: Number = event.pomodoroSetting.riposoTime;
+    const ncicli: Number = event.pomodoroSetting.nCicli;
+    navigate('/pomodoro', {state: {studioTime: studio, riposoTime: riposo, nCicli: ncicli}});
+  };
 
   return (
     event && (
@@ -86,6 +94,10 @@ export const EventDetails = ({event, date, show, setShow}: EventDetailsProps) =>
                 </div>
               )
             }
+            <div>
+            {event.isPomodoro && (<Button onClick = {navigateToPomodoro}>Pomodoro app</Button>)}
+            </div>
+
           </div>
         </Modal.Body>
       </Modal>
