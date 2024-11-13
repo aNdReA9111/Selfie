@@ -294,12 +294,12 @@ async function checkAndSendNotifications() {
           priority,
         } of notificationTimes) {
           //primo controllo --> si attivano solo notifiche del giorno stesso
-          console.log(now + (user.dateOffset || 0 ) - notificationTime);
+          console.log(now + (user.dateOffset || 0) - notificationTime);
           if (
             // (user.dateOffset !== 0 &&
             // new Date(notificationTime).getDate() ===
             //   new Date(now + (user.dateOffset || 0)).getDate()) && //per time machine solo notifiche dello stesso giorno
-            notificationTime <= now + (user.dateOffset || 0 ) && //passata
+            notificationTime <= now + (user.dateOffset || 0) && //passata
             notificationTime > now + (user.dateOffset || 0) - 60000 //passata da massimo un minuto
           ) {
             user.pushSubscriptions.forEach((sub: PushSubscription) => {

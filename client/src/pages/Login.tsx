@@ -63,6 +63,7 @@ const Login = () => {
                             type="submit" 
                             disabled={isLoading}
                             className="auth-button"
+                            onClick={handleSubmit}
                         >
                             {isLoading ? 'Accesso in corso...' : 'Accedi'}
                         </Button>

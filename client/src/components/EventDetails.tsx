@@ -4,7 +4,6 @@ import { Modal, Button } from 'react-bootstrap';
 import { RRule } from 'rrule';
 import { GetText } from 'rrule/dist/esm/nlp/totext';
 import { italianTranslations } from '../utils/constants';
-// import { useAuthContext } from '../hooks/useAuthContext';
 import { useEventsContext } from '../hooks/useEventsContext';
 import { EventModalForm } from './EventModalForm';
 import { useNavigate } from 'react-router-dom';
@@ -20,7 +19,6 @@ export const EventDetails = ({event, date, show, setShow}: EventDetailsProps) =>
   const rruleString = event?.isRecurring === false ? undefined: RRule.fromString(event?.recurrenceRule as string).toText(getItalian);
   let start2, end2;
 
-  // const { user } = useAuthContext();
   const { dispatch } = useEventsContext();
 
 

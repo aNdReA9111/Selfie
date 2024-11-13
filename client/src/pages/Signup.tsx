@@ -92,6 +92,7 @@ const Signup = () => {
                             type="submit" 
                             disabled={isLoading}
                             className="auth-button"
+                            onClick={handleSubmit}
                         >
                             Registrati
                         </Button>

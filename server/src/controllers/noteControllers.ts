@@ -32,14 +32,28 @@ const getNotes = async (req: Req, res: Response) => {
     return res.status(404).json({ error: "User not found" });
   }
 
-  //prendo quelle note che di proprietà dell'utente e quelle che sono accessibili da esso, ma non sue
-  const notes: INote[] | null = await NoteModel.find({
-    $or: [
-      { author: user.username },
-      { allowedUsers: { $in: [user.username] } },
-      { open: true }
-    ],
-  });
+  //query params
+  let { start, end, pub, priv, group, tags } = req.query;
+  tags = tags ? tags.toString().split(",") : [];
+  console.log(tags);
+  if(priv === undefined) priv = "true";
+  if(group === undefined) group = "true";
+  const privQuery = priv === "true" ? { author: user.username } : { _id: null };
+  const pubQuery = pub === "true" ? { open: true } : { _id: null };
+  const groupQuery =
+    group === "true"
+      ? { allowedUsers: { $in: [user.username] } }
+      : { _id: null };
+  const dateQuery = (start && end) || (start === "" || end === "")  ? { created: { $gte: start, $lte: end } } : {};
+  const tagsQuery = tags.length > 0 ? { tags: { $in: tags } } : {};
+
+  const query = {
+    $or: [{ ...privQuery }, { ...pubQuery }, { ...groupQuery }],
+    ...dateQuery,
+    ...tagsQuery,
+  };
+  console.log(start, end, pub, priv, group, tags);
+  const notes: INote[] | null = await NoteModel.find(query);
 
   if (notes === null) {
     return res.status(404).json({ error: "Impossibile to retrieve notes" });

@@ -7,7 +7,6 @@ import { RRuleForm } from "./RRuleForm"
 import { RRule } from "rrule";
 import { DateTime } from "luxon";
 import { useState, Dispatch, SetStateAction } from "react";
-// import { useAuthContext } from "../hooks/useAuthContext";
 import { useEventsContext } from "../hooks/useEventsContext";
 import { timeZonesNames } from "@vvo/tzdb";
 import { Event } from "../utils/types";
@@ -49,7 +48,7 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
     title: event?.title || undefined,
     description: event?.description || undefined,
     date: event?.date ? DateTime.fromJSDate(event?.date).setZone(event?.timezone).toFormat("yyyy-MM-dd'T'HH:mm") : undefined,
-      endDate: event?.endDate ? DateTime.fromJSDate(event?.endDate).setZone(event?.timezone).toFormat("yyyy-MM-dd'T'HH:mm") : undefined,
+    endDate: event?.endDate ? DateTime.fromJSDate(event?.endDate).setZone(event?.timezone).toFormat("yyyy-MM-dd'T'HH:mm") : undefined,
     isRecurring: event?.isRecurring || false,
     notifications: event?.notifications || {
       notifica_email: false,
@@ -112,7 +111,6 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
   const [open, setOpen] = useState<boolean>(false); //for suggestions
   let suggestions: string[] = [];
 
-  // const { user } = useAuthContext();
   const { dispatch } = useEventsContext();
 
   const onSuggestionClick = (suggestion: string) => {

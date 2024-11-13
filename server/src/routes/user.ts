@@ -7,7 +7,7 @@ import {
     signUpUser,
     searchUsers,
     logoutUser
-} from '../controllers/userController.js';
+} from '../controllers/userControllers.js';
 
 const router = express.Router();
 
@@ -35,6 +35,3 @@ router.post('/subscribe', requireAuth, addSubscription);
 router.patch('/unsubscribe', requireAuth, removeSubscription);
 
 export { router as userRoutes };
- 
-
-

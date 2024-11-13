@@ -3,12 +3,11 @@ import { MDPreview } from "../components/MDPreview";
 import { NoteForm } from "../components/NoteForm";
 import { Note, NoteFormData, formSchema } from "../utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-// import { OptionsBar } from "../components/OptionsBar";
 import { useParams } from "react-router-dom";
 import { useNotesContext } from "../hooks/useNotesContext";
 
 
-export const EditorContextProvider = ({ isEdit, isView }: { isEdit: boolean, isView: boolean }) => {
+export const EditorContextProvider = ({ isEdit, isView, isDuplicate }: { isEdit: boolean, isView: boolean, isDuplicate: boolean }) => {
   let defaultValues: NoteFormData = {
     title: '',
     content: '',
@@ -16,7 +15,8 @@ export const EditorContextProvider = ({ isEdit, isView }: { isEdit: boolean, isV
     allowedUsers: [],
     tags: []
   }
-  if(isEdit || isView) {
+
+  if(isEdit || isView || isDuplicate) {
     const { id } = useParams();
     const { notes } = useNotesContext();
     const note: Note | undefined = notes.find((note: Note) => note._id === id);
@@ -30,6 +30,7 @@ export const EditorContextProvider = ({ isEdit, isView }: { isEdit: boolean, isV
       }
     }
   }
+
   const methods = useForm<NoteFormData>({
     defaultValues,
     resolver: zodResolver(formSchema),
@@ -37,10 +38,9 @@ export const EditorContextProvider = ({ isEdit, isView }: { isEdit: boolean, isV
 
   return (
     <FormProvider {...methods}>
-      {/*<OptionsBar />*/}
-      <div style={{ height: '95svh' }} className="d-flex flex-md-row flex-column justify-content-center align-items-start text-bg-light m-0" >
+      <div className="d-flex flex-md-row flex-column justify-content-center align-items-start m-0" >
         <NoteForm isEdit={isEdit} isView={isView}/>
-        <MDPreview />
+        <MDPreview isView={isView} />
       </div>
     </FormProvider>
   );
