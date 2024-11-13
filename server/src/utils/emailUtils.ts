@@ -20,17 +20,17 @@ const transporter = nodemailer.createTransport({
 });
 
 // Funzione per inviare email
-export const sendEmail = async (to: string, subject: string, text: string) => {
+export const sendEmail = async (to: string, subject: string, text: string, attachments: any[]) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to,
     subject,
-    text
+    text,
+    attachments
   };
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log('Email inviata:', info.response);
   } catch (error) {
     console.error('Errore nell’invio dell’email:', error);
   }

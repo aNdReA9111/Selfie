@@ -10,6 +10,7 @@ import { Button } from 'react-bootstrap';
 import { Event } from '../utils/types';
 import { RRule } from 'rrule';
 import { EventDetails } from '../components/EventDetails';
+import { useAuthContext } from '../hooks/useAuthContext';
 
 const localizer: DateLocalizer = luxonLocalizer(DateTime);
 
@@ -52,6 +53,7 @@ function generateRecurringEvents(events: Event[]) {
 
 const CustomCalendar = () => {
   const { events, dispatch }: EventsContextType = useEventsContext();
+  const { user } = useAuthContext();
   //useMemo --> ricalcolo eventi sul calendario solo quando cambiano gli eventi sul context
   const calendarEvents = useMemo(() => generateRecurringEvents(events), [events]);
   const [showDetails, setShowDetails] = useState<boolean>(false);
@@ -89,6 +91,55 @@ const CustomCalendar = () => {
     setShowDetails(true);
   };
 
+  const handleExportCalendar = async () => {
+    try {
+      const response = await fetch('/api/events/export-events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          credentials: "include",
+        },
+        body: JSON.stringify({
+          userId: user?._id
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Errore nell\'esportazione del calendario');
+      }
+
+      // Ottieni il contenuto del calendario come stringa
+      const calendarData = await response.text();
+      
+      // Crea un Blob con il contenuto del calendario
+      const blob = new Blob([calendarData], { type: 'text/calendar' });
+      
+      // Crea un URL per il blob
+      const url = window.URL.createObjectURL(blob);
+      
+      // Crea un elemento <a> per il download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'calendario.ics';
+      
+      // Aggiungi il link al documento e simula il click
+      document.body.appendChild(link);
+      link.click();
+      
+      // Pulisci rimuovendo il link e revocando l'URL
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      // Notifica successo
+      alert('Calendario esportato con successo!');
+
+    } catch (error) {
+      console.error('Errore nell\'esportazione del calendario:', error);
+      alert(error instanceof Error ? error.message : 'Errore sconosciuto');
+    }
+  };
+
   // const handleSelectSlot = (slotInfo: any) => {
   // };
 
@@ -113,6 +164,11 @@ const CustomCalendar = () => {
           { currentEvent && <EventDetails event={currentEvent} date={date}  show={showDetails} setShow={setShowDetails} /> }
           <Button className="mt-3" variant="danger" onClick={handleDeleteAll}>
             Delete All Events
+            <i className="ms-2 bi bi-calendar2-x"></i>
+          </Button>
+
+          <Button className="mt-3" variant="secondary" onClick={handleExportCalendar}>
+            Export Calendar
             <i className="ms-2 bi bi-calendar2-x"></i>
           </Button>
         </div>
