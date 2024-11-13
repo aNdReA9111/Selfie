@@ -20,111 +20,115 @@ function App() {
 
   return (
     <BrowserRouter>
-      {/* Mostra la navbar solo se l'utente è autenticato */}
-      {user?.isAuthenticated && <MyNavbar />}
+      <div className="app-container">
+        {/* Mostra la navbar solo se l'utente è autenticato */}
+        {user?.isAuthenticated && <MyNavbar />}
+        {user?.isAuthenticated && <MyNotification />}
 
-      <MyNotification />
-      <Routes>
-        {/* Route protette (richiedono autenticazione) */}
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <Home />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/calendar"
-          element={
-            <ProtectedRoute>
-              <Calendar />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/pomodoro"
-          element={
-            <ProtectedRoute>
-              <Pomodoro />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/notes/edit/:id"
-          element={
-            <ProtectedRoute>
-              <Editor isEdit={true} isView={false} isDuplicate={false}/>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/notes/add"
-          element={
-            <ProtectedRoute>
-              <Editor isEdit={false} isView={false} isDuplicate={false}/>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/notes/:id"
-          element={
-            <ProtectedRoute>
-              <Editor isEdit={false} isView={true} isDuplicate={false}/>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/notes"
-          element={
-            <ProtectedRoute>
-              <NotesPreview />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/notes/duplicate/:id"
-          element={
-            <ProtectedRoute>
-              <Editor isEdit={false} isView={false} isDuplicate={true}/>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/account-settings"
-          element={
-            <ProtectedRoute>
-              <About />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/about"
-          element={
-            <ProtectedRoute>
-              <About />
-            </ProtectedRoute>
-          }
-        />
+        <div className="main-content">
+          <Routes>
+            {/* Route protette (richiedono autenticazione) */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/calendar"
+              element={
+                <ProtectedRoute>
+                  <Calendar />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/pomodoro"
+              element={
+                <ProtectedRoute>
+                  <Pomodoro />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/notes/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <Editor isEdit={true} isView={false} isDuplicate={false}/>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/notes/add"
+              element={
+                <ProtectedRoute>
+                  <Editor isEdit={false} isView={false} isDuplicate={false}/>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/notes/:id"
+              element={
+                <ProtectedRoute>
+                  <Editor isEdit={false} isView={true} isDuplicate={false}/>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/notes"
+              element={
+                <ProtectedRoute>
+                  <NotesPreview />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/notes/duplicate/:id"
+              element={
+                <ProtectedRoute>
+                  <Editor isEdit={false} isView={false} isDuplicate={true}/>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/account-settings"
+              element={
+                <ProtectedRoute>
+                  <About />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/about"
+              element={
+                <ProtectedRoute>
+                  <About />
+                </ProtectedRoute>
+              }
+            />
 
-        {/* Route pubbliche (accessibili solo se NON autenticati) */}
-        <Route
-          path="/login"
-          element={
-            <ProtectedRoute requireAuth={false}>
-              <Login />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/signup"
-          element={
-            <ProtectedRoute requireAuth={false}>
-              <SignUp />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+            {/* Route pubbliche (accessibili solo se NON autenticati) */}
+            <Route
+              path="/login"
+              element={
+                <ProtectedRoute requireAuth={false}>
+                  <Login />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/signup"
+              element={
+                <ProtectedRoute requireAuth={false}>
+                  <SignUp />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </div>
+      </div>
     </BrowserRouter>
   );
 }
