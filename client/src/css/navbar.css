@@ -1,20 +1,39 @@
+.fixed-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Aggiungi padding al body per compensare l'altezza della navbar fissa */
+body {
+    padding-top: 56px; /* Altezza della navbar */
+}
+
 .avatar-circle {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: bold;
-  margin-right: 8px;
-  font-size: 16px;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    margin-right: 8px;
+    font-size: 16px;
 }
 
 .custom-dropdown {
     color: white;
 }
 
-.dropdown-toggle::after{
+.dropdown-toggle::after {
     display: none;
+}
+
+/* Assicurati che il dropdown menu appaia sopra altri elementi */
+.dropdown-menu {
+    z-index: 1001;
 }
