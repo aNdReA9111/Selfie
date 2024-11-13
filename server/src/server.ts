@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import webpush from "web-push";
+import { DateTime } from "luxon";
 
 // Middleware
 import cors from "cors";
@@ -20,6 +21,7 @@ import { notesRoutes } from "./routes/note.js";
 import { eventRoutes } from "./routes/event.js";
 import { messageRoutes } from "./routes/message.js";
 import { activityRoutes } from "./routes/activity.js";
+import { timeMachineRoutes } from "./routes/timeMachine.js";
 
 const app = express();
 
@@ -58,6 +60,7 @@ app.use("/api/notes", notesRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/activities", activityRoutes);
+app.use("/api/timeMachine", timeMachineRoutes);
 
 // Connessione al database
 const PORT = Number(process.env.PORT as unknown) || 4000;
