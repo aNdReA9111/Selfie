@@ -19,7 +19,7 @@ const MyNavbar = () => {
   }
 
   return (
-      <Navbar bg="danger" variant="dark" expand="lg" className="py-1">
+      <Navbar bg="danger" variant="dark" expand="lg" className="py-1 fixed-navbar">
         <Container fluid>
           <Navbar.Brand as={Link} to="/" className="d-flex align-items-center">
             <img
