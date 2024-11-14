@@ -1,8 +1,10 @@
 import webpush, { PushSubscription } from "web-push";
 import { EventModel, IEvent, INotification } from "../models/eventModel.js";
 import { UserModel, IUser } from "../models/userModel.js";
-import { RRule } from "rrule";
 import { DateTime } from "luxon";
+import pkg from "rrule";
+
+const { RRule } = pkg;
 
 const MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
 
@@ -48,6 +50,12 @@ async function checkAndSendNotifications() {
     const timeMachineDate: number = now + (user.dateOffset || 0);
     // const fiveDaysMs = MILLIS_IN_DAY * 5;
     try {
+      const start: Date = DateTime.fromMillis(timeMachineDate)
+        .toUTC()
+        .toJSDate();
+      const end: Date = DateTime.fromMillis(timeMachineDate + 5 * MILLIS_IN_DAY)
+        .toUTC()
+        .toJSDate();
       const events: IEvent[] = await EventModel.find({
         $and: [
           {
@@ -58,8 +66,9 @@ async function checkAndSendNotifications() {
           },
           {
             $or: [
-              { _id_user: user._id },  //l'user è proprietario
-              {                        //l'user è partecipante
+              { _id_user: user._id }, //l'user è proprietario
+              {
+                //l'user è partecipante
                 attendees: {
                   $elemMatch: {
                     email: user.email,
@@ -74,9 +83,8 @@ async function checkAndSendNotifications() {
         $or: [
           {
             $and: [
-              { nextDate: { $exists: true } },
-              { nextDate: { $gte: new Date(timeMachineDate) } },
-              { date: { $gte: new Date(timeMachineDate) } },
+              { date: { $gte: start } },
+              { date: { $lte: end } },
             ],
           },
           {
@@ -85,34 +93,28 @@ async function checkAndSendNotifications() {
         ],
       }); //lean ritorna direttamente oggetti js/ts invece di docs mongoose
 
-      /*keep only recurring events without occurrences in the next five days*/
-      const start: Date = DateTime.fromMillis(timeMachineDate).toUTC().toJSDate();
-      const end: Date = DateTime.fromMillis(timeMachineDate + 5 * MILLIS_IN_DAY).toUTC().toJSDate();
-      
       /*filterign recurring events and associating them with their occurrences*/
-      const recurringEvents: [IEvent, Date[]][] = events.filter((event: IEvent) => {
-        return event.isRecurring;
-      }).map((event: IEvent) => {
-        const occurrences: Date[] = RRule.fromString(event.recurrenceRule).between(start, end, true);
-        return [event, occurrences];
-      })
-      
+      const recurringEvents: [IEvent, Date[]][] = events
+        .filter((event: IEvent) => {
+          return event.isRecurring;
+        })
+        .map((event: IEvent) => {
+          const occurrences: Date[] = RRule.fromString(
+            event.recurrenceRule,
+          ).between(start, end, true);
+          return [event, occurrences];
+        });
+
+      /*filtering non recurring events*/
       const nonRecurringEvents = events.filter((event: IEvent) => {
         if (!event.isRecurring) {
           return true;
         } else {
           return false;
         }
-      })
-      /*su quelli sopra faccio un'iterata a parte*/
+      });
 
-      for (const event of nonRecurringEvents) {
-        const eventDate: number = event.date.getTime();
-        const notifications: INotification | undefined = event.notifications;
-
-        checkNotifications(eventDate, now, notifications as INotification, event, user);
-      }
-
+      /*send notifications for both types of events*/
       calculateNonRecurringNotificationTimes(nonRecurringEvents, user);
       calculateRecurringNotificationTimes(recurringEvents, user);
     } catch (error) {
@@ -180,28 +182,13 @@ function calculateNotificationTimes(
   return times;
 }
 
-function calculateNonRecurringNotificationTimes(events: IEvent[], user: IUser) {
-  const now = DateTime.now().toMillis(); 
-  for (const event of events) {
-    const eventDate: number = event.date.getTime();
-    const notifications: INotification | undefined = event.notifications;
-
-    checkNotifications(eventDate, now, notifications as INotification, event, user);
-  }
-}
-
-function calculateRecurringNotificationTimes(recurringEvents: [IEvent, Date[]][], user: IUser) {
-  const now = DateTime.now().toMillis(); 
-  for (const event of recurringEvents) {
-    const notifications: INotification | undefined = event[0].notifications;
-
-    for (const occurrence of event[1]) {
-      checkNotifications(occurrence.getTime(), now, notifications as INotification, event[0], user);
-    }
-  }
-}
-
-function checkNotifications(eventDate: number, now: number, notifications: INotification, event: IEvent, user: IUser) {
+function checkNotifications(
+  eventDate: number,
+  now: number,
+  notifications: INotification,
+  event: IEvent,
+  user: IUser,
+) {
   const notificationTimes = calculateNotificationTimes(
     eventDate,
     notifications,
@@ -209,12 +196,7 @@ function checkNotifications(eventDate: number, now: number, notifications: INoti
     event.url || "",
   );
 
-  for (const {
-    title,
-    url,
-    notificationTime,
-    priority,
-  } of notificationTimes) {
+  for (const { title, url, notificationTime, priority } of notificationTimes) {
     //primo controllo --> si attivano solo notifiche del giorno stesso
     console.log(now + (user.dateOffset || 0) - notificationTime);
     if (
@@ -238,6 +220,39 @@ function checkNotifications(eventDate: number, now: number, notifications: INoti
       });
     } else {
       console.log(`Skipping notification: ${title}`);
+    }
+  }
+}
+
+function calculateNonRecurringNotificationTimes(events: IEvent[], user: IUser) {
+  const now: number = DateTime.now().toMillis();
+  for (const event of events) {
+    const eventDate: number = event.date.getTime();
+    const notifications: INotification | undefined = event.notifications;
+
+    checkNotifications(
+      eventDate,
+      now,
+      notifications as INotification,
+      event,
+      user,
+    );
+  }
+}
+
+function calculateRecurringNotificationTimes(recurringEvents: [IEvent, Date[]][], user: IUser) {
+  const now: number = DateTime.now().toMillis();
+  for (const event of recurringEvents) {
+    const notifications: INotification | undefined = event[0].notifications;
+
+    for (const occurrence of event[1]) {
+      checkNotifications(
+        occurrence.getTime(),
+        now,
+        notifications as INotification,
+        event[0],
+        user,
+      );
     }
   }
 }
