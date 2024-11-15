@@ -21,6 +21,8 @@ const createEvent = async (req: Req, res: Response) => {
     isRecurring,
     timezone,
     user: userId,
+    isPomodoro,
+    pomodoroSetting,
   } = req.body;
 
   const user: IUser | null = await UserModel.findOne({ _id: userId });
@@ -43,6 +45,8 @@ const createEvent = async (req: Req, res: Response) => {
       notifications,
       timezone,
       _id_user: userId,
+      isPomodoro,
+      pomodoroSetting,
     });
 
     res.status(201).json(event);
