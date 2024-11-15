@@ -19,6 +19,13 @@ interface IAttendee {
   accepted: boolean;
 }
 
+interface IPomodoro{
+  studioTime: number;
+  riposoTime: number;
+  nCicli: number;
+  isComplete: boolean;
+}
+
 // Definire un'interfaccia che rappresenta le proprietà di un documento Event
 interface IEvent extends Document {
   _id: Schema.Types.ObjectId;
@@ -36,6 +43,8 @@ interface IEvent extends Document {
   nextDate?: Date;
   _id_user: string;
   timezone: string;
+  isPomodoro: boolean;
+  pomodoroSetting: IPomodoro;
 }
 
 const notificationSchema = new Schema<INotification>({
@@ -128,6 +137,25 @@ const attendeeSchema = new Schema<IAttendee>({
   },
 });
 
+const pomodoroSchema = new Schema<IPomodoro>({
+  studioTime:{
+    type: Number,
+    require: true,
+  },
+  riposoTime:{
+    type: Number,
+    require: true,
+  },
+  nCicli:{
+    type: Number,
+    require: true,
+  },
+  isComplete:{
+    type: Boolean,
+    require:true,
+  }
+});
+
 // Definire lo schema di Mongoose
 const eventSchema = new Schema<IEvent>({
   _id: {
@@ -195,6 +223,16 @@ const eventSchema = new Schema<IEvent>({
     type: String,
     required: true,
   },
+  isPomodoro: {
+    type: Boolean,
+    required: true,
+  },
+  pomodoroSetting:{
+    type: pomodoroSchema,
+    required: function(){
+      return this.isPomodoro;
+    },
+  }
 });
 
 const EventModel: Model<IEvent> = mongoose.model<IEvent>("event", eventSchema);

@@ -85,6 +85,7 @@ const CustomCalendar = () => {
 
   const handleSelectEvent = (e: any) => {
     setDate(e.start);
+    console.log(events.find((el: Event) => el._id === e.resources._id));
     setCurrentEvent(events.find((el: Event) => el._id === e.resources._id));
     setShowDetails(true);
   };

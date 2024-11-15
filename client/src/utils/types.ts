@@ -197,7 +197,8 @@ const rruleSchema = z.object({
 const pomodoroSettingSchema = z.object({
   studioTime: z.number(),
   riposoTime: z.number(),
-  nCicli: z.number()
+  nCicli: z.number(),
+  isComplete: z.boolean()
 })
 
 //Attendee schema

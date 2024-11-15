@@ -66,7 +66,7 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
     location: event?.location || undefined,
     url: event?.url || undefined,
     isPomodoro: event?.isPomodoro || false,
-    pomodoroSetting: event?.pomodoroSetting || { studioTime: 25, riposoTime: 5, nCicli: 2},
+    pomodoroSetting: event?.pomodoroSetting || { studioTime: 25, riposoTime: 5, nCicli: 2, isComplete: false},
   };
 
   const { setValue, register, watch, handleSubmit, formState: { errors } } = useForm<EventFormData>({
@@ -180,7 +180,7 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
       recurrenceRule: rrule? rrule.toString(): undefined,
       timezone: data.timezone,
       isPomodoro: data.isPomodoro,
-      pomodoroSetting: data.pomodoroSetting,
+      pomodoroSetting: data.pomodoroSetting ? data.pomodoroSetting : {"studioTime":5,"riposoTime":5,"nCicli":2, "isComplete": false},
     }
 
 
@@ -317,7 +317,7 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
             />
             <label className="form-check-label" htmlFor="isPomodoro">Does this event include a Pomodoro session?</label>
           </div>
-          {isPomodoro && (<PomodoroForm watch={watch} register={register} setValue={setValue}/>)}
+          {isPomodoro && (<PomodoroForm register={register} setValue={setValue}/>)}
         
         </div>
         <div className="col-sm-12 col-md-6">

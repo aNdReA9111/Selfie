@@ -9,7 +9,6 @@ import { EventModalForm } from './EventModalForm';
 import { useNavigate } from 'react-router-dom';
 
 const getItalian: GetText = (text: any) => (italianTranslations[text] || text);
-const navigate = useNavigate();
 
 export const EventDetails = ({event, date, show, setShow}: EventDetailsProps) => {
   if(!event) return null;
@@ -20,7 +19,7 @@ export const EventDetails = ({event, date, show, setShow}: EventDetailsProps) =>
   let start2, end2;
 
   const { dispatch } = useEventsContext();
-
+  const navigate = useNavigate();
 
   if(event.timezone !== Intl.DateTimeFormat().resolvedOptions().timeZone) {
     start2 = start.setZone(event?.timezone as string);
@@ -45,10 +44,11 @@ export const EventDetails = ({event, date, show, setShow}: EventDetailsProps) =>
   }
   
   const navigateToPomodoro = () => {
-    const studio: Number = event.pomodoroSetting.studioTime;
-    const riposo: Number = event.pomodoroSetting.riposoTime;
-    const ncicli: Number = event.pomodoroSetting.nCicli;
-    navigate('/pomodoro', {state: {studioTime: studio, riposoTime: riposo, nCicli: ncicli}});
+    navigate('/pomodoro', {state: 
+      {
+        eventIdFromEvent: event?._id,
+        settingFromEvent: event?.pomodoroSetting
+      }});
   };
 
   return (
@@ -81,19 +81,27 @@ export const EventDetails = ({event, date, show, setShow}: EventDetailsProps) =>
               {start2 && end2 && ( <h5>Nella timezone attuale: </h5> ) }
               <p><i className="bi bi-clock-fill me-2"></i>{start.toLocaleString(DateTime.DATETIME_SHORT)} - {end.toLocaleString(DateTime.DATETIME_SHORT)}</p>
             </div>
-            {event.url && <p><i className="bi bi-link-45deg me-2"></i><a href={event.url}>{event.url}</a></p>}
-            {event.location && <p><i className="bi bi-geo-alt-fill me-2"></i>{event.location}</p>}
-            {rruleString && <p>Pattern della ricorrenza: {rruleString}</p>}
-            {
-              start2 && end2 && (
-                <div>
-                  {start2 && end2 && ( <h5>Nella timezone dell'evento: </h5> ) }
-                  <p><i className="bi bi-clock-fill me-2"></i>{start2.toLocaleString(DateTime.DATETIME_SHORT)} - {end2.toLocaleString(DateTime.DATETIME_SHORT)}</p>
-                </div>
-              )
-            }
+              {event.url && <p><i className="bi bi-link-45deg me-2"></i><a href={event.url}>{event.url}</a></p>}
+              {event.location && <p><i className="bi bi-geo-alt-fill me-2"></i>{event.location}</p>}
+              {rruleString && <p>Pattern della ricorrenza: {rruleString}</p>}
+              {
+                start2 && end2 && (
+                  <div>
+                    {start2 && end2 && ( <h5>Nella timezone dell'evento: </h5> ) }
+                    <p><i className="bi bi-clock-fill me-2"></i>{start2.toLocaleString(DateTime.DATETIME_SHORT)} - {end2.toLocaleString(DateTime.DATETIME_SHORT)}</p>
+                  </div>
+                )
+              }
             <div>
-            {event.isPomodoro && (<Button onClick = {navigateToPomodoro}>Pomodoro app</Button>)}
+              {event.isPomodoro && (
+                <>
+                  <Button onClick = {navigateToPomodoro}>Pomodoro app</Button>
+                  <p>Study: {event?.pomodoroSetting.studioTime} minutes</p>
+                  <p>Rest: {event?.pomodoroSetting.riposoTime} minutes</p>
+                  <p>Amount of pomodoro cycles: {event?.pomodoroSetting.nCicli}</p>
+
+                </>
+                )}
             </div>
 
           </div>
