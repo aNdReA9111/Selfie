@@ -11,7 +11,6 @@ import { useEventsContext } from "../hooks/useEventsContext";
 import { timeZonesNames } from "@vvo/tzdb";
 import { Event } from "../utils/types";
 import { weekDaysMap, reverseWeekDaysMap, frequenciesMap, revereseFrequenciesMap } from "../utils/constants";
-import { PomodoroForm } from "./PomodoroForm";
 
 function rruleStrToObj(rule: string, zone: string) {
   const rrule = RRule.fromString(rule);
@@ -207,6 +206,7 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
     }
   };
 
+
   console.log(errors);
 
   return (
@@ -317,8 +317,50 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
             />
             <label className="form-check-label" htmlFor="isPomodoro">Does this event include a Pomodoro session?</label>
           </div>
-          {isPomodoro && (<PomodoroForm register={register} setValue={setValue}/>)}
-        
+          {isPomodoro && (
+            <>
+              <div className="mb-3">
+                <label htmlFor="studioTime" className="form-label">Study time</label>
+                <input
+                  type="number"
+                  id="studioTime"
+                  step='5'
+                  min='5'
+                  {...register('pomodoroSetting.studioTime')}
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="riposoTime" className="form-label">Rest time</label>
+                <input
+                  type="number"
+                  id="riposoTime"
+                  min='1'
+                  {...register('pomodoroSetting.riposoTime')}
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="nCicli" className="form-label">Amount of cycles</label>
+                <input
+                  type="number"
+                  id="studioTime"
+                  min='1'
+                  {...register('pomodoroSetting.nCicli')}
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="studioTime" className="form-label">Study time</label>
+                <input
+                  type="hidden"
+                  id="isComplete"
+                  value="false"
+                  {...register('pomodoroSetting.isComplete')}
+              />
+            </div>
+          </>
+
+          )}
+          
+          
         </div>
         <div className="col-sm-12 col-md-6">
           {/*<AttendeesForm register={register} errors={errors} watch={watch}/>*/}

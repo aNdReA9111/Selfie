@@ -195,9 +195,9 @@ const rruleSchema = z.object({
 });
 
 const pomodoroSettingSchema = z.object({
-  studioTime: z.number(),
-  riposoTime: z.number(),
-  nCicli: z.number(),
+  studioTime: z.preprocess((value) => Number(value), z.number()),
+  riposoTime: z.preprocess((value) => Number(value), z.number()),
+  nCicli: z.preprocess((value) => Number(value), z.number()),
   isComplete: z.boolean()
 })
 
