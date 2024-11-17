@@ -58,6 +58,12 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({ watch, register, 
         return ((typeof bymonthday !== 'number' && typeof bymonthday !== 'undefined') ? bymonthday!.includes(day) : bymonthday === day);
     }
 
+    const onFrequencyChange = () => {
+        setValue("recurrenceRule.byday", undefined);
+        setValue("recurrenceRule.bymonthday", undefined);
+        setValue("recurrenceRule.bymonth", undefined);
+        setValue("recurrenceRule.bysetpos", undefined);
+    }
 
     return (
         <>
@@ -65,7 +71,12 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({ watch, register, 
             {/*frequency*/}
             <div className="mb-3">
                 <label htmlFor="frequency" className="form-label">Frequency</label>
-                <select className="form-select" id="frequency" {...register('recurrenceRule.frequency')} aria-label="Select frequency">
+                <select className="form-select" id="frequency" {...register('recurrenceRule.frequency')}
+                    onChange={(e) => {
+                        register('recurrenceRule.frequency').onChange(e); // Default RHF onChange handler
+                        onFrequencyChange(); // Custom handler
+                    }}
+                    aria-label="Select frequency">
                     <option value="DAILY">Daily</option>
                     <option value="WEEKLY">Weekly</option>
                     <option value="MONTHLY">Monthly</option>
@@ -101,11 +112,12 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({ watch, register, 
                                     return " Months";
                                     break;
 
-                                case "YEARS":
+                                case "YEARLY":
                                     return " Years";
                                     break;
 
                                 default:
+                                    return " Days";
                                     break;
                             }
                         }())
