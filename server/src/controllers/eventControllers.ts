@@ -4,6 +4,8 @@ import { EventModel, IEvent } from "../models/eventModel.js";
 import { UserModel, IUser } from "../models/userModel.js";
 import mongoose from "mongoose";
 
+import { createICalendar } from "../utils/icalendarUtils.js"
+
 const createEvent = async (req: Req, res: Response) => {
   const {
     title,
@@ -19,6 +21,8 @@ const createEvent = async (req: Req, res: Response) => {
     isRecurring,
     timezone,
     user: userId,
+    isPomodoro,
+    pomodoroSetting,
   } = req.body;
 
   const user: IUser | null = await UserModel.findOne({ _id: userId });
@@ -41,6 +45,8 @@ const createEvent = async (req: Req, res: Response) => {
       notifications,
       timezone,
       _id_user: userId,
+      isPomodoro,
+      pomodoroSetting,
     });
 
     res.status(201).json(event);
@@ -246,7 +252,46 @@ const updateEvent = async (req: Req, res: Response) => {
   }
 };
 
+const exportEvents = async (req: Req, res: Response) => {
+  const userId = req.body.userId;
+
+  // Validazione dell'ID utente
+  if (!userId) {
+    return res.status(400).json({ error: "Invalid User Id" });
+  }
+
+  try {
+    // Verifica che l'utente esista
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Recupera tutti gli eventi dell'utente
+    const events = await EventModel.find({ _id_user: userId });
+    if (!events || events.length === 0) {
+      return res.status(404).json({ error: "No events found for this user" });
+    }
+
+    // Genera il calendario
+    const icalendarContent = createICalendar(events);
+
+    // Imposta gli header per il download del file
+    res.setHeader('Content-Type', 'text/calendar');
+    res.setHeader('Content-Disposition', 'attachment; filename=calendario.ics');
+    
+    // Invia il contenuto del calendario
+    res.send(icalendarContent);
+
+  } catch (error: any) {
+    res.status(500).json({ 
+      message: error.message 
+    });
+  }
+};
+
 export {
+  exportEvents,
   createEvent,
   getAllEvents,
   getEventById,

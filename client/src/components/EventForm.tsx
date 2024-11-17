@@ -43,7 +43,6 @@ function toUTC(date: Date, zone: string) {
 
 
 export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction<boolean>>, event?: Event }) => {
-    // const { user } = useAuthContext();
 
     const defaultValues = {
         title: event?.title || undefined,
@@ -66,6 +65,8 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
         attendees: event?.attendees?.map((a: any) => a.name) || [],
         location: event?.location || undefined,
         url: event?.url || undefined,
+        isPomodoro: event?.isPomodoro || false,
+        pomodoroSetting: event?.pomodoroSetting || { studioTime: 25, riposoTime: 5, nCicli: 2, isComplete: false },
     };
 
     const { setValue, register, watch, handleSubmit, formState: { errors } } = useForm<EventFormData>({
@@ -100,11 +101,18 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
             attendees: event?.attendees?.map((a: any) => a.name) || [],
             location: defaultValues.location,
             url: defaultValues.url,
+            isPomodoro: defaultValues.isPomodoro,
+            pomodoroSetting: defaultValues.pomodoroSetting,
         } as Partial<EventFormData>,
     }
     );
+
     const isRecurring: boolean = watch('isRecurring');
+
+    const isPomodoro: boolean = watch('isPomodoro');
+
     const [open, setOpen] = useState<boolean>(false); //for suggestions
+
     let suggestions: string[] = [];
 
     const { dispatch } = useEventsContext();
@@ -160,7 +168,6 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
                 bysetpos: data.recurrenceRule!.bysetpos
             })
         }
-
         const newEvent = {
             title: data.title,
             description: data.description,
@@ -175,8 +182,9 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
             attendees: data.attendees?.map((a: string) => ({ name: a, email: "default@mail.com", accepted: false, responded: false })) || [],
             recurrenceRule: rrule ? rrule.toString() : undefined,
             timezone: data.timezone,
+            isPomodoro: data.isPomodoro,
+            pomodoroSetting: data.pomodoroSetting ? data.pomodoroSetting : { "studioTime": 5, "riposoTime": 5, "nCicli": 2, "isComplete": false },
         }
-
 
         try {
             const res = await fetch('/api/events' + (event?._id ? `/${event._id}` : ''), {
@@ -200,8 +208,6 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
             console.error(error);
         }
     };
-
-    // console.log(errors);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -302,6 +308,59 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
                         <label className="form-check-label" htmlFor="isRecurring">Is this event recurring?</label>
                     </div>
                     {isRecurring && (<RRuleForm watch={watch} register={register} errors={errors} setValue={setValue} />)}
+                    <div className="mb-3 form-check">
+                        <input
+                            type="checkbox"
+                            id="isPomodoro"
+                            className="form-check-input"
+                            {...register('isPomodoro')}
+                        />
+                        <label className="form-check-label" htmlFor="isPomodoro">Does this event include a Pomodoro session?</label>
+                    </div>
+                    {isPomodoro && (
+                        <>
+                            <div className="mb-3">
+                                <label htmlFor="studioTime" className="form-label">Study time</label>
+                                <input
+                                    type="number"
+                                    id="studioTime"
+                                    step='5'
+                                    min='5'
+                                    {...register('pomodoroSetting.studioTime')}
+                                />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="riposoTime" className="form-label">Rest time</label>
+                                <input
+                                    type="number"
+                                    id="riposoTime"
+                                    min='1'
+                                    {...register('pomodoroSetting.riposoTime')}
+                                />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="nCicli" className="form-label">Amount of cycles</label>
+                                <input
+                                    type="number"
+                                    id="studioTime"
+                                    min='1'
+                                    {...register('pomodoroSetting.nCicli')}
+                                />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="studioTime" className="form-label">Study time</label>
+                                <input
+                                    type="hidden"
+                                    id="isComplete"
+                                    value="false"
+                                    {...register('pomodoroSetting.isComplete')}
+                                />
+                            </div>
+                        </>
+
+                    )}
+
+
                 </div>
                 <div className="col-sm-12 col-md-6">
                     <AttendeesForm setValue={setValue} register={register} errors={errors} watch={watch} />

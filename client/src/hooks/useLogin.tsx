@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAuthContext } from './useAuthContext'
+import { useNavigate } from 'react-router-dom'
 
 // Definiamo un'interfaccia per il tipo di ritorno
 interface UseLoginReturn {
@@ -12,6 +13,7 @@ export const useLogin = (): UseLoginReturn => {
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const { dispatch } = useAuthContext();
+    const navigate = useNavigate();
 
     const login = async (email: string, password: string) => {
         setIsLoading(true);
@@ -36,6 +38,15 @@ export const useLogin = (): UseLoginReturn => {
             localStorage.setItem('user', JSON.stringify(json));
             dispatch({ type: 'LOGIN', payload: json });
             setIsLoading(false);
+
+            // Controlla se c'è un URL di reindirizzamento salvato
+            const redirectUrl = sessionStorage.getItem('redirectUrl');
+            if (redirectUrl) {
+                sessionStorage.removeItem('redirectUrl'); // Pulisci l'URL salvato
+                navigate(redirectUrl); // Reindirizza all'URL originale
+            } else {
+                navigate('/'); // Reindirizza alla home se non c'è un URL salvato
+            }
 
         } catch (error: any) {
             setIsLoading(false);

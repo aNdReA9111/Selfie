@@ -79,13 +79,23 @@ export const noteSchema = z.object({
     open: z.boolean(),
     allowedUsers: z
         .union([
-            z.string().transform((str) => str.split(",").map((s) => s.trim()).filter((s) => s !== "")),
+            z.string().transform((str) =>
+                str
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter((s) => s !== ""),
+            ),
             z.array(z.string()),
         ])
         .optional(),
     tags: z
         .union([
-            z.string().transform((str) => str.split(",").map((s) => s.trim()).filter((s) => s !== "")),
+            z.string().transform((str) =>
+                str
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter((s) => s !== ""),
+            ),
             z.array(z.string()),
         ])
         .optional(),
@@ -194,6 +204,13 @@ const rruleSchema = z.object({
     bysetpos: bySetPos,
 });
 
+const pomodoroSettingSchema = z.object({
+    studioTime: z.preprocess((value) => Number(value), z.number()),
+    riposoTime: z.preprocess((value) => Number(value), z.number()),
+    nCicli: z.preprocess((value) => Number(value), z.number()),
+    isComplete: z.boolean(),
+});
+
 //Attendee schema
 export const attendeeSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -249,6 +266,8 @@ export const eventSchema = z.object({
     notifications: notificationsSchema.optional().nullable(),
     isRecurring: z.boolean(),
     timezone: z.string(),
+    isPomodoro: z.boolean(),
+    pomodoroSetting: pomodoroSettingSchema,
 });
 
 export const eventFormSchema = eventSchema
@@ -263,14 +282,24 @@ export const eventFormSchema = eventSchema
         notifications: true,
         isRecurring: true,
         timezone: true,
+        isPomodoro: true,
+        pomodoroSetting: true,
     })
     .merge(
         z.object({
-            attendees: z.union([
-                z.array(z.string()),
-                z.string().transform((val: string) => val.split(",").map((val) => val.trim()).filter((val) => val !== "")),
-            ]).optional().nullable(),
-        })
+            attendees: z
+                .union([
+                    z.array(z.string()),
+                    z.string().transform((val: string) =>
+                        val
+                            .split(",")
+                            .map((val) => val.trim())
+                            .filter((val) => val !== ""),
+                    ),
+                ])
+                .optional()
+                .nullable(),
+        }),
     )
     .refine(
         (data) => {

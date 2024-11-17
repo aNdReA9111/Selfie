@@ -7,6 +7,7 @@ import {
   deleteEventById,
   deleteAllEvents,
   updateEvent,
+  exportEvents
 } from "../controllers/eventControllers.js";
 
 const eventRoutes = express.Router();
@@ -28,5 +29,7 @@ eventRoutes.delete("/:id", deleteEventById);
 eventRoutes.delete("/", deleteAllEvents);
 //aggiornamento di un evento
 eventRoutes.patch("/:id", updateEvent);
+// esporto eventi tramite iCal
+eventRoutes.post("/export-events", exportEvents);
 
 export { eventRoutes };

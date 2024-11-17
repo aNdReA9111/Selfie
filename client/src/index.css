@@ -25,3 +25,8 @@ a {
   max-height: 200px;
   overflow-y: auto;
 }
+
+.main-content {
+  padding-top: 56px; /* Altezza della navbar */
+  min-height: 100vh;
+}
