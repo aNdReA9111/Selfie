@@ -1,11 +1,11 @@
 import { Chat } from '../components/Chat';
 
 
-function Home(){
+function Home() {
     return (
         <>
-            <p>Ciao Home</p>      
-            <Chat/>  
+            <p>Ciao Home</p>
+            <Chat />
         </>
     );
 

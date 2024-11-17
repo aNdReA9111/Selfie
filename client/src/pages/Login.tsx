@@ -1,10 +1,11 @@
-import { useState, FormEvent } from 'react';
-import { useLogin } from '../hooks/useLogin';
-import { Link } from 'react-router-dom';
-import Form from 'react-bootstrap/Form';
+import { FormEvent, useState } from 'react';
 import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import '../css/auth.css';
+import { useLogin } from '../hooks/useLogin';
+
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -13,7 +14,7 @@ const Login = () => {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        
+
         // Validazione base
         if (!email || !password) {
             alert('Per favore, compila tutti i campi');
@@ -36,7 +37,7 @@ const Login = () => {
                 <div className="auth-right">
                     <h1 className="auth-title">Bentornato</h1>
                     <p className="auth-subtitle">Accedi al tuo account Selfie</p>
-                    
+
                     <Form className="auth-form" onSubmit={handleSubmit}>
                         <Form.Group className="mb-3">
                             <Form.Control
@@ -47,7 +48,7 @@ const Login = () => {
                                 required
                             />
                         </Form.Group>
-                        
+
                         <Form.Group className="mb-3">
                             <Form.Control
                                 type="password"
@@ -58,16 +59,16 @@ const Login = () => {
                                 minLength={6}
                             />
                         </Form.Group>
-                        
-                        <Button 
-                            type="submit" 
+
+                        <Button
+                            type="submit"
                             disabled={isLoading}
                             className="auth-button"
                             onClick={handleSubmit}
                         >
                             {isLoading ? 'Accesso in corso...' : 'Accedi'}
                         </Button>
-                        
+
                         {error && <div className="auth-error">{error}</div>}
 
                         <div className="auth-links">

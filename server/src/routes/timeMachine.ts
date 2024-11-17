@@ -7,9 +7,9 @@ const timeMachineRoutes: Router = express.Router();
 timeMachineRoutes.use(requireAuth);
 
 //get offset for user
-timeMachineRoutes.get("/:id");
+timeMachineRoutes.get("/", getOffset);
 
 //set offset for user
-timeMachineRoutes.put("/:id");
+timeMachineRoutes.put("/", setOffset);
 
 export { timeMachineRoutes };

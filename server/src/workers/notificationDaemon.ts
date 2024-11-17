@@ -83,6 +83,7 @@ async function checkAndSendNotifications() {
         $or: [
           {
             $and: [
+              { isRecurring: false },
               { date: { $gte: start } },
               { date: { $lte: end } },
             ],
@@ -91,7 +92,7 @@ async function checkAndSendNotifications() {
             isRecurring: true,
           },
         ],
-      }); //lean ritorna direttamente oggetti js/ts invece di docs mongoose
+      }); 
 
       /*filterign recurring events and associating them with their occurrences*/
       const recurringEvents: [IEvent, Date[]][] = events
@@ -240,7 +241,10 @@ function calculateNonRecurringNotificationTimes(events: IEvent[], user: IUser) {
   }
 }
 
-function calculateRecurringNotificationTimes(recurringEvents: [IEvent, Date[]][], user: IUser) {
+function calculateRecurringNotificationTimes(
+  recurringEvents: [IEvent, Date[]][],
+  user: IUser,
+) {
   const now: number = DateTime.now().toMillis();
   for (const event of recurringEvents) {
     const notifications: INotification | undefined = event[0].notifications;

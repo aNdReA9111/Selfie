@@ -4,15 +4,15 @@ import React from 'react';
 
 const Pomodoro: React.FC = () => {
 
-  return (
+    return (
 
-    <div>
+        <div>
 
-      <h1>Pomodoro Page</h1>
+            <h1>Pomodoro Page</h1>
 
-    </div>
+        </div>
 
-  );
+    );
 
 };
 

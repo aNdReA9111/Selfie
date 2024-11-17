@@ -1,13 +1,13 @@
 import express from 'express';
-import { requireAuth } from '../middleware/requireAuth.js';
-import { 
-    removeSubscription, 
-    addSubscription, 
-    loginUser, 
-    signUpUser,
+import {
+    addSubscription,
+    loginUser,
+    logoutUser,
+    removeSubscription,
     searchUsers,
-    logoutUser
+    signUpUser
 } from '../controllers/userControllers.js';
+import { requireAuth } from '../middleware/requireAuth.js';
 
 const router = express.Router();
 

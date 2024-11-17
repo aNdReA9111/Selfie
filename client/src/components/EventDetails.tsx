@@ -2,24 +2,19 @@ import { EventDetailsProps } from '../utils/types';
 import { DateTime } from 'luxon';
 import { Modal, Button } from 'react-bootstrap';
 import { RRule } from 'rrule';
-import { GetText } from 'rrule/dist/esm/nlp/totext';
-import { italianTranslations } from '../utils/constants';
 import { useEventsContext } from '../hooks/useEventsContext';
 import { EventModalForm } from './EventModalForm';
 
 
-const getItalian: GetText = (text: any) => (italianTranslations[text] || text);
-
-export const EventDetails = ({event, date, show, setShow}: EventDetailsProps) => {
+export const EventDetails = ({id, date, show, setShow}: EventDetailsProps) => {
+  const { events, dispatch } = useEventsContext();
+  const event = events.find((event) => event._id === id);
   if(!event) return null;
 
   const start = event?.isRecurring === false ? DateTime.fromJSDate(event?.date) : DateTime.fromJSDate(date as Date);
   const end = event?.isRecurring === false ? DateTime.fromJSDate(event?.endDate) : DateTime.fromJSDate(date as Date).plus(event?.duration as number);
-  const rruleString = event?.isRecurring === false ? undefined: RRule.fromString(event?.recurrenceRule as string).toText(getItalian);
+  const rruleString = event?.isRecurring === false ? undefined: RRule.fromString(event?.recurrenceRule as string).toText();
   let start2, end2;
-
-  const { dispatch } = useEventsContext();
-
 
   if(event.timezone !== Intl.DateTimeFormat().resolvedOptions().timeZone) {
     start2 = start.setZone(event?.timezone as string);
@@ -75,7 +70,7 @@ export const EventDetails = ({event, date, show, setShow}: EventDetailsProps) =>
             </div>
             {event.url && <p><i className="bi bi-link-45deg me-2"></i><a href={event.url}>{event.url}</a></p>}
             {event.location && <p><i className="bi bi-geo-alt-fill me-2"></i>{event.location}</p>}
-            {rruleString && <p>Pattern della ricorrenza: {rruleString}</p>}
+            {rruleString && <p>Recurrency pattern: {rruleString}</p>}
             {
               start2 && end2 && (
                 <div>
