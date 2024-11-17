@@ -1,7 +1,7 @@
 import { Container } from 'react-bootstrap';
-import '../css/auth.css';
+import { BsEnvelope, BsGithub } from 'react-icons/bs';
 import '../css/about.css';
-import { BsGithub, BsEnvelope } from 'react-icons/bs';
+import '../css/auth.css';
 
 function About() {
     const developers = [
@@ -27,11 +27,11 @@ function About() {
             <Container className="auth-box p-5">
                 <div className="about-content text-center">
                     <h1 className="auth-title mb-4">Chi Siamo? 🤔</h1>
-                    
+
                     <div className="about-section mb-5">
                         <h2 className="h4 text-danger mb-3">La Storia di Selfie 📚</h2>
                         <p>
-                            Nato da studenti disperati per studenti disperati, Selfie è il tuo compagno 
+                            Nato da studenti disperati per studenti disperati, Selfie è il tuo compagno
                             di università che avresti sempre voluto avere (ma che probabilmente non ti meriti 😉).
                         </p>
                     </div>
@@ -49,7 +49,7 @@ function About() {
                     <div className="about-section mb-5">
                         <h2 className="h4 text-danger mb-3">Perché Selfie? 🤳</h2>
                         <p>
-                            Perché come un selfie cattura un momento, noi catturiamo il caos della vita universitaria 
+                            Perché come un selfie cattura un momento, noi catturiamo il caos della vita universitaria
                             e lo trasformiamo in... beh, caos organizzato!
                         </p>
                     </div>
@@ -63,14 +63,14 @@ function About() {
 
                     <div className="about-section credits-section">
                         <h2 className="h4 text-danger mb-4">Gli Sviluppatori 👨‍💻</h2>
-                        
+
                         <div className="developers-grid">
                             {developers.map((dev, index) => (
                                 <div key={index} className="developer-card">
                                     <h3 className="developer-name">{dev.name}</h3>
                                     <p className="developer-matricola">Matricola: {dev.matricola}</p>
-                                    <a 
-                                        href={`mailto:${dev.email}`} 
+                                    <a
+                                        href={`mailto:${dev.email}`}
                                         className="developer-email"
                                     >
                                         <BsEnvelope className="me-2" />
@@ -81,9 +81,9 @@ function About() {
                         </div>
 
                         <div className="github-section mt-4">
-                            <a 
-                                href="https://github.com/aNdReA9111/Selfie.git" 
-                                target="_blank" 
+                            <a
+                                href="https://github.com/aNdReA9111/Selfie.git"
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 className="github-link"
                             >
@@ -99,7 +99,7 @@ function About() {
                         </p>
                         <p className="text-muted small">
                             Nessuno studente è stato maltrattato durante lo sviluppo di questa app*
-                            <br/>
+                            <br />
                             <small>*forse</small>
                         </p>
                     </footer>

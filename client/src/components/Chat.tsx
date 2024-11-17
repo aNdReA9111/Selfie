@@ -1,8 +1,8 @@
-import { useState, useEffect, useContext, useRef } from 'react';
-import { ListGroup, FormControl, Button } from 'react-bootstrap';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { Button, FormControl, ListGroup } from 'react-bootstrap';
+import { FaArrowLeft } from 'react-icons/fa';
 import { AuthContext } from '../context/authContext';
 import '../css/chat.css';
-import { FaArrowLeft } from 'react-icons/fa';
 import { generateColorFromString } from '../utils/colorUtils';
 
 interface MessageGroup {
@@ -41,38 +41,38 @@ export const Chat = () => {
                         credentials: "include",
                     }
                 })
-                .then((response) => response.json())
-                .then((data: IMessage[]) => {
-                    const sortedMessages = [...data].sort((a, b) =>
-                        new Date(b.datetime).getTime() - new Date(a.datetime).getTime()
-                    );
-
-                    const uniqueUsers = new Set<string>();
-                    const orderedChats: string[] = [];
-
-                    sortedMessages.forEach((message) => {
-                        const otherUser = message.from === user?.username ? message.to : message.from;
-                        if (!uniqueUsers.has(otherUser) && otherUser !== user?.username) {
-                            uniqueUsers.add(otherUser);
-                            orderedChats.push(otherUser);
-                        }
-                    });
-
-                    setActiveChats(orderedChats);
-                    setAllMessages(data);
-
-                    if (selectedChat) {
-                        const filteredMessages = data.filter(
-                            (message) =>
-                                (message.from === user?.username && message.to === selectedChat) ||
-                                (message.from === selectedChat && message.to === user?.username)
+                    .then((response) => response.json())
+                    .then((data: IMessage[]) => {
+                        const sortedMessages = [...data].sort((a, b) =>
+                            new Date(b.datetime).getTime() - new Date(a.datetime).getTime()
                         );
-                        setMessages(filteredMessages);
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error fetching messages:', error);
-                });
+
+                        const uniqueUsers = new Set<string>();
+                        const orderedChats: string[] = [];
+
+                        sortedMessages.forEach((message) => {
+                            const otherUser = message.from === user?.username ? message.to : message.from;
+                            if (!uniqueUsers.has(otherUser) && otherUser !== user?.username) {
+                                uniqueUsers.add(otherUser);
+                                orderedChats.push(otherUser);
+                            }
+                        });
+
+                        setActiveChats(orderedChats);
+                        setAllMessages(data);
+
+                        if (selectedChat) {
+                            const filteredMessages = data.filter(
+                                (message) =>
+                                    (message.from === user?.username && message.to === selectedChat) ||
+                                    (message.from === selectedChat && message.to === user?.username)
+                            );
+                            setMessages(filteredMessages);
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error fetching messages:', error);
+                    });
             };
 
             fetchMessages();
@@ -157,16 +157,16 @@ export const Chat = () => {
             },
             body: JSON.stringify({ text: message, to: selectedChat })
         })
-        .then((response) => response.json())
-        .then((data: IMessage) => {
-            setMessages(prev => [...prev, data]);
-            setAllMessages(prev => [...prev, data]);
-            setMessageText('');
-            scrollToBottom();
-        })
-        .catch((error) => {
-            console.error('Error sending message:', error);
-        });
+            .then((response) => response.json())
+            .then((data: IMessage) => {
+                setMessages(prev => [...prev, data]);
+                setAllMessages(prev => [...prev, data]);
+                setMessageText('');
+                scrollToBottom();
+            })
+            .catch((error) => {
+                console.error('Error sending message:', error);
+            });
     };
 
     const formatTime = (datetime: string) => {
