@@ -40,7 +40,7 @@ interface IEvent extends Document {
   attendees?: IAttendee[];
   notifications?: INotification;
   isRecurring: boolean;
-  nextDate?: Date;
+  // nextDate?: Date;
   _id_user: string;
   timezone: string;
   isPomodoro: boolean;
@@ -212,13 +212,13 @@ const eventSchema = new Schema<IEvent>({
     type: Boolean,
     default: false,
   },
-  nextDate: {
-    type: Date,
-    // default: this.date,
-    required: function () {
-      this.isRecurring === true;
-    },
-  },
+  // nextDate: {
+  //   type: Date,
+  //   // default: this.date,
+  //   required: function () {
+  //     this.isRecurring === true;
+  //   },
+  // },
   _id_user: {
     type: String,
     required: true,

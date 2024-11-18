@@ -33,7 +33,7 @@ const Signup = () => {
                 <div className="auth-right">
                     <h1 className="auth-title">Crea Account</h1>
                     <p className="auth-subtitle">Unisciti a Selfie</p>
-                    
+
                     <Form className="auth-form" onSubmit={handleSubmit}>
                         <div className="row">
                             <div className="col-md-6">
@@ -88,15 +88,15 @@ const Signup = () => {
                             onChange={(e) => setConfirmPassword(e.target.value)}
                         />
 
-                        <Button 
-                            type="submit" 
+                        <Button
+                            type="submit"
                             disabled={isLoading}
                             className="auth-button"
                             onClick={handleSubmit}
                         >
                             Registrati
                         </Button>
-                        
+
                         {error && <div className="auth-error">{error}</div>}
 
                         <div className="auth-links">

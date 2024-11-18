@@ -1,14 +1,13 @@
 import { Request, Response } from "express";
-import { UserModel, IFlags } from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import webpush from "web-push";
+import { IFlags, UserModel } from "../models/userModel.js";
 import { Req } from "../utils/types.js";
 
 // configuro il .env
 import * as dotenv from "dotenv";
-import path from "path";
+import path, { dirname } from "path";
 import { fileURLToPath } from "url";
-import { dirname } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
@@ -25,22 +24,25 @@ export const loginUser = async (req: Request, res: Response) => {
         const user = await UserModel.login(email, password);
         const token = createToken(String(user._id));
 
-        res.status(200).cookie("token", token, {
-            httpOnly: true,
-            sameSite: "strict",
-            maxAge: 3 * 24 * 60 * 60 * 1000, // 3 giorni
-        }).json({
-            _id: user._id,
-            email,
-            token,  // vedere se tenere o meno
-            isAuthenticated: true,
-            nome: user.nome,
-            cognome: user.cognome,
-            username: user.username,
-            data_nascita: user.data_nascita,
-            flags: user.flags,
-            pushSubscriptions: user.pushSubscriptions,
-        });
+        res
+            .status(200)
+            .cookie("token", token, {
+                httpOnly: true,
+                sameSite: "strict",
+                maxAge: 3 * 24 * 60 * 60 * 1000, // 3 giorni
+            })
+            .json({
+                _id: user._id,
+                email,
+                token, // vedere se tenere o meno
+                isAuthenticated: true,
+                nome: user.nome,
+                cognome: user.cognome,
+                username: user.username,
+                data_nascita: user.data_nascita,
+                flags: user.flags,
+                pushSubscriptions: user.pushSubscriptions,
+            });
     } catch (error: any) {
         res.status(400).json({ message: error.message });
     }
@@ -78,22 +80,25 @@ export const signUpUser = async (req: Request, res: Response) => {
         );
 
         const token = createToken(String(user._id));
-        res.status(201).cookie("token", token, {
-            httpOnly: true,
-            sameSite: "strict",
-            maxAge: 3 * 24 * 60 * 60 * 1000, // 3 giorni
-        }).json({
-            _id: user._id,
-            email,
-            token,  // vedere se tenere o meno
-            isAuthenticated: true,
-            nome: user.nome,
-            cognome: user.cognome,
-            username: user.username,
-            data_nascita: user.data_nascita,
-            flags: user.flags,
-            pushSubscriptions: user.pushSubscriptions,
-        });
+        res
+            .status(201)
+            .cookie("token", token, {
+                httpOnly: true,
+                sameSite: "strict",
+                maxAge: 3 * 24 * 60 * 60 * 1000, // 3 giorni
+            })
+            .json({
+                _id: user._id,
+                email,
+                token, // vedere se tenere o meno
+                isAuthenticated: true,
+                nome: user.nome,
+                cognome: user.cognome,
+                username: user.username,
+                data_nascita: user.data_nascita,
+                flags: user.flags,
+                pushSubscriptions: user.pushSubscriptions,
+            });
     } catch (error: any) {
         res.status(400).json({ message: error.message });
     }
@@ -110,7 +115,10 @@ export const addSubscription = async (req: Req, res: Response) => {
     }
 
     //notifica di conferma
-    webpush.sendNotification(sub, JSON.stringify({message: "Subscription added successfully"}));
+    webpush.sendNotification(
+        sub,
+        JSON.stringify({ message: "Subscription added successfully" }),
+    );
 
     user.pushSubscriptions.push(sub);
     await user.save();
@@ -135,20 +143,20 @@ export const searchUsers = async (req: Request, res: Response) => {
         const { substring } = req.body;
 
         if (!substring) {
-            return res.status(400).json({ error: 'Substring required' });
+            return res.status(400).json({ error: "Substring required" });
         }
 
         const users = await UserModel.find({
-            username: { $regex: substring, $options: 'i' }
-        }).select('username -_id');
+            username: { $regex: substring, $options: "i" },
+        }).select("username -_id");
 
-        const matchedUsernames = users.map(user => user.username);
+        const matchedUsernames = users.map((user) => user.username);
 
         res.status(200).json({ matchedUsernames });
     } catch (error) {
-        res.status(400).json({ error: 'Error searching users' });
+        res.status(400).json({ error: "Error searching users" });
     }
-}; 
+};
 
 // logout controller
 export const logoutUser = async (req: Request, res: Response) => {

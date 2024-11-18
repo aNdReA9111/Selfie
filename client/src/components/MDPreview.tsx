@@ -6,74 +6,74 @@ import DOMPurify from "dompurify";
 import { useNavigate, useParams } from "react-router-dom";
 
 export const MDPreview = ({ isView }: { isView: boolean }) => {
-  const { watch } = useFormContext<NoteFormData>();
-  const [html, setHtml] = useState<string>("");
+    const { watch } = useFormContext<NoteFormData>();
+    const [html, setHtml] = useState<string>("");
 
-  {/*form data*/}
-  const title = watch("title");
-  const content = watch("content");
-  const tags = watch("tags") as string | string[] | undefined;
+    {/*form data*/ }
+    const title = watch("title");
+    const content = watch("content");
+    const tags = watch("tags") as string | string[] | undefined;
 
-  const navigate = useNavigate();
-  const { id } = useParams();
+    const navigate = useNavigate();
+    const { id } = useParams();
 
-  useEffect(() => {
-    const parseMD = async () => {
-      if (content || title) {
-        const unsafe = await marked.parse(`\n# ${title}\n${content}`);
-        setHtml(DOMPurify.sanitize(unsafe));
-      }
-    };
-    parseMD();
-  }, [content, title]);
-
-  /*Durante l'editing tags è una stringa --> devo gestire questa cosa*/
-  const normalizedTags = Array.isArray(tags)
-    ? tags
-    : typeof tags === "string"
-    ? tags.split(",").map((tag: any) => tag.trim())
-    : [];
-
-  const duplicateNote = () => {
-    navigate(`/notes/duplicate/${id}`);
-  }
-
-  return (
-    <div id="preview" className="mt-4 mx-2 container-fluid h-100 overflow-scroll d-flex flex-column justify-content-around align-items-center">
-      {(content || title || tags) && (
-        <>
-
-        {/*markdown preview*/}
-        <section
-          style={{ minHeight: "75svh" }}
-          className="container-sm ms-3"
-          dangerouslySetInnerHTML={{ __html: html }}
-        ></section>
-
-        {/*tags and buttons*/}
-        <div className="my-4 container-fluid d-flex justify-content-between">
-          <div className="d-flex justufy-content-start">
-            {normalizedTags.length > 0 &&
-              normalizedTags.map(
-                (tag, index) =>
-                  tag !== "" && (
-                    <span
-                      key={index}
-                      className="badge rounded-pill text-bg-danger opcaity-50 p-2 ms-3 mb-3 fs-5"
-                    >
-                      {tag}
-                    </span>
-                  )
-              )
+    useEffect(() => {
+        const parseMD = async () => {
+            if (content || title) {
+                const unsafe = await marked.parse(`\n# ${title}\n${content}`);
+                setHtml(DOMPurify.sanitize(unsafe));
             }
-          </div>
-          <div className="d-flex me-2">
-            { isView && <button className="btn btn-secondary ms-3 opacity-75" onClick={() => navigator.clipboard.writeText(`\n# ${title}\n${content}`)}><i className="bi bi-copy fs-6"></i></button> }
-            { isView && <button className="btn btn-warning ms-3 opacity-75" onClick={duplicateNote}><i className="bi bi-file-earmark-plus fs-6"></i></button> }
-          </div>
+        };
+        parseMD();
+    }, [content, title]);
+
+    /*Durante l'editing tags è una stringa --> devo gestire questa cosa*/
+    const normalizedTags = Array.isArray(tags)
+        ? tags
+        : typeof tags === "string"
+            ? tags.split(",").map((tag: any) => tag.trim())
+            : [];
+
+    const duplicateNote = () => {
+        navigate(`/notes/duplicate/${id}`);
+    }
+
+    return (
+        <div id="preview" className="mt-4 mx-2 container-fluid h-100 overflow-scroll d-flex flex-column justify-content-around align-items-center">
+            {(content || title || tags) && (
+                <>
+
+                    {/*markdown preview*/}
+                    <section
+                        style={{ minHeight: "75svh" }}
+                        className="container-sm ms-3"
+                        dangerouslySetInnerHTML={{ __html: html }}
+                    ></section>
+
+                    {/*tags and buttons*/}
+                    <div className="my-4 container-fluid d-flex justify-content-between">
+                        <div className="d-flex justufy-content-start">
+                            {normalizedTags.length > 0 &&
+                                normalizedTags.map(
+                                    (tag, index) =>
+                                        tag !== "" && (
+                                            <span
+                                                key={index}
+                                                className="badge rounded-pill text-bg-danger opcaity-50 p-2 ms-3 mb-3 fs-5"
+                                            >
+                                                {tag}
+                                            </span>
+                                        )
+                                )
+                            }
+                        </div>
+                        <div className="d-flex me-2">
+                            {isView && <button className="btn btn-secondary ms-3 opacity-75" onClick={() => navigator.clipboard.writeText(`\n# ${title}\n${content}`)}><i className="bi bi-copy fs-6"></i></button>}
+                            {isView && <button className="btn btn-warning ms-3 opacity-75" onClick={duplicateNote}><i className="bi bi-file-earmark-plus fs-6"></i></button>}
+                        </div>
+                    </div>
+                </>
+            )}
         </div>
-      </>
-    )}
-    </div>
-  );
+    );
 };
