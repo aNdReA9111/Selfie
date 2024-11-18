@@ -1,8 +1,8 @@
-import React from 'react';
-import { useState, useRef} from 'react';
+import React, { useState, useRef, useEffect} from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { PomodoroSettings } from '../components/PomodoroSettings';
 
 interface Time {
   seconds: number;
@@ -18,6 +18,9 @@ const Pomodoro: React.FC = () => {
             hours: Math.floor(min/60), minutes: min%60, seconds: 0,
         };
     };
+    const toNum = (t:Time): number => {
+        return(t.minutes + t.hours*60)
+    };
     
     const navigate = useNavigate();
 
@@ -28,9 +31,11 @@ const Pomodoro: React.FC = () => {
     const [eventId, setEventId] = useState <string | null> (location.state ? eventIdFromEvent : null)
     const [studioTime, setStudioTime] = useState <Time> (location.state ? toTime(settingFromEvent.studioTime) : toTime(30));
     const [riposoTime, setRiposoTime] = useState <Time> (location.state ? toTime(settingFromEvent.riposoTime) : toTime(5));
-    const [cicliRimanenti, setCicliRimanenti] = useState <number> (location.state ? settingFromEvent.nCicli : 5);
+    let cicliRimanenti : number  = location.state ? settingFromEvent.nCicli : 5;
     const [isComplete, setIsComplete] = useState <boolean> (location.state ? settingFromEvent.isComplete : false);
 
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    
     //tempo che viene visualizzato sul display e cambia allo scorrere del timer
     const [displayTime, setDisplayTime] = useState <Time> (studioTime);
 
@@ -41,18 +46,26 @@ const Pomodoro: React.FC = () => {
     const [timerId, setTimerId] = useState <number | undefined> (undefined);
 
     //ref per input di tempo studio e riposo
-    const studioRef = useRef<HTMLInputElement>(null);
-    const riposoRef = useRef<HTMLInputElement>(null);
-    const cicliRef = useRef<HTMLInputElement>(null); 
+    // const studioRef = useRef<HTMLInputElement>(null);
+    // const riposoRef = useRef<HTMLInputElement>(null);
+    // const cicliRef = useRef<HTMLInputElement>(null); 
+
+    // useEffect(() => {
+    //     if(!isRunning)
+    //     // setDisplayTime(isStudying ? studioTime : riposoTime);
+    //     setDisplayTime(studioTime);
+    // }, [studioTime]);
+    
+
 
     //aggiornamneto tempi di studio e riposo
-    const data_update = () => {
-        let tmp_studio = studioRef.current ? toTime(parseInt(studioRef.current.value, 10)) : studioTime;
-        let tmp_riposo = riposoRef.current ? toTime(parseInt(riposoRef.current.value, 10)) : riposoTime;
-        setStudioTime(tmp_studio);
-        setRiposoTime(tmp_riposo);
-        setDisplayTime(isStudying ? tmp_studio : tmp_riposo);
-    };
+    // const data_update = () => {
+    //     let tmp_studio = studioRef.current ? toTime(parseInt(studioRef.current.value, 10)) : studioTime;
+    //     let tmp_riposo = riposoRef.current ? toTime(parseInt(riposoRef.current.value, 10)) : riposoTime;
+    //     setStudioTime(tmp_studio);
+    //     setRiposoTime(tmp_riposo);
+    //     setDisplayTime(isStudying ? tmp_studio : tmp_riposo);
+    // };
 
     const updatePomodoroEvent = async() => {
         try {
@@ -66,10 +79,17 @@ const Pomodoro: React.FC = () => {
                 pomodoroSetting: {"studioTime": settingFromEvent.studioTime, "riposoTime": settingFromEvent.riposoTime, "nCicli":cicliRimanenti, "isComplete": cicliRimanenti>0 ? false : true}
                 })
             });
-            } catch (error) {
-                console.error(error);
-            }
+        } catch(error) {
+            console.error(error);
+        }
     }
+    const handleOpenSettings = () => setIsSettingsOpen(true);
+    const handleCloseSettings = () => setIsSettingsOpen(false);
+
+    const handleSave = (newParametro : number) => {
+        setStudioTime(toTime(newParametro));
+        setIsSettingsOpen(false); // Chiudi il modal dopo aver salvato
+      };
 
     const checkComplete = () => {
         if(cicliRimanenti <= 1){    //da aggiustare bug per il quale cicliRimanenti non viene aggiornato correttamente
@@ -105,7 +125,7 @@ const Pomodoro: React.FC = () => {
                         if(!isStudying){
                             console.log("ciaomare");
                             console.log(cicliRimanenti.toString());
-                            setCicliRimanenti(cicliRimanenti-1);
+                            cicliRimanenti--;
                             checkComplete();
                             updatePomodoroEvent();
                         }
@@ -129,20 +149,19 @@ const Pomodoro: React.FC = () => {
 
     //funzione per resettare il timer
     const reset = () => {
-        data_update();
+        // data_update();
         setDisplayTime(isStudying ? { ...studioTime } : { ...riposoTime });
     };
 
-
     //funzione per saltare alla fase successiva
     const skip = () => {
-        data_update();
+        // data_update();
         if (!isRunning) {
             setIsStudying(!isStudying);
             setDisplayTime(isStudying ? { ...riposoTime } : { ...studioTime });
             // console.log("ciao mare");
             if(!isStudying){
-                setCicliRimanenti(cicliRimanenti-1);
+                cicliRimanenti--;
                 checkComplete();
                 updatePomodoroEvent();
             }
@@ -190,9 +209,9 @@ const Pomodoro: React.FC = () => {
         setEventId(null);
         setStudioTime(toTime(30));
         setRiposoTime(toTime(5));
-        setCicliRimanenti(5);
+        cicliRimanenti = 5;
         setIsComplete(false);
-        setDisplayTime(studioTime);
+        setDisplayTime(toTime(30));
     }
 
     if(isComplete){
@@ -200,15 +219,15 @@ const Pomodoro: React.FC = () => {
             <>
                 <p>This study session has been completed</p>
                 <div>
-                    {location.state && (
+                    {location.state && (    //se esiste location.state significa che si è acceduto al pomodoro tramite un evento sul calendario
                         <Button onClick={backToCalendar}>Go back to calendar</Button>
                     )}
                 </div>
                 <div>
                     <Button onClick={newSession}>Start a new session</Button>
                 </div>
-                <p>{isComplete.toString()}</p>
-                <p>{cicliRimanenti.toString()}</p>
+                {/* <p>{isComplete.toString()}</p>
+                <p>{cicliRimanenti.toString()}</p> */}
             </>
         )
     }
@@ -219,32 +238,12 @@ const Pomodoro: React.FC = () => {
                     <h1>{format_time(displayTime)}</h1>
                 </div>
                 <div>
-                    <div>
-                        <label>
-                            Study time:
-                            <input ref={studioRef} type="number" step="5" defaultValue={studioTime.minutes + studioTime.hours*60}/>
-                        </label>
-                    </div>
-                    <div>
-                        <label>
-                            Rest time:
-                            <input ref={riposoRef} type="number" defaultValue={riposoTime.minutes + riposoTime.hours*60}/>
-                        </label>
-                    </div>
-                    <div>
-                        {!location.state && (
-                            <label>
-                                cicli
-                                <input ref={cicliRef} type="number" defaultValue={cicliRimanenti}/>
-                            </label>
-                        )}
-                        
-                    </div>
+                    
                     <div>
                         <label>remaining cycles: {cicliRimanenti}</label>
                     </div>
                     <div>
-                        <button onClick={data_update}>Update</button>
+                        {/* <button onClick={data_update}>Update</button> */}
                     </div>
                 </div>
                     <p>{isStudying ? 'Studio' : 'Riposo'}</p>
@@ -254,11 +253,18 @@ const Pomodoro: React.FC = () => {
                     <button onClick={reset}>Reset</button>
                     <button onClick={skip}>Skip</button>
                 </div>
+                {!location.state && (
+                    <>
+                        <button onClick={handleOpenSettings}>Settings</button>
+                        {isSettingsOpen && (
+                            <PomodoroSettings onClose={handleCloseSettings} onSave={handleSave} studio = {toNum(studioTime)} /> 
+                        )}
+                    </>
+                )}
             </>
         );
     }
     
 };
   
-
-  export default Pomodoro;  
+export default Pomodoro;  
