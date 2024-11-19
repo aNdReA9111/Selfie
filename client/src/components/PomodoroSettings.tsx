@@ -1,91 +1,93 @@
 import React from "react";
 import { useState } from "react";
+import { Time, toTime, toNum, generateSettings} from '../utils/pomUtils'
+import { PomodoroSetting } from '../utils/types';
+import { PomSuggestion } from "./PomSuggestion";
 
-
-// export const PomodoroSettings = ({studio, setStudio, riposo, setRiposo, nCicli}) => {
-//     const [newStudio, setNewStudio] = useState(studio);
-//     const [newRiposo, setNewRiposo] = useState(studio);
-
-//     const onSave = () => {
-//         setStudio(newStudio);
-//         setRiposo(newRiposo);
-//     }
-//     return(
-//         <>
-//             <div>
-//                 <label>
-//                     Study time:
-//                     <input value = {newStudio} type="number" step="5" onChange={(e) => setNewStudio(e.target.value)} defaultValue={studio}/>
-//                 </label>
-//             </div>
-//             <div>
-//                 <label>
-//                     Rest time:
-//                     <input type="number" defaultValue={riposo}/>
-//                 </label>
-//             </div>
-//             <div>
-//                 <label>
-//                     cicli
-//                     <input  type="number" defaultValue={nCicli}/>
-//                 </label>
-//                 <button onClick={onSave}>Salva</button>
-//             </div>
-//         </>
-//     )
-// }
 
 interface SettingsProps {
-    onSave: (data: string) => number; // Una funzione che accetta una stringa e restituisce un numero
-}
+    onSave: (newSetting: PomodoroSetting) => void; 
+    onClose: () => void;
+    prevSetting: PomodoroSetting;
+  }
 
-export const PomodoroSettings: React.FC<SettingsProps> = ({ onClose, onSave, studio}) => {
-  const [newStudio, setNewStudio] = useState(studio);
+export const PomodoroSettings: React.FC<SettingsProps> = ({ onClose, onSave, prevSetting}) => {
+  const [newSetting, setNewSetting] = useState(prevSetting);
+  const [isSuggestionOpen, setIsSuggestionOpen] = useState(false);
 
   const handleSaveClick = () => {
-    onSave(newStudio); // Passa il valore aggiornato al componente genitore
+    onSave(newSetting);
+  };
+
+  const handleOpenSuggestion = () => setIsSuggestionOpen(true);
+  const handleCloseSuggestion = () => setIsSuggestionOpen(false);
+
+  const handleSaveSuggestion = (set : PomodoroSetting) => {
+    onSave(set);
+    handleCloseSuggestion; // Chiudi il modal dopo aver salvato
   };
 
   return (
     <div>
-      <div style={styles.modal}>
-        <h2>Modifica il parametro</h2>
-        <input
-          type="text"
-          value={newStudio}
-          onChange={(e) => setNewStudio(e.target.value)}
-        />
-        <div style={styles.buttons}>
-          <button onClick={handleSaveClick}>Salva</button>
-          <button onClick={onClose}>Annulla</button>
+      <div>
+        <div>
+          <h3>Study time</h3>
+          <input
+            type="number"
+            value={newSetting.studioTime}
+            step = "5"
+            min = "5"
+            onChange={
+              (e) => setNewSetting({
+                studioTime:(e.target.value, 10), 
+                riposoTime: newSetting.riposoTime, 
+                nCicli: newSetting.nCicli, 
+                isComplete: newSetting.isComplete
+              })}
+          />
+        </div>
+        <div>
+          <h3>Rest time</h3>
+          <input
+            type="number"
+            value={newSetting.riposoTime}
+            min = "1"
+            onChange={(e) => setNewSetting({
+              studioTime:newSetting.studioTime, 
+              riposoTime: (e.target.value, 10), 
+              nCicli: newSetting.nCicli, 
+              isComplete: newSetting.isComplete
+            })}
+          />
+        </div>
+        <div>
+          <h3>Amount of cycles</h3>
+          <input
+            type="number"
+            value={newSetting.nCicli}
+            min = "1"
+            onChange={(e) => setNewSetting({
+              studioTime:newSetting.studioTime, 
+              riposoTime:newSetting.riposoTime, 
+              nCicli: (e.target.value, 10),
+              isComplete: newSetting.isComplete
+            })}
+          />
+        </div>
+        <div>
+          <button onClick={handleSaveClick}>Save</button>
+          <button onClick={onClose}>Cancel</button>
+        </div>
+        <div>
+        <button onClick={handleOpenSuggestion}>Settings generator</button>
+          {isSuggestionOpen && (
+              <PomSuggestion
+                  onClose={handleCloseSuggestion} 
+                  onSave={handleSaveSuggestion} 
+              /> 
+          )}
         </div>
       </div>
     </div>
   );
 };
-
-const styles = {
-  overlay: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modal: {
-    backgroundColor: "white",
-    padding: "20px",
-    borderRadius: "8px",
-    minWidth: "300px",
-  },
-  buttons: {
-    marginTop: "20px",
-    display: "flex",
-    justifyContent: "space-between",
-  },
-};
-

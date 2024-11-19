@@ -318,6 +318,8 @@ export type Event = z.infer<typeof eventSchema>;
 
 export type EventFormData = z.infer<typeof eventFormSchema>;
 
+export type PomodoroSetting = z.infer<typeof pomodoroSettingSchema>;
+
 export type EventsState = {
     events: Event[];
 };
