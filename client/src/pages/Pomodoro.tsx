@@ -215,27 +215,29 @@ const Pomodoro: React.FC = () => {
     else{
         return (
             <>
-                <div>
-                    <h1>{format_time(displayTime)}</h1>
-                </div>
-                <div>
-                    <div>
-                        <label>remaining cycles: {cicliRimanenti}</label>
-                    </div>
-                    <div>
-                        {/* <button onClick={data_update}>Update</button> */}
-                    </div>
-                </div>
-                    <p>{isStudying ? 'Studio' : 'Riposo'}</p>
-                <div>
-                    {!isRunning && (<button onClick={start}>Start</button>)}
-                    {isRunning && (<button onClick={stop}>Stop</button>)}
-                    <button onClick={reset}>Reset</button>
-                    <button onClick={skip}>Skip</button>
-                </div>
+                {!isSettingsOpen && (
+                    <>
+                        <div>
+                            <h1>{format_time(displayTime)}</h1>
+                        </div>
+                        <div>
+                            <div>
+                                <label>remaining cycles: {cicliRimanenti}</label>
+                            </div>
+                        </div>
+                            <p>{isStudying ? 'Studio' : 'Riposo'}</p>
+                        <div>
+                            {!isRunning && (<button onClick={start}>Start</button>)}
+                            {isRunning && (<button onClick={stop}>Stop</button>)}
+                            <button onClick={reset}>Reset</button>
+                            <button onClick={skip}>Skip</button>
+                        </div>
+                    </>
+                )}
+                
                 {!location.state && (
                     <>
-                        <button onClick={handleOpenSettings}>Settings</button>
+                        {!isSettingsOpen && ( <button onClick={handleOpenSettings}>Settings</button>)}
                         {isSettingsOpen && (
                             <PomodoroSettings 
                                 onClose={handleCloseSettings} 
