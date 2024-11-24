@@ -1,64 +1,63 @@
-import React, { useState, useEffect} from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { PomodoroSettings } from '../components/PomodoroSettings';
-import { Time, toTime, toNum } from '../utils/pomUtils'
+import { Time, toNum, toTime } from '../utils/pomUtils';
 import { PomodoroSetting } from '../utils/types';
 
 const Pomodoro: React.FC = () => {
-    
+
     const navigate = useNavigate();
 
     let location = useLocation();
-    const {eventIdFromEvent, settingFromEvent} = location.state || {};
+    const { eventIdFromEvent, settingFromEvent } = location.state || {};
 
     //tempi di studio e riposo del timer (non variano mentre scorre il timer)
-    const [eventId, setEventId] = useState <string | null> (location.state ? eventIdFromEvent : null)
-    
-    const [studioTime, setStudioTime] = useState <Time> (location.state ? toTime(settingFromEvent.studioTime) : toTime(30));
-    const [riposoTime, setRiposoTime] = useState <Time> (location.state ? toTime(settingFromEvent.riposoTime) : toTime(5));
-    const [cicliRimanenti, setCicliRimanenti] = useState <number> (location.state ? settingFromEvent.nCicli : 5);
-    const [isComplete, setIsComplete] = useState <boolean> (location.state ? settingFromEvent.isComplete : false);
+    const [eventId, setEventId] = useState<string | null>(location.state ? eventIdFromEvent : null)
+
+    const [studioTime, setStudioTime] = useState<Time>(location.state ? toTime(settingFromEvent.studioTime) : toTime(30));
+    const [riposoTime, setRiposoTime] = useState<Time>(location.state ? toTime(settingFromEvent.riposoTime) : toTime(5));
+    const [cicliRimanenti, setCicliRimanenti] = useState<number>(location.state ? settingFromEvent.nCicli : 5);
+    const [isComplete, setIsComplete] = useState<boolean>(location.state ? settingFromEvent.isComplete : false);
 
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-    
-    //tempo che viene visualizzato sul display e cambia allo scorrere del timer
-    const [displayTime, setDisplayTime] = useState <Time> (studioTime);
 
-    const [isRunning, setIsRunning] = useState <boolean> (false); //stato che indica se il timer sta andando
-    const [isStudying, setIsStudying] = useState <boolean> (true); //stato che indica se si è in sessione di studio o riposo
+    //tempo che viene visualizzato sul display e cambia allo scorrere del timer
+    const [displayTime, setDisplayTime] = useState<Time>(studioTime);
+
+    const [isRunning, setIsRunning] = useState<boolean>(false); //stato che indica se il timer sta andando
+    const [isStudying, setIsStudying] = useState<boolean>(true); //stato che indica se si è in sessione di studio o riposo
 
     //id timer
-    const [timerId, setTimerId] = useState <number | undefined> (undefined);
+    const [timerId, setTimerId] = useState<number | undefined>(undefined);
 
     //aggiorno il display con il nuovo studioTime se sto studiando
     useEffect(() => {
-        if(isStudying){
+        if (isStudying) {
             setDisplayTime(studioTime);
         }
     }, [studioTime]);
 
     //aggiorno il display con il nuovo riposoTime se sono in pausa
     useEffect(() => {
-        if(!isStudying){
+        if (!isStudying) {
             setDisplayTime(riposoTime);
         }
     }, [riposoTime]);
 
-    const updatePomodoroEvent = async() => {
+    const updatePomodoroEvent = async () => {
         try {
-            await fetch('/api/events' + (eventId? `/${eventId}` : ''), {
+            await fetch('/api/events' + (eventId ? `/${eventId}` : ''), {
                 method: 'PATCH',
                 headers: {
-                'Content-Type': 'application/json',
-                credentials: "include",
+                    'Content-Type': 'application/json',
+                    credentials: "include",
                 },
                 body: JSON.stringify({
-                pomodoroSetting: {"studioTime": settingFromEvent.studioTime, "riposoTime": settingFromEvent.riposoTime, "nCicli":cicliRimanenti, "isComplete": cicliRimanenti>0 ? false : true}
+                    pomodoroSetting: { "studioTime": settingFromEvent.studioTime, "riposoTime": settingFromEvent.riposoTime, "nCicli": cicliRimanenti, "isComplete": cicliRimanenti > 0 ? false : true }
                 })
             });
-        } catch(error) {
+        } catch (error) {
             console.error(error);
         }
     }
@@ -66,42 +65,42 @@ const Pomodoro: React.FC = () => {
     const handleOpenSettings = () => setIsSettingsOpen(true);
     const handleCloseSettings = () => setIsSettingsOpen(false);
 
-    const handleSaveSetting = (newSetting : PomodoroSetting) => {
+    const handleSaveSetting = (newSetting: PomodoroSetting) => {
         setStudioTime(toTime(newSetting.studioTime));
         setRiposoTime(toTime(newSetting.riposoTime));
         setCicliRimanenti(newSetting.nCicli);
         setIsSettingsOpen(false); // Chiudi il modal dopo aver salvato
     };
 
-    useEffect(() =>{
-        setIsComplete(cicliRimanenti<=0 ? true : false);
+    useEffect(() => {
+        setIsComplete(cicliRimanenti <= 0 ? true : false);
         updatePomodoroEvent();
-    },[cicliRimanenti]);
+    }, [cicliRimanenti]);
 
     const decrementaCicli = () => {
         setCicliRimanenti(prevCicli => {
-            const newCicli = prevCicli -1;
+            const newCicli = prevCicli - 1;
             return newCicli;
         });
     };
 
-    //avvio timer
+    // avvio timer
     const start = () => {
-        
+
         setIsRunning(true); //timer attivo
-        if(!timerId){
+        if (!timerId) {
             const id = window.setInterval(() => {
-                
+
                 //aggiorno il nuovo display in base a quello corrente
-                setDisplayTime((prev_display) => {    
+                setDisplayTime((prev_display) => {
                     let new_display = { ...prev_display };  //copio i singoli elementi senza referenziare
                     if (new_display.seconds && new_display.seconds > 0) {
                         new_display.seconds -= 1;
-                    } 
+                    }
                     else if (new_display.minutes > 0) {
                         new_display.seconds = 59;
                         new_display.minutes -= 1;
-                    } 
+                    }
                     else if (new_display.hours > 0) {
                         new_display.minutes = 59;
                         new_display.seconds = 59;
@@ -109,8 +108,8 @@ const Pomodoro: React.FC = () => {
                     } else {
                         clearInterval(timerId);
                         setTimerId(undefined);
-                        
-                        if(!isStudying){
+
+                        if (!isStudying) {
                             decrementaCicli();
                             updatePomodoroEvent();
                         }
@@ -144,11 +143,11 @@ const Pomodoro: React.FC = () => {
         if (!isRunning) {
             setIsStudying(!isStudying);
             setDisplayTime(isStudying ? { ...riposoTime } : { ...studioTime });
-            if(!isStudying){
+            if (!isStudying) {
                 decrementaCicli();
                 console.log(cicliRimanenti);
             }
-        } 
+        }
         else {
             clearInterval(timerId);
             setTimerId(undefined);
@@ -161,7 +160,7 @@ const Pomodoro: React.FC = () => {
         if (isStudying) {
             setIsStudying(false);
             setDisplayTime({ ...riposoTime });
-        } 
+        }
         else {
             setIsStudying(true);
             setDisplayTime({ ...studioTime });
@@ -171,23 +170,23 @@ const Pomodoro: React.FC = () => {
 
     //funzione per visualizzazione timer
     const format_time = (time: Time): string => {
-        let hours = time.hours > 0 ? `${ out_cifre(time.hours) }:` : '';
-        return `${ hours }${out_cifre(time.minutes)}:${time.seconds ? out_cifre(time.seconds) : out_cifre(0)}`;
+        let hours = time.hours > 0 ? `${out_cifre(time.hours)}:` : '';
+        return `${hours}${out_cifre(time.minutes)}:${time.seconds ? out_cifre(time.seconds) : out_cifre(0)}`;
     };
 
     //cifre da numero a stringa con due caratteri
     const out_cifre = (n: number): string => {
-        if(n<10)
-            return '0' + n.toString();   
+        if (n < 10)
+            return '0' + n.toString();
         else
-            return n.toString();    
+            return n.toString();
     }
 
-    const backToCalendar = () =>{
+    const backToCalendar = () => {
         navigate("/calendar");
     }
 
-    const newSession = () =>{
+    const newSession = () => {
         location.state = undefined;
         setEventId(null);
         setStudioTime(toTime(30));
@@ -197,8 +196,8 @@ const Pomodoro: React.FC = () => {
         setDisplayTime(toTime(30));
     }
 
-    if(isComplete){
-        return(
+    if (isComplete) {
+        return (
             <>
                 <p>This study session has been completed</p>
                 <div>
@@ -212,7 +211,7 @@ const Pomodoro: React.FC = () => {
             </>
         )
     }
-    else{
+    else {
         return (
             <>
                 {!isSettingsOpen && (
@@ -225,7 +224,7 @@ const Pomodoro: React.FC = () => {
                                 <label>remaining cycles: {cicliRimanenti}</label>
                             </div>
                         </div>
-                            <p>{isStudying ? 'Studio' : 'Riposo'}</p>
+                        <p>{isStudying ? 'Studio' : 'Riposo'}</p>
                         <div>
                             {!isRunning && (<button onClick={start}>Start</button>)}
                             {isRunning && (<button onClick={stop}>Stop</button>)}
@@ -234,16 +233,16 @@ const Pomodoro: React.FC = () => {
                         </div>
                     </>
                 )}
-                
+
                 {!location.state && (
                     <>
-                        {!isSettingsOpen && ( <button onClick={handleOpenSettings}>Settings</button>)}
+                        {!isSettingsOpen && (<button onClick={handleOpenSettings}>Settings</button>)}
                         {isSettingsOpen && (
-                            <PomodoroSettings 
-                                onClose={handleCloseSettings} 
-                                onSave={handleSaveSetting} 
-                                prevSetting= {{studioTime: toNum(studioTime), riposoTime: toNum(riposoTime), nCicli: cicliRimanenti, isComplete: isComplete}}
-                            /> 
+                            <PomodoroSettings
+                                onClose={handleCloseSettings}
+                                onSave={handleSaveSetting}
+                                prevSetting={{ studioTime: toNum(studioTime), riposoTime: toNum(riposoTime), nCicli: cicliRimanenti, isComplete: isComplete }}
+                            />
                         )}
                     </>
                 )}
@@ -252,5 +251,5 @@ const Pomodoro: React.FC = () => {
         );
     }
 };
-  
-export default Pomodoro;  
+
+export default Pomodoro;
