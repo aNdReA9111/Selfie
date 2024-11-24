@@ -72,7 +72,7 @@ export const EventDetails = ({ id, date, show, setShow }: EventDetailsProps) => 
                         <div className="d-flex justify-content-between align-items-center">
                             <h3>{event.title}</h3>
                             <div className='d-flex align-items-center'>
-                                {!event.isRecurring && <Button variant="danger" className='me-2' onClick={handleDeleteEvent}>Elimina<i className="ms-2 bi bi-trash"></i></Button>}
+                                {!event.isRecurring && <Button variant="danger" className='me-2' onClick={handleDeleteEvent}>Delete<i className="ms-2 bi bi-trash"></i></Button>}
                                 <EventModalForm event={event} />
                             </div>
                         </div>
@@ -81,29 +81,51 @@ export const EventDetails = ({ id, date, show, setShow }: EventDetailsProps) => 
                             {start2 && end2 && (<h5>Nella timezone attuale: </h5>)}
                             <p><i className="bi bi-clock-fill me-2"></i>{start.toLocaleString(DateTime.DATETIME_SHORT)} - {end.toLocaleString(DateTime.DATETIME_SHORT)}</p>
                         </div>
-                        {event.url && <p><i className="bi bi-link-45deg me-2"></i><a href={event.url}>{event.url}</a></p>}
-                        {event.location && <p><i className="bi bi-geo-alt-fill me-2"></i>{event.location}</p>}
-                        {rruleString && <p>Recurrency pattern: {rruleString}</p>}
-                        {
-                            start2 && end2 && (
-                                <div>
-                                    {start2 && end2 && (<h5>Nella timezone dell'evento: </h5>)}
-                                    <p><i className="bi bi-clock-fill me-2"></i>{start2.toLocaleString(DateTime.DATETIME_SHORT)} - {end2.toLocaleString(DateTime.DATETIME_SHORT)}</p>
-                                </div>
-                            )
-                        }
+                            {event.url && <p><i className="bi bi-link-45deg me-2"></i><a href={event.url}>{event.url}</a></p>}
+                            {event.location && <p><i className="bi bi-geo-alt-fill me-2"></i>{event.location}</p>}
+                            {rruleString && <p>Recurrency pattern: {rruleString}</p>}
+                            {
+                                start2 && end2 && (
+                                    <div>
+                                        {start2 && end2 && (<h5>Nella timezone dell'evento: </h5>)}
+                                        <p><i className="bi bi-clock-fill me-2"></i>{start2.toLocaleString(DateTime.DATETIME_SHORT)} - {end2.toLocaleString(DateTime.DATETIME_SHORT)}</p>
+                                    </div>
+                                )
+                            }
                         <div>
                             {event.isPomodoro && (
                                 <>
-                                    <Button onClick={navigateToPomodoro}>Pomodoro app</Button>
-                                    <p>Study: {event?.pomodoroSetting.studioTime} minutes</p>
-                                    <p>Rest: {event?.pomodoroSetting.riposoTime} minutes</p>
-                                    <p>Amount of pomodoro cycles: {event?.pomodoroSetting.nCicli}</p>
-
+                                    {(event?.pomodoroSetting.nCicli>0) && (
+                                        <div className="mt-4 p-3 rounded border bg-light">
+                                        <h5 className="text-center mb-3">Pomodoro Settings</h5>
+                                        <div className="d-flex justify-content-around align-items-center">
+                                            <div className="text-center">
+                                                <i className="bi bi-clock-fill text-primary fs-3"></i>
+                                                <p className="mb-1 fw-bold">Study Time</p>
+                                                <p className="fs-5 text-secondary">{event?.pomodoroSetting.studioTime} minutes</p>
+                                            </div>
+                                            <div className="text-center">
+                                                <i className="bi bi-pause-circle-fill text-success fs-3"></i>
+                                                <p className="mb-1 fw-bold">Rest Time</p>
+                                                <p className="fs-5 text-secondary">{event?.pomodoroSetting.riposoTime} minutes</p>
+                                            </div>
+                                            <div className="text-center">
+                                                <i className="bi bi-arrow-repeat text-warning fs-3"></i>
+                                                <p className="mb-1 fw-bold">Remaining cycles</p>
+                                                <p className="fs-5 text-secondary">{event?.pomodoroSetting.nCicli}</p>
+                                            </div>
+                                        </div>
+                                            <div className="text-center mt-3">
+                                                <Button variant="primary" onClick={navigateToPomodoro}>Open Pomodoro App</Button>
+                                            </div>
+                                        </div>
+                                    )}  
+                                    {(event?.pomodoroSetting.nCicli<=0) && (
+                                        <p className="mb-1 fw-bold">This study session has already been completed</p>
+                                    )}
                                 </>
                             )}
                         </div>
-
                     </div>
                 </Modal.Body>
             </Modal>

@@ -308,6 +308,7 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
                         <label className="form-check-label" htmlFor="isRecurring">Is this event recurring?</label>
                     </div>
                     {isRecurring && (<RRuleForm watch={watch} register={register} errors={errors} setValue={setValue} />)}
+                    
                     <div className="mb-3 form-check">
                         <input
                             type="checkbox"
@@ -315,52 +316,47 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
                             className="form-check-input"
                             {...register('isPomodoro')}
                         />
-                        <label className="form-check-label" htmlFor="isPomodoro">Does this event include a Pomodoro session?</label>
+                        <label className="form-check-label" htmlFor="isPomodoro">Include Pomodoro Session</label>
                     </div>
+
                     {isPomodoro && (
-                        <>
+                        <div className="border p-3 rounded bg-light mt-3">
+                            <h5>Pomodoro Settings</h5>
                             <div className="mb-3">
-                                <label htmlFor="studioTime" className="form-label">Study time</label>
+                                <label htmlFor="studioTime" className="form-label">Study Time (minutes)</label>
                                 <input
                                     type="number"
                                     id="studioTime"
-                                    step='5'
-                                    min='5'
+                                    min="5"
+                                    step="5"
+                                    className="form-control"
                                     {...register('pomodoroSetting.studioTime')}
                                 />
                             </div>
+
                             <div className="mb-3">
-                                <label htmlFor="riposoTime" className="form-label">Rest time</label>
+                                <label htmlFor="riposoTime" className="form-label">Rest Time (minutes)</label>
                                 <input
                                     type="number"
                                     id="riposoTime"
-                                    min='1'
+                                    min="1"
+                                    className="form-control"
                                     {...register('pomodoroSetting.riposoTime')}
                                 />
                             </div>
+
                             <div className="mb-3">
-                                <label htmlFor="nCicli" className="form-label">Amount of cycles</label>
+                                <label htmlFor="nCicli" className="form-label">Cycles</label>
                                 <input
                                     type="number"
-                                    id="studioTime"
-                                    min='1'
+                                    id="nCicli"
+                                    min="1"
+                                    className="form-control"
                                     {...register('pomodoroSetting.nCicli')}
                                 />
                             </div>
-                            <div className="mb-3">
-                                <label htmlFor="studioTime" className="form-label">Study time</label>
-                                <input
-                                    type="hidden"
-                                    id="isComplete"
-                                    value="false"
-                                    {...register('pomodoroSetting.isComplete')}
-                                />
-                            </div>
-                        </>
-
+                        </div>
                     )}
-
-
                 </div>
                 <div className="col-sm-12 col-md-6">
                     <AttendeesForm setValue={setValue} register={register} errors={errors} watch={watch} />
