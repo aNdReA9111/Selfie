@@ -9,6 +9,7 @@ import { BsHouseDoor, BsCalendar3, BsStickyFill, BsClock, BsInfoCircle } from 'r
 import logo from '../assets/logo.png';
 import { generateColorFromString } from '../utils/colorUtils';
 import '../css/navbar.css';
+import { TimeMachine } from './TimeMachine';
 
 const MyNavbar = () => {
     const { user } = useAuthContext();
@@ -56,6 +57,7 @@ const MyNavbar = () => {
                                 <Nav.Link as={Link} to="/about" className="text-white d-flex align-items-center">
                                     <BsInfoCircle className="me-1" /> About
                                 </Nav.Link>
+                                <TimeMachine />
                             </>
                         )}
 
