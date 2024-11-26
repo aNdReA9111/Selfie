@@ -21,7 +21,6 @@ function App() {
     return (
         <BrowserRouter>
             <div className="app-container">
-                {/* Mostra la navbar solo se l'utente è autenticato */}
                 <MyNavbar />
                 {user?.isAuthenticated && <MyNotification />}
 
