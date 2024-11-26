@@ -92,6 +92,8 @@ const getActivityById = async (req: Req, res: Response) => {
                 },
             ],
         });
+
+        res.status(200).json(activity);
     } catch (error: any) {
         res.status(400).json({ message: error.message });
     }

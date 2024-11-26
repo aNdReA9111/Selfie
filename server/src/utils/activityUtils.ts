@@ -19,26 +19,28 @@ export async function changeActivitiesDate(user: string, mail: string) {
                 },
             ],
             isCompleted: false,
-            date: { $lte: DateTime.now().startOf("day").toJSDate() }
+            date: { $lte: DateTime.now().startOf("day").toJSDate() },
         },
 
         /*change late activities' date*/
-        {
-            $set: {
-                date: {
-                    $dateAdd: {
-                        startDate: "$date",
-                        unit: "day",
-                        amount: {
-                            $dateDiff: {
-                                startDate: "$date",
-                                endDate: "$$NOW",
-                                unit: "day"
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        [
+            {
+                $set: {
+                    date: {
+                        $dateAdd: {
+                            startDate: "$date",
+                            unit: "day",
+                            amount: {
+                                $dateDiff: {
+                                    startDate: "$date",
+                                    endDate: "$$NOW",
+                                    unit: "day",
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        ],
     );
-} 
+}
