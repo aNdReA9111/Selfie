@@ -376,10 +376,25 @@ export const activityFormSchema = activitySchema
         title: true,
         description: true,
         date: true,
-        attendees: true,
         notifications: true,
         timezone: true,
-    });
+    })
+    .merge(
+        z.object({
+            attendees: z
+                .union([
+                    z.array(z.string()),
+                    z.string().transform((val: string) =>
+                        val
+                            .split(",")
+                            .map((val) => val.trim())
+                            .filter((val) => val !== ""),
+                    ),
+                ])
+                .optional()
+                .nullable(),
+        }),
+    );
 
 export type Activity = z.infer<typeof activitySchema>;
 

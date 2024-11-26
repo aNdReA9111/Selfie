@@ -4,6 +4,7 @@ import { Calendar as BigCalendar, DateLocalizer, luxonLocalizer } from 'react-bi
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { Button } from 'react-bootstrap';
 import { RRule } from 'rrule';
+import { EventComponent } from '../components/EventComponent';
 import { EventDetails } from '../components/EventDetails';
 import { EventModalForm } from '../components/EventModalForm';
 import { useAuthContext } from '../hooks/useAuthContext';
@@ -11,7 +12,6 @@ import { useEvents } from '../hooks/useEvents';
 import { useEventsContext } from '../hooks/useEventsContext';
 import { useTimeMachineContext } from '../hooks/useTimeMachineContext';
 import { Event, EventsContextType } from '../utils/types';
-import { EventComponent } from '../components/EventComponent';
 
 const localizer: DateLocalizer = luxonLocalizer(DateTime);
 
@@ -57,6 +57,7 @@ function generateRecurringEvents(events: Event[]) {
 const CustomCalendar = () => {
     const { events, dispatch }: EventsContextType = useEventsContext();
     const { user } = useAuthContext();
+    console.log(user.token)
     const { offset } = useTimeMachineContext();
     //useMemo --> ricalcolo eventi sul calendario solo quando cambiano gli eventi sul context
     const calendarEvents = useMemo(() => generateRecurringEvents(events), [events]);
@@ -165,7 +166,7 @@ const CustomCalendar = () => {
                             onSelectEvent={handleSelectEvent}
                             onSelectSlot={handleSelectSlot}
                             style={{ height: 600 }}
-                            date={DateTime.now().plus({ milliseconds: offset }).toJSDate()}  /*update current date to time machine date*/
+                            defaultDate={DateTime.now().plus({ milliseconds: offset }).toJSDate()}  /*update current date to time machine date*/
                             popup
                         />
                         <EventModalForm />

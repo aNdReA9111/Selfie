@@ -1,14 +1,4 @@
-import { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
-import { EventFormData } from "../utils/types";
-
-type EventFormProps = {
-    watch: UseFormWatch<EventFormData>;
-    register: UseFormRegister<EventFormData>;
-    errors: FieldErrors<EventFormData>;
-    setValue: UseFormSetValue<EventFormData>;
-};
-
-export const NotificationsForm: React.FC<EventFormProps> = ({ watch, register, errors }) => {
+export const NotificationsForm = ({ watch, register, errors }: any) => {
     const mailNotification: boolean | undefined | null = watch('notifications.notifica_email');
     const desktopNotification: boolean | undefined | null = watch('notifications.notifica_desktop');
     const frequencyType: string | undefined | null = watch('notifications.frequencyType');

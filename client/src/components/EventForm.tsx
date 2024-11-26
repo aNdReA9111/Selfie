@@ -7,6 +7,7 @@ import { RRule } from "rrule";
 // import { useAuthContext } from "../hooks/useAuthContext";
 import { useEventsContext } from "../hooks/useEventsContext";
 import { frequenciesMap, revereseFrequenciesMap, reverseWeekDaysMap, weekDaysMap } from "../utils/const";
+import { toUTC } from "../utils/dateUtils";
 import { ByDayEnum, Event, EventFormData, eventFormSchema, Frequency } from "../utils/types";
 import { AttendeesForm } from "./AttendeesForm";
 import { NotificationsForm } from "./NotificationsForm";
@@ -35,10 +36,6 @@ function rruleStrToObj(rule: string, zone: string) {
         bymonth: rrule.options.bymonth,
         bysetpos: rrule.options.bysetpos,
     }
-}
-
-function toUTC(date: Date, zone: string) {
-    return DateTime.fromJSDate(date).setZone(zone, { keepLocalTime: true }).toUTC().toJSDate();
 }
 
 
@@ -98,7 +95,7 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
                 bymonth: defaultValues.recurrenceRule?.bymonth,
                 bysetpos: defaultValues.recurrenceRule?.bysetpos
             } : undefined,
-            attendees: event?.attendees?.map((a: any) => a.name) || [],
+            attendees: defaultValues.attendees,
             location: defaultValues.location,
             url: defaultValues.url,
             isPomodoro: defaultValues.isPomodoro,
@@ -308,7 +305,7 @@ export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction
                         <label className="form-check-label" htmlFor="isRecurring">Is this event recurring?</label>
                     </div>
                     {isRecurring && (<RRuleForm watch={watch} register={register} errors={errors} setValue={setValue} />)}
-                    
+
                     <div className="mb-3 form-check">
                         <input
                             type="checkbox"
