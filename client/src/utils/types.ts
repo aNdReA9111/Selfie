@@ -358,3 +358,29 @@ export type EventDetailsProps = {
 };
 
 export type Frequency = "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY" | undefined;
+
+export const activitySchema = z.object({
+    _id: z.string().optional().nullable(),
+    title: z.string().min(2).max(30),
+    description: z.string().min(2).max(150),
+    date: dateFromString,
+    isCompleted: z.boolean(),
+    attendees: z.array(attendeeSchema).optional().nullable(),
+    notifications: notificationsSchema.optional().nullable(),
+    _id_user: z.string(),
+    timezone: z.string(),
+});
+
+export const activityFormSchema = activitySchema
+    .pick({
+        title: true,
+        description: true,
+        date: true,
+        attendees: true,
+        notifications: true,
+        timezone: true,
+    });
+
+export type Activity = z.infer<typeof activitySchema>;
+
+export type ActivityFormData = z.infer<typeof activityFormSchema>;
