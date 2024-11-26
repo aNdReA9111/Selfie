@@ -9,7 +9,9 @@ import { EventModalForm } from '../components/EventModalForm';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { useEvents } from '../hooks/useEvents';
 import { useEventsContext } from '../hooks/useEventsContext';
+import { useTimeMachineContext } from '../hooks/useTimeMachineContext';
 import { Event, EventsContextType } from '../utils/types';
+import { EventComponent } from '../components/EventComponent';
 
 const localizer: DateLocalizer = luxonLocalizer(DateTime);
 
@@ -29,7 +31,8 @@ function generateRecurringEvents(events: Event[]) {
                     start: date,
                     end: new Date(date.getTime() + (event.duration as number)),
                     resources: {
-                        _id: event._id
+                        _id: event._id,
+                        isActivity: false
                     }
                 }
                 calendarEvents.push(calendarEvent);
@@ -40,7 +43,8 @@ function generateRecurringEvents(events: Event[]) {
                 start: event.date,
                 end: event.endDate,
                 resources: {
-                    _id: event._id
+                    _id: event._id,
+                    isActivity: false
                 }
             }
             calendarEvents.push(calendarEvent);
@@ -53,6 +57,7 @@ function generateRecurringEvents(events: Event[]) {
 const CustomCalendar = () => {
     const { events, dispatch }: EventsContextType = useEventsContext();
     const { user } = useAuthContext();
+    const { offset } = useTimeMachineContext();
     //useMemo --> ricalcolo eventi sul calendario solo quando cambiano gli eventi sul context
     const calendarEvents = useMemo(() => generateRecurringEvents(events), [events]);
     const [showDetails, setShowDetails] = useState<boolean>(false);
@@ -140,8 +145,9 @@ const CustomCalendar = () => {
         }
     };
 
-    // const handleSelectSlot = (slotInfo: any) => {
-    // };
+    const handleSelectSlot = (slotInfo: any) => {
+        console.log(slotInfo);
+    };
 
     return (
         isLoading ? <h2>Loading...</h2> :
@@ -150,14 +156,16 @@ const CustomCalendar = () => {
                     <div className="col-md-10">
                         <BigCalendar
                             localizer={localizer}
+                            components={{ event: EventComponent }}
                             events={calendarEvents}
                             selectable
                             views={['month', 'week', 'day']}
                             step={15}
                             timeslots={4}
                             onSelectEvent={handleSelectEvent}
-                            // onSelectSlot={handleSelectSlot}
+                            onSelectSlot={handleSelectSlot}
                             style={{ height: 600 }}
+                            date={DateTime.now().plus({ milliseconds: offset }).toJSDate()}  /*update current date to time machine date*/
                             popup
                         />
                         <EventModalForm />
