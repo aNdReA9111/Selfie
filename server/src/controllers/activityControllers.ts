@@ -41,7 +41,7 @@ const getActivities = async (req: Req, res: Response) => {
 
     try {
         /*change dates for late activities*/
-        await changeActivitiesDate(userId.toString(), user.email);
+        await changeActivitiesDate(userId.toString(), user.email, user.dateOffset);
 
         const activities = await ActivityModel.find({
             $or: [

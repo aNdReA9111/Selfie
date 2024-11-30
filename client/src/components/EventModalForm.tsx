@@ -1,16 +1,18 @@
 import { useState } from "react";
-import { Modal, Button } from "react-bootstrap";
+import { Button, Modal } from "react-bootstrap";
+import { Activity, Event } from "../utils/types";
+import { ActivityForm } from "./ActivityForm";
 import { EventForm } from "./EventForm";
-import { Event } from "../utils/types";
 
-export const EventModalForm = ({ event }: { event?: Event }) => {
+export const EventModalForm = ({ event, activity, isActivity }: { event?: Event, activity?: Activity, isActivity?: boolean }) => {
     const [show, setShow] = useState(false);
+    const str: string = isActivity ? 'activity' : 'event';
 
     return (
         <>
             <Button variant={event ? "warning" : "danger"} className={"me-3" + (event ? "" : " mt-3")} onClick={() => setShow(true)}>
-                {event ? 'Edit event' : 'New event'}
-                {event ? <i className="ms-2 bi bi-pencil-square"></i> : <i className="ms-2 bi bi-calendar-check"></i>}
+                {event || activity ? 'Edit ' + str : 'New ' + str}
+                {event || activity ? <i className="ms-2 bi bi-pencil-square"></i> : <i className="ms-2 bi bi-calendar-check"></i>}
             </Button>
             <Modal
                 show={show}
@@ -23,11 +25,11 @@ export const EventModalForm = ({ event }: { event?: Event }) => {
             >
                 <Modal.Header closeButton>
                     <Modal.Title id="contained-modal-title-vcenter">
-                        {event ? 'Edit event' : 'New event'}
+                        {event || activity ? 'Edit ' + str : 'New ' + str}
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <EventForm setShow={setShow} event={event} />
+                    {isActivity ? <ActivityForm setShow={setShow} activity={activity} /> : <EventForm setShow={setShow} event={event} />}
                 </Modal.Body>
             </Modal>
         </>

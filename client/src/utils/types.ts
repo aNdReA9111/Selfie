@@ -399,3 +399,39 @@ export const activityFormSchema = activitySchema
 export type Activity = z.infer<typeof activitySchema>;
 
 export type ActivityFormData = z.infer<typeof activityFormSchema>;
+
+export type ActivitiesState = {
+    activities: Activity[];
+};
+
+export type ActivitiesAction =
+    | {
+        type: "SET_ACTIVITIES";
+        payload: Activity[];
+    }
+    | {
+        type: "CREATE_ACTIVITY";
+        payload: Activity;
+    }
+    | {
+        type: "DELETE_ONE";
+        payload: string;
+    }
+    | {
+        type: "DELETE_ALL";
+    }
+    | {
+        type: "EDIT_ACTIVITY";
+        payload: Activity;
+    };
+
+export type ActivitiesContextType = {
+    activities: Activity[];
+    dispatch: React.Dispatch<ActivitiesAction>;
+};
+
+export type ActivityDetailsProps = {
+    id: string | undefined | null;
+    show: boolean;
+    setShow: React.Dispatch<React.SetStateAction<boolean>>;
+};

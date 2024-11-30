@@ -2,7 +2,7 @@ import { DateTime } from "luxon";
 import { ActivityModel } from "../models/activityModel.js";
 
 /*function to change the date of late activities*/
-export async function changeActivitiesDate(user: string, mail: string) {
+export async function changeActivitiesDate(user: string, mail: string, dateOffset: number) {
     await ActivityModel.updateMany(
         /*get non-completed late activities for the user*/
         {
@@ -19,7 +19,7 @@ export async function changeActivitiesDate(user: string, mail: string) {
                 },
             ],
             isCompleted: false,
-            date: { $lte: DateTime.now().startOf("day").toJSDate() },
+            date: { $lte: DateTime.now().plus(dateOffset).startOf("day").toJSDate() },
         },
 
         /*change late activities' date*/
@@ -33,7 +33,7 @@ export async function changeActivitiesDate(user: string, mail: string) {
                             amount: {
                                 $dateDiff: {
                                     startDate: "$date",
-                                    endDate: "$$NOW",
+                                    endDate: DateTime.now().plus(dateOffset).toJSDate(),
                                     unit: "day",
                                 },
                             },

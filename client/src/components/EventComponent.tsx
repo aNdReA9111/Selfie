@@ -1,7 +1,7 @@
 import '../css/eventComponent.css';
 
-export const EventComponent = (event: any) => {
+export const EventComponent = (arg: any) => {
     return (
-        event.resources.isActivity ? <span className="activity">{event.title}</span> : <span>{event.title}</span>
+        arg.event.resources.isActivity ? <span className="activity">{arg.event.title}</span> : <span>{arg.event.title}</span>
     );
 }

@@ -3,6 +3,7 @@ import { timeZonesNames } from "@vvo/tzdb";
 import { DateTime } from "luxon";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useActivitiesContext } from "../hooks/useActivitiesContext";
 import { toUTC } from "../utils/dateUtils";
 import { Activity, ActivityFormData, activityFormSchema } from "../utils/types";
 import { AttendeesForm } from "./AttendeesForm";
@@ -56,7 +57,7 @@ export const ActivityForm = ({ setShow, activity }: { setShow: Dispatch<SetState
 
     let suggestions: string[] = [];
 
-    // const { dispatch } = useEventsContext();
+    const { dispatch } = useActivitiesContext();
 
     const onSuggestionClick = (suggestion: string) => {
         setValue('timezone', suggestion);
@@ -91,7 +92,7 @@ export const ActivityForm = ({ setShow, activity }: { setShow: Dispatch<SetState
         }
 
         try {
-            const res = await fetch('/api/activitiess' + (activity?._id ? `/${activity._id}` : ''), {
+            const res = await fetch('/api/activities' + (activity?._id ? `/${activity._id}` : ''), {
                 method: activity?._id ? 'PATCH' : 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -99,16 +100,17 @@ export const ActivityForm = ({ setShow, activity }: { setShow: Dispatch<SetState
                 },
                 body: JSON.stringify(newActivity)
             });
+            console.log(res);
             const data: Activity = await res.json();
             //SISTEMA TIMEZONE QUI
+            console.log(data);
             data.date = new Date(data.date);
             if (res.ok) {
-                // dispatch({ type: activity?._id ? 'EDIT_EVENT' : 'CREATE_EVENT', payload: data });
-                // CREATE ACTIVITY CONTEXT
+                dispatch({ type: activity?._id ? 'EDIT_ACTIVITY' : 'CREATE_ACTIVITY', payload: data });
                 setShow(false);
             }
         } catch (error) {
-            console.error(error);
+            console.error("ERR:" + error);
         }
     };
 
@@ -139,7 +141,7 @@ export const ActivityForm = ({ setShow, activity }: { setShow: Dispatch<SetState
                     </div>
 
                     <div className="mb-3">
-                        <label htmlFor="date" className="form-label">Start Date</label>
+                        <label htmlFor="date" className="form-label">Date</label>
                         <input
                             id="date"
                             type="datetime-local"

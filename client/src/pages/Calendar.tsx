@@ -4,21 +4,24 @@ import { Calendar as BigCalendar, DateLocalizer, luxonLocalizer } from 'react-bi
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { Button } from 'react-bootstrap';
 import { RRule } from 'rrule';
+import { ActivityDetails } from '../components/ActivityDetails';
 import { EventComponent } from '../components/EventComponent';
 import { EventDetails } from '../components/EventDetails';
 import { EventModalForm } from '../components/EventModalForm';
+import { useActivities } from '../hooks/useActivities';
+import { useActivitiesContext } from '../hooks/useActivitiesContext';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { useEvents } from '../hooks/useEvents';
 import { useEventsContext } from '../hooks/useEventsContext';
 import { useTimeMachineContext } from '../hooks/useTimeMachineContext';
-import { Event, EventsContextType } from '../utils/types';
+import { ActivitiesContextType, Activity, Event, EventsContextType } from '../utils/types';
 
 const localizer: DateLocalizer = luxonLocalizer(DateTime);
 
 //TODO: delete singolo evento ricorrente
 //TODO: drag and drop, aggiunta di eventi direttamente del calendario
 
-function generateRecurringEvents(events: Event[]) {
+function generateRecurringEvents(events: Event[], activities: Activity[]) {
     let calendarEvents = [];
     for (const event of events) {
         if (event.isRecurring) {
@@ -50,29 +53,52 @@ function generateRecurringEvents(events: Event[]) {
             calendarEvents.push(calendarEvent);
         }
     }
+    for (const activity of activities) {
+        const calendarEvent = {
+            title: activity.title,
+            start: activity.date,
+            end: activity.date,
+            // end: new Date(activity.date.getTime() + 30 * 60 * 1000),
+            resources: {
+                _id: activity._id,
+                isActivity: true
+            }
+        }
+        calendarEvents.push(calendarEvent);
+    }
 
     return calendarEvents;
 }
 
 const CustomCalendar = () => {
-    const { events, dispatch }: EventsContextType = useEventsContext();
+    const { events, dispatch: dispatchE }: EventsContextType = useEventsContext();
+    const { activities, dispatch: dispatchA }: ActivitiesContextType = useActivitiesContext();
     const { user } = useAuthContext();
     console.log(user.token)
     const { offset } = useTimeMachineContext();
     //useMemo --> ricalcolo eventi sul calendario solo quando cambiano gli eventi sul context
-    const calendarEvents = useMemo(() => generateRecurringEvents(events), [events]);
-    const [showDetails, setShowDetails] = useState<boolean>(false);
+    const calendarEvents = useMemo(() => generateRecurringEvents(events, activities), [events, activities, offset]);
+    const [showDetailsA, setShowDetailsA] = useState<boolean>(false);
+    const [showDetailsE, setShowDetailsE] = useState<boolean>(false);
     const [currentEvent, setCurrentEvent] = useState<Event | undefined>(undefined);
+    const [currentActivity, setCurrentActivity] = useState<Activity | undefined>(undefined);
     const [date, setDate] = useState<Date | undefined>(undefined);
 
-    const { isLoading, error } = useEvents("/api/events/", undefined, {
+    const { isLoading: isLoadingE, error: errorE } = useEvents("/api/events/", undefined, {
         headers: {
             'Content-Type': 'application/json',
             credentials: "include",
         }
     });
 
-    const handleDeleteAll = async () => {
+    const { isLoading: isLoadingA, error: errorA } = useActivities("/api/activities/", undefined, {
+        headers: {
+            'Content-Type': 'application/json',
+            credentials: "include",
+        }
+    });
+
+    const handleDeleteAllE = async () => {
         try {
             const res = await fetch('/api/events/', {
                 method: 'DELETE',
@@ -83,7 +109,25 @@ const CustomCalendar = () => {
             })
 
             if (res.ok) {
-                dispatch({ type: 'DELETE_ALL' });
+                dispatchE({ type: 'DELETE_ALL' });
+            }
+        } catch (error: any) {
+            console.log(error);
+        }
+    }
+
+    const handleDeleteAllA = async () => {
+        try {
+            const res = await fetch('/api/activities/', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    credentials: "include",
+                }
+            })
+
+            if (res.ok) {
+                dispatchA({ type: 'DELETE_ALL' });
             }
         } catch (error: any) {
             console.log(error);
@@ -92,9 +136,13 @@ const CustomCalendar = () => {
 
     const handleSelectEvent = (e: any) => {
         setDate(e.start);
-        console.log(events.find((el: Event) => el._id === e.resources._id));
-        setCurrentEvent(events.find((el: Event) => el._id === e.resources._id));
-        setShowDetails(true);
+        if (e.resources.isActivity === true) {
+            setCurrentActivity(activities.find((el: Activity) => el._id === e.resources._id));
+            setShowDetailsA(true);
+        } else {
+            setCurrentEvent(events.find((el: Event) => el._id === e.resources._id));
+            setShowDetailsE(true);
+        }
     };
 
     const handleExportCalendar = async () => {
@@ -151,8 +199,8 @@ const CustomCalendar = () => {
     };
 
     return (
-        isLoading ? <h2>Loading...</h2> :
-            error ? <h2>{error}</h2> : (<div className="container mt-5">
+        isLoadingA || isLoadingE ? <h2>Loading...</h2> :
+            errorA || errorE ? <h2>{errorA || ""} + "\n" + {errorE || ""}</h2> : (<div className="container mt-5">
                 <div className="row justify-content-center">
                     <div className="col-md-10">
                         <BigCalendar
@@ -166,13 +214,20 @@ const CustomCalendar = () => {
                             onSelectEvent={handleSelectEvent}
                             onSelectSlot={handleSelectSlot}
                             style={{ height: 600 }}
-                            defaultDate={DateTime.now().plus({ milliseconds: offset }).toJSDate()}  /*update current date to time machine date*/
+                            defaultDate={DateTime.now().plus(offset || 0).toJSDate()}  /*update current date to time machine date*/
+                            getNow={() => DateTime.now().plus(offset || 0).toJSDate()}
                             popup
                         />
-                        <EventModalForm />
-                        {currentEvent && <EventDetails id={currentEvent._id} date={date} show={showDetails} setShow={setShowDetails} />}
-                        <Button className="mt-3" variant="danger" onClick={handleDeleteAll}>
+                        <EventModalForm isActivity={false} />
+                        <EventModalForm isActivity={true} />
+                        {currentEvent && <EventDetails id={currentEvent._id} date={date} show={showDetailsE} setShow={setShowDetailsE} />}
+                        {currentActivity && <ActivityDetails id={currentActivity._id} show={showDetailsA} setShow={setShowDetailsA} />}
+                        <Button className="mt-3" variant="danger" onClick={handleDeleteAllE}>
                             Delete All Events
+                            <i className="ms-2 bi bi-calendar2-x"></i>
+                        </Button>
+                        <Button className="mt-3" variant="danger" onClick={handleDeleteAllA}>
+                            Delete All Activities
                             <i className="ms-2 bi bi-calendar2-x"></i>
                         </Button>
 
