@@ -4,9 +4,9 @@ import { useEventsContext } from "./useEventsContext";
 
 export const useEvents = (
     url: string,
-    query = {},
-    options = {},
-    dependencies = [],
+    query: Record<string, string> = {},
+    options: Record<string, any> = {},
+    dependencies: any[] = [],
 ) => {
     const { dispatch } = useEventsContext();
     const [isLoading, setIsLoading] = useState<boolean>(true);

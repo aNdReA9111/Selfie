@@ -4,9 +4,9 @@ import { useActivitiesContext } from "./useActivitiesContext";
 
 export const useActivities = (
     url: string,
-    query = {},
-    options = {},
-    dependencies = [],
+    query: Record<string, string> = {},
+    options: Record<string, any> = {},
+    dependencies: any[] = [],
 ) => {
     const { dispatch } = useActivitiesContext();
     const [isLoading, setIsLoading] = useState<boolean>(true);

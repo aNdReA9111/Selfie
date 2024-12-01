@@ -1,6 +1,7 @@
 import { DateTime } from "luxon";
 import pkg from "rrule";
 import webpush, { PushSubscription } from "web-push";
+import { ActivityModel, IActivity } from "../models/activityModel.js";
 import { EventModel, IEvent, INotification } from "../models/eventModel.js";
 import { IUser, UserModel } from "../models/userModel.js";
 
@@ -16,6 +17,7 @@ function sendNotification(
     notifica_desktop: boolean,
     notifica_mail: boolean,
     priority: number,
+    isActivity: boolean,
 ) {
     //priority serve per cambiare il testo in base alla priorità della notifica
 
@@ -94,6 +96,34 @@ async function checkAndSendNotifications() {
                 ],
             });
 
+            const activities: IActivity[] = await ActivityModel.find({
+                $and: [
+                    {
+                        $or: [
+                            { "notifications.notifica_desktop": true },
+                            { "notifications.notifica_email": true },
+                        ],
+                    },
+                    {
+                        $or: [
+                            { _id_user: user._id }, //l'user è proprietario
+                            {
+                                //l'user è partecipante
+                                attendees: {
+                                    $elemMatch: {
+                                        email: user.email,
+                                        responded: true,
+                                        accepted: true,
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                    { date: { $gte: start } },
+                    { date: { $lte: end } },
+                ],
+            });
+
             /*filterign recurring events and associating them with their occurrences*/
             const recurringEvents: [IEvent, Date[]][] = events
                 .filter((event: IEvent) => {
@@ -118,6 +148,7 @@ async function checkAndSendNotifications() {
             /*send notifications for both types of events*/
             calculateNonRecurringNotificationTimes(nonRecurringEvents, user);
             calculateRecurringNotificationTimes(recurringEvents, user);
+            calculateActivitiesNotificationTimes(activities, user);
         } catch (error) {
             console.log(error);
         }
@@ -187,14 +218,16 @@ function checkNotifications(
     eventDate: number,
     now: number,
     notifications: INotification,
-    event: IEvent,
+    event: IEvent | IActivity | any,
     user: IUser,
+    isActivity: boolean
 ) {
     const notificationTimes = calculateNotificationTimes(
         eventDate,
         notifications,
         event.title,
-        event.url || "",
+        event.hasOwnProperty("url")
+            ? event.url || "" : ""
     );
 
     for (const { title, url, notificationTime, priority } of notificationTimes) {
@@ -217,6 +250,7 @@ function checkNotifications(
                     user.flags.notifica_email &&
                     (event.notifications?.notifica_email || false),
                     priority,
+                    isActivity
                 );
             });
         } else {
@@ -237,6 +271,7 @@ function calculateNonRecurringNotificationTimes(events: IEvent[], user: IUser) {
             notifications as INotification,
             event,
             user,
+            false
         );
     }
 }
@@ -256,6 +291,26 @@ function calculateRecurringNotificationTimes(
                 notifications as INotification,
                 event[0],
                 user,
+                false
+            );
+        }
+    }
+}
+
+function calculateActivitiesNotificationTimes(
+    activities: IActivity[],
+    user: IUser,
+) {
+    const now: number = DateTime.now().toMillis();
+    for (const activity of activities) {
+        if (activity.date) {
+            checkNotifications(
+                activity.date.getTime(),
+                now,
+                activity.notifications as INotification,
+                activity,
+                user,
+                true
             );
         }
     }

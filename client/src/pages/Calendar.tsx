@@ -89,14 +89,14 @@ const CustomCalendar = () => {
             'Content-Type': 'application/json',
             credentials: "include",
         }
-    });
+    }, [offset]);
 
     const { isLoading: isLoadingA, error: errorA } = useActivities("/api/activities/", undefined, {
         headers: {
             'Content-Type': 'application/json',
             credentials: "include",
         }
-    });
+    }, [offset]);
 
     const handleDeleteAllE = async () => {
         try {

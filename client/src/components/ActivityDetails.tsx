@@ -3,7 +3,6 @@ import { Button, Modal } from 'react-bootstrap';
 import { useActivitiesContext } from '../hooks/useActivitiesContext';
 import { ActivityDetailsProps } from '../utils/types';
 import { EventModalForm } from './EventModalForm';
-import { act } from 'react';
 
 export const ActivityDetails = ({ id, show, setShow }: ActivityDetailsProps) => {
     const { activities, dispatch } = useActivitiesContext();

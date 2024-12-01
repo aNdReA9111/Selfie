@@ -10,7 +10,7 @@ export const EventModalForm = ({ event, activity, isActivity }: { event?: Event,
 
     return (
         <>
-            <Button variant={event ? "warning" : "danger"} className={"me-3" + (event ? "" : " mt-3")} onClick={() => setShow(true)}>
+            <Button variant={activity || event ? "warning" : "danger"} className={"me-3" + (activity || event ? "" : " mt-3")} onClick={() => setShow(true)}>
                 {event || activity ? 'Edit ' + str : 'New ' + str}
                 {event || activity ? <i className="ms-2 bi bi-pencil-square"></i> : <i className="ms-2 bi bi-calendar-check"></i>}
             </Button>

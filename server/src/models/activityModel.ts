@@ -9,7 +9,7 @@ interface IActivity extends Document {
     date: Date;
     isCompleted: boolean;
     attendees?: IAttendee[];
-    notifications?: INotification[];
+    notifications?: INotification;
     _id_user: string;
     timezone: string;
 }
@@ -41,7 +41,7 @@ const activitySchema = new Schema<IActivity>({
         required: false,
     },
     notifications: {
-        type: [notificationSchema],
+        type: notificationSchema,
         required: false,
     },
     _id_user: {
