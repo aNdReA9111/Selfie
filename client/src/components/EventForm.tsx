@@ -4,7 +4,6 @@ import { DateTime } from "luxon";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useForm } from "react-hook-form";
 import { RRule } from "rrule";
-// import { useAuthContext } from "../hooks/useAuthContext";
 import { useEventsContext } from "../hooks/useEventsContext";
 import { frequenciesMap, revereseFrequenciesMap, reverseWeekDaysMap, weekDaysMap } from "../utils/const";
 import { toUTC } from "../utils/dateUtils";
@@ -39,13 +38,31 @@ function rruleStrToObj(rule: string, zone: string) {
 }
 
 
-export const EventForm = ({ setShow, event }: { setShow: Dispatch<SetStateAction<boolean>>, event?: Event }) => {
+export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
+    setShow: Dispatch<SetStateAction<boolean>>,
+    event?: Event,
+    slotStart?: Date,
+    slotEnd?: Date
+}) => {
+
+    let defaultStart: string | undefined;
+    let defaultEnd: string | undefined;
+
+    if (event) {
+        defaultStart = DateTime.fromJSDate(event?.date).setZone(event?.timezone).toFormat("yyyy-MM-dd'T'HH:mm")
+        defaultEnd = DateTime.fromJSDate(event?.endDate).setZone(event?.timezone).toFormat("yyyy-MM-dd'T'HH:mm")
+    } else if (slotStart && slotEnd) {
+        defaultStart = DateTime.fromJSDate(slotStart).setZone(Intl.DateTimeFormat().resolvedOptions().timeZone).toFormat("yyyy-MM-dd'T'HH:mm")
+        defaultEnd = DateTime.fromJSDate(slotEnd).setZone(Intl.DateTimeFormat().resolvedOptions().timeZone).toFormat("yyyy-MM-dd'T'HH:mm")
+    } else {
+        defaultEnd = defaultStart = undefined;
+    }
 
     const defaultValues = {
         title: event?.title || undefined,
         description: event?.description || undefined,
-        date: event?.date ? DateTime.fromJSDate(event?.date).setZone(event?.timezone).toFormat("yyyy-MM-dd'T'HH:mm") : undefined,
-        endDate: event?.endDate ? DateTime.fromJSDate(event?.endDate).setZone(event?.timezone).toFormat("yyyy-MM-dd'T'HH:mm") : undefined,
+        date: defaultStart,
+        endDate: defaultEnd,
         isRecurring: event?.isRecurring || false,
         notifications: event?.notifications || {
             notifica_email: false,

@@ -71,8 +71,6 @@ export const ActivityDetails = ({ id, show, setShow }: ActivityDetailsProps) => 
                                 </div>
                             )
                         }
-                        <div>
-                        </div>
                     </div>
                 </Modal.Body>
             </Modal>

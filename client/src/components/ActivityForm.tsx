@@ -89,6 +89,7 @@ export const ActivityForm = ({ setShow, activity }: { setShow: Dispatch<SetState
             notifications,
             attendees: data.attendees?.map((a: string) => ({ name: a, email: "default@mail.com", accepted: false, responded: false })) || [],
             timezone: data.timezone,
+            isCompleted: data.isCompleted
         }
 
         try {
@@ -165,6 +166,14 @@ export const ActivityForm = ({ setShow, activity }: { setShow: Dispatch<SetState
                             }
                         </ul>
                     </div>
+
+                    {/* cannot mark an activity as completed when creating it --> activity && */}
+                    {activity && <div className="mb-3 form-check form-check-inline">
+                        <label htmlFor="isCompleted" className="form-label">Mark as completed</label>
+                        <input type="checkbox" id="isCompleted" className="form-check-input" {...register('isCompleted')} onFocus={() => setOpen(true)} />
+                        {errors.isCompleted && <div className="invalid-feedback">{errors.isCompleted.message}</div>}
+                    </div>}
+
                 </div>
                 <div className="col-sm-12 col-md-6">
                     <AttendeesForm setValue={setValue} register={register} errors={errors} watch={watch} />

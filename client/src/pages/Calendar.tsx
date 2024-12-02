@@ -5,6 +5,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { Button } from 'react-bootstrap';
 import { RRule } from 'rrule';
 import { ActivityDetails } from '../components/ActivityDetails';
+import { DNDEventModalForm } from '../components/DNDEventModalForm';
 import { EventComponent } from '../components/EventComponent';
 import { EventDetails } from '../components/EventDetails';
 import { EventModalForm } from '../components/EventModalForm';
@@ -83,6 +84,10 @@ const CustomCalendar = () => {
     const [currentEvent, setCurrentEvent] = useState<Event | undefined>(undefined);
     const [currentActivity, setCurrentActivity] = useState<Activity | undefined>(undefined);
     const [date, setDate] = useState<Date | undefined>(undefined);
+    /*slot interval*/
+    const [slotStart, setSlotStart] = useState<Date | undefined>(undefined);
+    const [slotEnd, setSlotEnd] = useState<Date | undefined>(undefined);
+    const [showDND, setShowDND] = useState<boolean>(false);
 
     const { isLoading: isLoadingE, error: errorE } = useEvents("/api/events/", undefined, {
         headers: {
@@ -196,6 +201,9 @@ const CustomCalendar = () => {
 
     const handleSelectSlot = (slotInfo: any) => {
         console.log(slotInfo);
+        setSlotStart(slotInfo.start);
+        setSlotEnd(slotInfo.end);
+        setShowDND(true);
     };
 
     return (
@@ -218,6 +226,7 @@ const CustomCalendar = () => {
                             getNow={() => DateTime.now().plus(offset || 0).toJSDate()}
                             popup
                         />
+                        <DNDEventModalForm slotStart={slotStart} slotEnd={slotEnd} show={showDND} setShow={setShowDND} />
                         <EventModalForm isActivity={false} />
                         <EventModalForm isActivity={true} />
                         {currentEvent && <EventDetails id={currentEvent._id} date={date} show={showDetailsE} setShow={setShowDetailsE} />}

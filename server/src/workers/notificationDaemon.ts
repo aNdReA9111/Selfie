@@ -26,7 +26,11 @@ function sendNotification(
         webpush
             .sendNotification(
                 sub,
-                JSON.stringify({ title, body: "Ricordati dell'evento!", url }),
+                JSON.stringify({
+                    title,
+                    body: "Ricordati dell'" + isActivity ? "attività!" : "evento!",
+                    url,
+                }),
             )
             .then(() => console.log(`Notification sent: ${title}`))
             .catch((error) => console.error(`Error sending notification: ${error}`));
@@ -220,14 +224,13 @@ function checkNotifications(
     notifications: INotification,
     event: IEvent | IActivity | any,
     user: IUser,
-    isActivity: boolean
+    isActivity: boolean,
 ) {
     const notificationTimes = calculateNotificationTimes(
         eventDate,
         notifications,
         event.title,
-        event.hasOwnProperty("url")
-            ? event.url || "" : ""
+        event.hasOwnProperty("url") ? event.url || "" : "",
     );
 
     for (const { title, url, notificationTime, priority } of notificationTimes) {
@@ -250,7 +253,7 @@ function checkNotifications(
                     user.flags.notifica_email &&
                     (event.notifications?.notifica_email || false),
                     priority,
-                    isActivity
+                    isActivity,
                 );
             });
         } else {
@@ -271,7 +274,7 @@ function calculateNonRecurringNotificationTimes(events: IEvent[], user: IUser) {
             notifications as INotification,
             event,
             user,
-            false
+            false,
         );
     }
 }
@@ -291,7 +294,7 @@ function calculateRecurringNotificationTimes(
                 notifications as INotification,
                 event[0],
                 user,
-                false
+                false,
             );
         }
     }
@@ -310,7 +313,7 @@ function calculateActivitiesNotificationTimes(
                 activity.notifications as INotification,
                 activity,
                 user,
-                true
+                true,
             );
         }
     }

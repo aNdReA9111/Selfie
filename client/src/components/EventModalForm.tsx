@@ -4,7 +4,11 @@ import { Activity, Event } from "../utils/types";
 import { ActivityForm } from "./ActivityForm";
 import { EventForm } from "./EventForm";
 
-export const EventModalForm = ({ event, activity, isActivity }: { event?: Event, activity?: Activity, isActivity?: boolean }) => {
+export const EventModalForm = ({ event, activity, isActivity }: {
+    event?: Event,
+    activity?: Activity,
+    isActivity?: boolean,
+}) => {
     const [show, setShow] = useState(false);
     const str: string = isActivity ? 'activity' : 'event';
 

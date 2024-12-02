@@ -378,6 +378,7 @@ export const activityFormSchema = activitySchema
         date: true,
         notifications: true,
         timezone: true,
+        isCompleted: true
     })
     .merge(
         z.object({
