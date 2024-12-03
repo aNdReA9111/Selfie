@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import { Event } from "../utils/types";
-import { useEventsContext } from "./useEventsContext";
+import { Activity } from "../utils/types";
+import { useActivitiesContext } from "./useActivitiesContext";
 
-export const useEvents = (
+export const useActivities = (
     url: string,
     query: Record<string, string> = {},
     options: Record<string, any> = {},
     dependencies: any[] = [],
 ) => {
-    const { dispatch } = useEventsContext();
+    const { dispatch } = useActivitiesContext();
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -23,17 +23,15 @@ export const useEvents = (
                     throw new Error(`HTTP error! Status: ${res.status}`);
                 }
 
-                const result: Event[] = await res.json();
+                const result: Activity[] = await res.json();
                 if (!isCancelled) {
                     setIsLoading(false);
                     setError(null);
                     //le date diventano string in json
-                    result.forEach((el: Event) => {
+                    result.forEach((el: Activity) => {
                         el.date = new Date(el.date);
-                        el.endDate = new Date(el.endDate);
-                        el.nextDate = el.nextDate ? new Date(el.nextDate) : undefined;
                     });
-                    dispatch({ type: "SET_EVENTS", payload: result });
+                    dispatch({ type: "SET_ACTIVITIES", payload: result });
                 }
             } catch (err: any) {
                 if (!isCancelled) {

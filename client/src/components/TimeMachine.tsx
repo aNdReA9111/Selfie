@@ -31,9 +31,9 @@ export const TimeMachine = (): ReactNode => {
                 throw new Error(`HTTP error! Status: ${res.status}`);
             }
 
-            const off: number = await res.json();
+            const off = await res.json();
 
-            dispatch({ type: "SET_OFFSET", payload: off });
+            dispatch({ type: "SET_OFFSET", payload: off.dateOffset });
         } catch (error) {
             console.log(error);
         }

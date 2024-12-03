@@ -1,0 +1,9 @@
+.activity::before {
+    content: "•";
+    margin-right: 0.5em;
+    line-height: 1;
+}
+
+.activity {
+    font-weight: 600;
+}

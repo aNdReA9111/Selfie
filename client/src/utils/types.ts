@@ -358,3 +358,81 @@ export type EventDetailsProps = {
 };
 
 export type Frequency = "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY" | undefined;
+
+export const activitySchema = z.object({
+    _id: z.string().optional().nullable(),
+    title: z.string().min(2).max(30),
+    description: z.string().min(2).max(150),
+    date: dateFromString,
+    isCompleted: z.boolean(),
+    attendees: z.array(attendeeSchema).optional().nullable(),
+    notifications: notificationsSchema.optional().nullable(),
+    _id_user: z.string(),
+    timezone: z.string(),
+});
+
+export const activityFormSchema = activitySchema
+    .pick({
+        title: true,
+        description: true,
+        date: true,
+        notifications: true,
+        timezone: true,
+        isCompleted: true
+    })
+    .merge(
+        z.object({
+            attendees: z
+                .union([
+                    z.array(z.string()),
+                    z.string().transform((val: string) =>
+                        val
+                            .split(",")
+                            .map((val) => val.trim())
+                            .filter((val) => val !== ""),
+                    ),
+                ])
+                .optional()
+                .nullable(),
+        }),
+    );
+
+export type Activity = z.infer<typeof activitySchema>;
+
+export type ActivityFormData = z.infer<typeof activityFormSchema>;
+
+export type ActivitiesState = {
+    activities: Activity[];
+};
+
+export type ActivitiesAction =
+    | {
+        type: "SET_ACTIVITIES";
+        payload: Activity[];
+    }
+    | {
+        type: "CREATE_ACTIVITY";
+        payload: Activity;
+    }
+    | {
+        type: "DELETE_ONE";
+        payload: string;
+    }
+    | {
+        type: "DELETE_ALL";
+    }
+    | {
+        type: "EDIT_ACTIVITY";
+        payload: Activity;
+    };
+
+export type ActivitiesContextType = {
+    activities: Activity[];
+    dispatch: React.Dispatch<ActivitiesAction>;
+};
+
+export type ActivityDetailsProps = {
+    id: string | undefined | null;
+    show: boolean;
+    setShow: React.Dispatch<React.SetStateAction<boolean>>;
+};
