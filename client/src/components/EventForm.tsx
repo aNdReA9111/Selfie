@@ -271,6 +271,63 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
                         {errors.endDate && <div className="invalid-feedback">{errors.endDate.message}</div>}
                     </div>
 
+                    <div className="mb-3 form-check">
+                        <input
+                            type="checkbox"
+                            id="isRecurring"
+                            className="form-check-input"
+                            {...register('isRecurring')}
+                        />
+                        <label className="form-check-label" htmlFor="isRecurring">Is this event recurring?</label>
+                    </div>
+                    {isRecurring && (<RRuleForm watch={watch} register={register} errors={errors} setValue={setValue} />)}
+
+                    <div className="mb-3 form-check">
+                        <input
+                            type="checkbox"
+                            id="isPomodoro"
+                            className="form-check-input"
+                            {...register('isPomodoro')}
+                        />
+                        <label className="form-check-label" htmlFor="isPomodoro">Include Pomodoro Session</label>
+                    </div>
+
+                    {isPomodoro && (
+                        <div className="row">
+                            <div className="col mb-3">
+                                <label className="form-label w-50 text-center">Study Time (minutes)</label>
+                                <input
+                                    type="number"
+                                    min="5"
+                                    step="5"
+                                    className="form-control w-50"
+                                    {...register('pomodoroSetting.studioTime')}
+                                />
+                            </div>
+
+                            <div className="col mb-3">
+                                <label className="form-label w-50 text-center">Rest Time (minutes)</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    className="form-control w-50"
+                                    {...register('pomodoroSetting.riposoTime')}
+                                />
+                            </div>
+
+                            <div className=" col mb-3">
+                                <label className="form-label w-50 text-center">Amount of cycles</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    className="form-control w-50"
+                                    {...register('pomodoroSetting.nCicli')}
+                                />
+                            </div>
+                        </div>
+                    )}
+                </div>
+                <div className="col-sm-12 col-md-6">
                     <div className="mb-3">
                         <label htmlFor="timezone" className="form-label">Timezone</label>
                         <input id="timezone" className={`form-control ${errors.timezone ? 'is-invalid' : ''}`} {...register('timezone')} onFocus={() => setOpen(true)} />
@@ -311,68 +368,6 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
                         />
                         {errors.url && <div className="invalid-feedback">{errors.url.message}</div>}
                     </div>
-
-                    <div className="mb-3 form-check">
-                        <input
-                            type="checkbox"
-                            id="isRecurring"
-                            className="form-check-input"
-                            {...register('isRecurring')}
-                        />
-                        <label className="form-check-label" htmlFor="isRecurring">Is this event recurring?</label>
-                    </div>
-                    {isRecurring && (<RRuleForm watch={watch} register={register} errors={errors} setValue={setValue} />)}
-
-                    <div className="mb-3 form-check">
-                        <input
-                            type="checkbox"
-                            id="isPomodoro"
-                            className="form-check-input"
-                            {...register('isPomodoro')}
-                        />
-                        <label className="form-check-label" htmlFor="isPomodoro">Include Pomodoro Session</label>
-                    </div>
-
-                    {isPomodoro && (
-                        <div className="border p-3 rounded bg-light mt-3">
-                            <h5>Pomodoro Settings</h5>
-                            <div className="mb-3">
-                                <label htmlFor="studioTime" className="form-label">Study Time (minutes)</label>
-                                <input
-                                    type="number"
-                                    id="studioTime"
-                                    min="5"
-                                    step="5"
-                                    className="form-control"
-                                    {...register('pomodoroSetting.studioTime')}
-                                />
-                            </div>
-
-                            <div className="mb-3">
-                                <label htmlFor="riposoTime" className="form-label">Rest Time (minutes)</label>
-                                <input
-                                    type="number"
-                                    id="riposoTime"
-                                    min="1"
-                                    className="form-control"
-                                    {...register('pomodoroSetting.riposoTime')}
-                                />
-                            </div>
-
-                            <div className="mb-3">
-                                <label htmlFor="nCicli" className="form-label">Cycles</label>
-                                <input
-                                    type="number"
-                                    id="nCicli"
-                                    min="1"
-                                    className="form-control"
-                                    {...register('pomodoroSetting.nCicli')}
-                                />
-                            </div>
-                        </div>
-                    )}
-                </div>
-                <div className="col-sm-12 col-md-6">
                     <AttendeesForm setValue={setValue} register={register} errors={errors} watch={watch} />
                     <NotificationsForm register={register} errors={errors} watch={watch} setValue={setValue} />
                     <button className="btn btn-danger mt-3" type="submit">

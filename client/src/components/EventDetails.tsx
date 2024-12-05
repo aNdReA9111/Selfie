@@ -94,33 +94,35 @@ export const EventDetails = ({ id, date, show, setShow }: EventDetailsProps) => 
                         <div>
                             {event.isPomodoro && (
                                 <>
-                                    {(event?.pomodoroSetting.nCicli > 0) && (
-                                        <div className="mt-4 p-3 rounded border bg-light">
-                                            <h5 className="text-center mb-3">Pomodoro Settings</h5>
-                                            <div className="d-flex justify-content-around align-items-center">
-                                                <div className="text-center">
-                                                    <i className="bi bi-clock-fill text-primary fs-3"></i>
-                                                    <p className="mb-1 fw-bold">Study Time</p>
-                                                    <p className="fs-5 text-secondary">{event?.pomodoroSetting.studioTime} minutes</p>
-                                                </div>
-                                                <div className="text-center">
-                                                    <i className="bi bi-pause-circle-fill text-success fs-3"></i>
-                                                    <p className="mb-1 fw-bold">Rest Time</p>
-                                                    <p className="fs-5 text-secondary">{event?.pomodoroSetting.riposoTime} minutes</p>
-                                                </div>
-                                                <div className="text-center">
-                                                    <i className="bi bi-arrow-repeat text-warning fs-3"></i>
-                                                    <p className="mb-1 fw-bold">Remaining cycles</p>
-                                                    <p className="fs-5 text-secondary">{event?.pomodoroSetting.nCicli}</p>
+                                    {(event?.pomodoroSetting.nCicli>0) && (
+                                        <div className="p-3 rounded border bg-light">
+                                            <div className="container">
+                                                <div className= "row text-center">
+                                                    <div className="col">
+                                                        <i className="bi bi-clock-fill text-primary fs-3"></i>
+                                                        <p className="mb-1">Study time</p>
+                                                        <p className="fs-5 fw-bold">{event?.pomodoroSetting.studioTime}'</p>
+                                                    </div>
+                                                    <div className="col">
+                                                        <i className="bi bi-pause-circle-fill text-success fs-3"></i>
+                                                        <p className="mb-1">Rest time</p>
+                                                        <p className="fs-5 fw-bold">{event?.pomodoroSetting.riposoTime}'</p>
+                                                    </div>
+                                                    <div className="col">
+                                                        <span className="fs-3">&#x21bb;</span> 
+                                                        {/* <i className="bi bi-arrow-repeat text-warning fs-3"></i> */}
+                                                        <p className="mb-1">Remaining cycles</p>
+                                                        <p className="fs-5 fw-bold">{event?.pomodoroSetting.nCicli}</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div className="text-center mt-3">
                                                 <Button variant="primary" onClick={navigateToPomodoro}>Open Pomodoro App</Button>
                                             </div>
                                         </div>
-                                    )}
-                                    {(event?.pomodoroSetting.nCicli <= 0) && (
-                                        <p className="mb-1 fw-bold">This study session has already been completed</p>
+                                    )}  
+                                    {(event?.pomodoroSetting.nCicli<=0) && (
+                                        <p className="fs-5 fw-bold">This study session has been completed</p>
                                     )}
                                 </>
                             )}
