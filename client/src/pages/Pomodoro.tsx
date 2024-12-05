@@ -118,7 +118,7 @@ const Pomodoro: React.FC = () => {
                     }
                     return newDisplay;
                 })
-            }, 50);
+            }, 1000);
             setTimerId(id);
         };
     };
