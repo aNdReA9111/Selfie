@@ -11,13 +11,28 @@ export function toTime(min:number): Time {
     };
 };
 export function toNum(t:Time): number{
-    return(t.minutes + t.hours*60)
+    return((t.seconds?t.seconds:0)/60 + t.minutes + t.hours*60)
 };
+
+//funzione per visualizzazione timer
+export function formatTime(time: Time): string{
+  let hours = time.hours > 0 ? `${outCifre(time.hours)}:` : '';
+  return `${hours}${outCifre(time.minutes)}:${time.seconds ? outCifre(time.seconds) : outCifre(0)}`;
+};
+
+
+//cifre da numero a stringa con due caratteri
+export function outCifre(n: number): string {
+  if (n < 10)
+      return '0' + n.toString();
+  else
+      return n.toString();
+}
 
 //funzione che dato un tempo genera un array di divisori possibilmente con resto 0, altrimenti con resto molto basso
 function generateDivision(tempoDisp : number, tollerance: number = 0, out: number[] = []) : number[] {
     let div = 2;    //minimo 2 cicli in una proprosta di studio
-    while(tempoDisp/div>20){    //minimo 20 min totali in un ciclo
+    while(tempoDisp/div>=20){    //minimo 20 min totali in un ciclo
       if(tempoDisp%div == tollerance)
         out.push(div);
       div++;
