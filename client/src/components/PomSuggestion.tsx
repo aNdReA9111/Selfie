@@ -63,7 +63,7 @@ export const PomSuggestion: React.FC<Props> = ({onSave, onClose, duration}) => {
 				</div>
 				<div className="d-flex flex-wrap justify-content-center gap-3">
 					{suggestions.map((option, index) => (
-						<div key={index} className={selectedOption === index ? "card-selected" : "card"} onClick={() => setSelectedOption(index)}>
+						<div key={index} className={selectedOption === index ? "card-selected" : "card-pm"} onClick={() => setSelectedOption(index)}>
 							<div className="d-flex mt-2 text-center align-items-center justify-content-center">
 								<div className="flex-grow-1">
 									<div className="mb-2">
