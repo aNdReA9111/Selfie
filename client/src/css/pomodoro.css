@@ -1,19 +1,19 @@
  .body {
-  /* background-color: rgb(59, 8, 38); */
+
   background: transparent; 
 }
 
-  /* Nasconde completamente l'input radio senza occupare spazio */
+  
   .visually-hidden {
-    display: none; /* Nasconde l'input e rimuove lo spazio occupato */
+    display: none; 
   }
   
 
-.card:hover {
+.card-pm:hover {
   border: 4px solid #0056b3; 
 }
 
-.card {
+.card-pm {
   border-radius: 8px;
   background-color: #fff;
   width: 150px;
