@@ -1,8 +1,11 @@
 import { Response } from "express";
 import mongoose from "mongoose";
+import pkg from "rrule";
 import { EventModel, IEvent } from "../models/eventModel.js";
 import { IUser, UserModel } from "../models/userModel.js";
 import { Req } from "../utils/types.js";
+
+const { RRule } = pkg;
 
 import { createICalendar } from "../utils/icalendarUtils.js";
 
@@ -163,9 +166,21 @@ const getAllEvents = async (req: Req, res: Response) => {
                                     ],
                                 },
                             },
+                            {
+                                isRecurring: true
+                            }
                         ],
                     },
                 ],
+            });
+
+            events.filter((e: IEvent) => {
+                if (e.isRecurring) {
+                    const rrule: pkg.RRule = RRule.fromString(e.recurrenceRule);
+                    const occurrences: Date[] = rrule.between(new Date(date), new Date(date), true);
+                    return occurrences.length > 0;
+                } else
+                    return true;
             });
         }
 
@@ -294,4 +309,3 @@ export {
     createEvent, deleteAllEvents, deleteEventById, exportEvents, getAllEvents,
     getEventById, updateEvent
 };
-
