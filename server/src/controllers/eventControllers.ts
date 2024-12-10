@@ -159,12 +159,12 @@ const getAllEvents = async (req: Req, res: Response) => {
                             },
                             //eventi in date precedenti la cui durata li fa arrivare fino alla data della query
                             {
-                                $expr: {
-                                    $gte: [
-                                        { $add: ["$date", "$duration"] },
-                                        new Date(new Date(date).setHours(0, 0, 0, 0)),
-                                    ],
+                                date: {
+                                    $lte: new Date(new Date(date).setHours(0, 0, 0, 0)),
                                 },
+                                endDate: {
+                                    $gte: new Date(new Date(date).setHours(0, 0, 0, 0)),
+                                }
                             },
                             {
                                 isRecurring: true
@@ -174,10 +174,11 @@ const getAllEvents = async (req: Req, res: Response) => {
                 ],
             });
 
-            events.filter((e: IEvent) => {
+            events = events.filter((e: IEvent) => {
                 if (e.isRecurring) {
                     const rrule: pkg.RRule = RRule.fromString(e.recurrenceRule);
-                    const occurrences: Date[] = rrule.between(new Date(date), new Date(date), true);
+                    const occurrences: Date[] = rrule.between(new Date(new Date(date).setHours(0, 0, 0, 0)), new Date(new Date(date).setHours(23, 59, 59, 999)), true);
+                    console.log(occurrences.length);
                     return occurrences.length > 0;
                 } else
                     return true;
@@ -186,6 +187,7 @@ const getAllEvents = async (req: Req, res: Response) => {
 
         res.status(200).json(events);
     } catch (error: any) {
+        console.log(error);
         res.status(400).json({ message: error.message });
     }
 };

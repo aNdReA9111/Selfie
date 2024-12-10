@@ -38,15 +38,17 @@ const getNotes = async (req: Req, res: Response) => {
 
     //get only last note for preview
     if (last === "true") {
-        notes = await NoteModel.find().sort("created").limit(1);
+        notes = await NoteModel.find({ author: user.username })
+            .sort({ created: -1 })
+            .limit(1);
     } else {
-
         tags = tags ? tags.toString().split(",") : [];
 
         if (priv === undefined) priv = "true";
         if (group === undefined) group = "true";
 
-        const privQuery = priv === "true" ? { author: user.username } : { _id: null };
+        const privQuery =
+            priv === "true" ? { author: user.username } : { _id: null };
 
         const pubQuery = pub === "true" ? { open: true } : { _id: null };
 
@@ -55,7 +57,10 @@ const getNotes = async (req: Req, res: Response) => {
                 ? { allowedUsers: { $in: [user.username] } }
                 : { _id: null };
 
-        const dateQuery = (start && end) || (start === "" || end === "") ? { created: { $gte: start, $lte: end } } : {};
+        const dateQuery =
+            (start && end) || start === "" || end === ""
+                ? { created: { $gte: start, $lte: end } }
+                : {};
 
         const tagsQuery = tags.length > 0 ? { tags: { $in: tags } } : {};
 
@@ -66,7 +71,6 @@ const getNotes = async (req: Req, res: Response) => {
         };
         notes = await NoteModel.find(query);
     }
-
 
     if (notes === null) {
         return res.status(404).json({ error: "Impossibile to retrieve notes" });
@@ -181,4 +185,3 @@ const deleteNotes = async (req: Req, res: Response) => {
 };
 
 export { addNote, deleteNote, deleteNotes, getNote, getNotes, updateNote };
-
