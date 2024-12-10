@@ -1,17 +1,17 @@
-import { Chat } from '../components/Chat';
-import { useAuthContext } from '../hooks/useAuthContext';
-
+import { ActivitiesPreview } from "../components/ActivitiesPreview";
+import { EventsPreview } from "../components/EventsPreview";
+import { NotesPreview } from "../components/NotesPreview";
+import { PomodoroPreview } from "../components/PomodoroPreview";
+import "../css/home.css";
 
 function Home() {
-    const { user } = useAuthContext();
-
-    // console.log(user);
-    // console.log(document.cookie);
     return (
-        <>
-            <p>Ciao Home</p>
-            <Chat />
-        </>
+        <div className="home-layout">
+            <ActivitiesPreview />
+            <EventsPreview />
+            <PomodoroPreview />
+            <NotesPreview />
+        </div>
     );
 
 }

@@ -1,0 +1,32 @@
+.home-layout {
+    height: calc(100vh - 120px);
+    width: 100%;
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+    grid-template-areas:
+                "e e n n"
+                "e e n n"
+                "a a n n"
+                "a a p p";
+    /*leave room for navbar*/
+    min-height: calc(100% - 56px);                
+}
+
+.a {
+    grid-area: a;
+}
+
+/*event preview area*/
+.e {
+    grid-area: e;
+}
+
+/*notes preview area*/
+.n {
+    grid-area: n;
+}
+
+/*pomodoro preview area*/
+.p {
+    grid-area: p;
+}
