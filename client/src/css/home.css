@@ -71,6 +71,7 @@
                     "n n"
                     "n n"
                     "p p";
+        height: 100%;
     }
     .a, .e, .n, .p {
         max-width: 92vw;

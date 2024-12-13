@@ -48,7 +48,7 @@ export const ActivitiesPreview: React.FC = () => {
             {/* Add your content here if needed */}
             {loading && <div>Loading...</div>}
             <div className={`h-100 container d-flex flex-column justify-content-${dayActivities.length > 0 ? "start" : "center"} overflow-y-scroll`}>
-                <div className="d-flex justify-content-between align-items-center">
+                <div className="d-flex justify-content-between align-items-center mb-2">
                     <h3>Activities of the day</h3>
                     <button className="btn btn-danger" onClick={() => navigate("/calendar/")}>Go to Calendar<i className="bi bi-box-arrow-up-right ms-2"></i></button>
                 </div>
