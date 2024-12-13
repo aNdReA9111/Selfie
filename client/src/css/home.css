@@ -1,6 +1,11 @@
+:root {
+    --home-height: 85vh;
+}
+
 .home-layout {
-    height: calc(100vh - 120px);
-    width: 100%;
+    margin: 0.7rem;
+    height: var(--home-height);
+    width: calc(100% - 2.4rem);
     display: grid;
     grid-template-rows: 1fr 1fr 1fr 1fr;
     grid-template-areas:
@@ -8,8 +13,34 @@
                 "e e n n"
                 "a a n n"
                 "a a p p";
-    /*leave room for navbar*/
-    min-height: calc(100% - 56px);                
+    grid-gap: 0.4rem;
+}
+
+.a, .e, .n, .p {
+    max-width: 46vw;
+    min-width: 46vw;
+}
+
+.a, .e {
+    max-height: calc(var(--home-height) / 2 - 1rem);
+    min-height: calc(var(--home-height) / 2 - 1rem);
+}
+
+.n {
+    max-height: calc(var(--home-height) * 3 / 4 - 1rem);
+    min-height: calc(var(--home-height) * 3 / 4 - 1rem);
+}
+
+
+.p {
+    max-height: calc(var(--home-height) / 4 - 1rem);
+    min-height: calc(var(--home-height) / 4 - 1rem);
+}
+
+#eventsCards, #activitiesCards {
+    max-height: 100%;
+    height: auto;
+    overflow-y: scroll;
 }
 
 .a {
@@ -29,4 +60,20 @@
 /*pomodoro preview area*/
 .p {
     grid-area: p;
+}
+
+@media (max-width: 768px) {
+    .home-layout {
+        grid-template-rows: repeat(5, 1fr);
+        grid-template-areas:
+                    "e e"
+                    "a a"
+                    "n n"
+                    "n n"
+                    "p p";
+    }
+    .a, .e, .n, .p {
+        max-width: 92vw;
+        min-width: 92vw;
+    }
 }

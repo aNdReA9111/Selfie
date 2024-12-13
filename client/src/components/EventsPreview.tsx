@@ -1,5 +1,6 @@
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { EventCard } from "../components/EventCard";
 import { useTimeMachineContext } from "../hooks/useTimeMachineContext";
 import { Event } from "../utils/types";
@@ -7,6 +8,7 @@ import { Event } from "../utils/types";
 export const EventsPreview: React.FC = () => {
     const [dayEvents, setDayEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const navigate = useNavigate();
 
     const { offset } = useTimeMachineContext();
     const getEventsOfTheDay = async () => {
@@ -37,31 +39,34 @@ export const EventsPreview: React.FC = () => {
         }
     }
 
-    console.log(dayEvents);
-
     useEffect(() => {
         getEventsOfTheDay();
     }, [offset]);
 
     return (
-        <div className="d-flex justify-content-center align-items-start bg-secondary pt-2 e">
+        <div className="d-flex justify-content-center align-items-start pt-2 e">
             {/* Add your content here if needed */}
             {loading && <div>Loading...</div>}
-            <div className={`container d-flex flex-column justify-content-${dayEvents.length > 0 ? "start" : "center"} overflow-y-scroll`}>
-                <h3 className="text-white">Events of the day</h3>
-                {
-                    dayEvents.length > 0 ?
-                        dayEvents.map((e: Event) => (
-                            <EventCard
-                                key={e._id} // Ensure to use a unique key, assuming `e.id` exists.
-                                title={e.title}
-                                timezone={e.timezone}
-                                date={e.date}
-                                endDate={e.endDate}
-                            />
-                        )) :
-                        <span>No Events today !!</span>
-                }
+            <div className={`h-100 container d-flex flex-column justify-content-${dayEvents.length > 0 ? "start" : "center"}`}>
+                <div className="d-flex justify-content-between align-items-center">
+                    <h3>Events of the day</h3>
+                    <button className="btn btn-danger" onClick={() => navigate("/calendar/")}>Go to Calendar<i className="bi bi-box-arrow-up-right ms-2"></i></button>
+                </div>
+                <div id="eventsCards">
+                    {
+                        dayEvents.length > 0 ?
+                            dayEvents.map((e: Event) => (
+                                <EventCard
+                                    key={e._id} // Ensure to use a unique key, assuming `e.id` exists.
+                                    title={e.title}
+                                    timezone={e.timezone}
+                                    date={e.date}
+                                    endDate={e.endDate}
+                                />
+                            )) :
+                            <span>No Events today !!</span>
+                    }
+                </div>
             </div>
         </div>
     );

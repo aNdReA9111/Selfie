@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { useAuthContext } from './hooks/useAuthContext';
+import { useTimeMachineContext } from './hooks/useTimeMachineContext';
 
 import About from './pages/About';
 import Calendar from './pages/Calendar';
@@ -15,8 +16,16 @@ import { Editor } from './components/Editor';
 import MyNavbar from './components/MyNavbar';
 import MyNotification from './components/MyNotification';
 
+import { useEffect } from 'react';
+
 function App() {
     const { user } = useAuthContext();
+    const { dispatch } = useTimeMachineContext();
+
+    useEffect(() => {
+        if (user)
+            dispatch({ type: 'SET_OFFSET', payload: user.dateOffset });
+    }, [user]);
 
     return (
         <BrowserRouter>
