@@ -42,6 +42,7 @@ export const loginUser = async (req: Request, res: Response) => {
                 data_nascita: user.data_nascita,
                 flags: user.flags,
                 pushSubscriptions: user.pushSubscriptions,
+                dateOffset: user.dateOffset,
             });
     } catch (error: any) {
         res.status(400).json({ message: error.message });
@@ -98,6 +99,7 @@ export const signUpUser = async (req: Request, res: Response) => {
                 data_nascita: user.data_nascita,
                 flags: user.flags,
                 pushSubscriptions: user.pushSubscriptions,
+                dateOffset: user.dateOffset,
             });
     } catch (error: any) {
         res.status(400).json({ message: error.message });

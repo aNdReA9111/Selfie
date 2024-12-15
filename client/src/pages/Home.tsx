@@ -1,12 +1,19 @@
-import { Chat } from '../components/Chat';
-
+import { ActivitiesPreview } from "../components/ActivitiesPreview";
+import { EventsPreview } from "../components/EventsPreview";
+import { NotesPreview } from "../components/NotesPreview";
+import { PomodoroPreview } from "../components/PomodoroPreview";
+import { Chat } from "../components/Chat";
+import "../css/home.css";
 
 function Home() {
     return (
-        <>
-            <p>Ciao Home</p>
+        <div className="home-layout ">
+            <ActivitiesPreview />
+            <EventsPreview />
+            <PomodoroPreview />
+            <NotesPreview />
             <Chat />
-        </>
+        </div>
     );
 
 }

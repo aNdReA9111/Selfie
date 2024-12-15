@@ -33,6 +33,7 @@ const createActivity = async (req: Req, res: Response) => {
 
 const getActivities = async (req: Req, res: Response) => {
     const userId: mongoose.Types.ObjectId = req.body.user;
+    const date: string | undefined = req.query.date ? req.query.date.toString() : undefined;
 
     const user: IUser | null = await UserModel.findOne({ _id: userId });
     if (!user) {
@@ -42,21 +43,49 @@ const getActivities = async (req: Req, res: Response) => {
     try {
         /*change dates for late activities*/
         await changeActivitiesDate(userId.toString(), user.email, user.dateOffset);
+        let activities: IActivity[];
 
-        const activities = await ActivityModel.find({
-            $or: [
-                { _id_user: userId.toString() },
-                {
-                    attendees: {
-                        $elemMatch: {
-                            email: user.email,
-                            responded: true,
-                            accepted: true,
+        if (!date) {
+            activities = await ActivityModel.find({
+                $or: [
+                    { _id_user: userId.toString() },
+                    {
+                        attendees: {
+                            $elemMatch: {
+                                email: user.email,
+                                responded: true,
+                                accepted: true,
+                            },
                         },
                     },
-                },
-            ],
-        });
+                ],
+            });
+        } else {
+            activities = await ActivityModel.find({
+                $and: [
+                    {
+                        $or: [
+                            { _id_user: userId.toString() },
+                            {
+                                attendees: {
+                                    $elemMatch: {
+                                        email: user.email,
+                                        responded: true,
+                                        accepted: true,
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                    {
+                        date: {
+                            $gte: new Date((new Date(date)).setHours(0, 0, 0, 0)),
+                            $lte: new Date((new Date(date)).setHours(23, 59, 59, 999)),
+                        }
+                    }
+                ]
+            });
+        }
 
         res.status(200).json(activities);
     } catch (error: any) {

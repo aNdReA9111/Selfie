@@ -1,0 +1,80 @@
+:root {
+    --home-height: 85vh;
+    --home-width: calc(100% - 2.4rem);
+}
+
+.home-layout {
+    margin: 0.7rem;
+    height: var(--home-height);
+    width: var(--home-width);
+    display: grid;
+    grid-template-rows: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-areas:
+                "e e n n n"
+                "e e n n n"
+                "a a n n n"
+                "a a p p p";
+    grid-gap: 0.4rem;
+}
+
+.a, .e, .n, .p {
+}
+
+.a, .e {
+    height: calc(var(--home-height) / 2 - 1rem);
+}
+
+.n {
+    height: calc(var(--home-height) * 3 / 4 - 1rem);
+}
+
+.p {
+    height: calc(var(--home-height) / 4 - 1rem);
+}
+
+#eventsCards, #activitiesCards {
+    max-height: 100%;
+    height: auto;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0.5rem;
+}
+
+/*activity preview area*/
+.a {
+    grid-area: a;
+}
+
+/*event preview area*/
+.e {
+    grid-area: e;
+}
+
+/*notes preview area*/
+.n {
+    grid-area: n;
+}
+
+/*pomodoro preview area*/
+.p {
+    grid-area: p;
+}
+
+@media (max-width: 768px) {
+    .home-layout {
+        grid-template-rows: repeat(5, 1fr);
+        grid-template-areas:
+                    "e e"
+                    "a a"
+                    "n n"
+                    "n n"
+                    "p p";
+        height: 100%;
+    }
+    .a, .e, .n, .p {
+        width: 92vw;
+    }
+}

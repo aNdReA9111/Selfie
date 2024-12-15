@@ -1,8 +1,11 @@
 import { Response } from "express";
 import mongoose from "mongoose";
+import pkg from "rrule";
 import { EventModel, IEvent } from "../models/eventModel.js";
 import { IUser, UserModel } from "../models/userModel.js";
 import { Req } from "../utils/types.js";
+
+const { RRule } = pkg;
 
 import { createICalendar } from "../utils/icalendarUtils.js";
 
@@ -156,21 +159,35 @@ const getAllEvents = async (req: Req, res: Response) => {
                             },
                             //eventi in date precedenti la cui durata li fa arrivare fino alla data della query
                             {
-                                $expr: {
-                                    $gte: [
-                                        { $add: ["$date", "$duration"] },
-                                        new Date(new Date(date).setHours(0, 0, 0, 0)),
-                                    ],
+                                date: {
+                                    $lte: new Date(new Date(date).setHours(0, 0, 0, 0)),
                                 },
+                                endDate: {
+                                    $gte: new Date(new Date(date).setHours(0, 0, 0, 0)),
+                                }
                             },
+                            {
+                                isRecurring: true
+                            }
                         ],
                     },
                 ],
+            });
+
+            events = events.filter((e: IEvent) => {
+                if (e.isRecurring) {
+                    const rrule: pkg.RRule = RRule.fromString(e.recurrenceRule);
+                    const occurrences: Date[] = rrule.between(new Date(new Date(date).setHours(0, 0, 0, 0)), new Date(new Date(date).setHours(23, 59, 59, 999)), true);
+                    console.log(occurrences.length);
+                    return occurrences.length > 0;
+                } else
+                    return true;
             });
         }
 
         res.status(200).json(events);
     } catch (error: any) {
+        console.log(error);
         res.status(400).json({ message: error.message });
     }
 };
@@ -294,4 +311,3 @@ export {
     createEvent, deleteAllEvents, deleteEventById, exportEvents, getAllEvents,
     getEventById, updateEvent
 };
-
