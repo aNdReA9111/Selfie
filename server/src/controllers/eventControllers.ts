@@ -1,6 +1,7 @@
 import { Response } from "express";
 import mongoose from "mongoose";
 import pkg from "rrule";
+import { ActivityModel, IActivity } from "../models/activityModel.js";
 import { EventModel, IEvent } from "../models/eventModel.js";
 import { IUser, UserModel } from "../models/userModel.js";
 import { Req } from "../utils/types.js";
@@ -285,13 +286,18 @@ const exportEvents = async (req: Req, res: Response) => {
         }
 
         // Recupera tutti gli eventi dell'utente
-        const events = await EventModel.find({ _id_user: userId });
+        const events: IEvent[] = await EventModel.find({ _id_user: userId });
         if (!events || events.length === 0) {
             return res.status(404).json({ error: "No events found for this user" });
         }
 
+        const activities: IActivity[] = await ActivityModel.find({ _id_user: userId });
+        if (!activities || activities.length === 0) {
+            return res.status(404).json({ error: "No activities found for this user" });
+        }
+
         // Genera il calendario
-        const icalendarContent = createICalendar(events);
+        const icalendarContent = createICalendar(events, activities);
 
         // Imposta gli header per il download del file
         res.setHeader('Content-Type', 'text/calendar');
