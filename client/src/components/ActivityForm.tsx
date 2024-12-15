@@ -170,7 +170,7 @@ export const ActivityForm = ({ setShow, activity }: { setShow: Dispatch<SetState
                     {/* cannot mark an activity as completed when creating it --> activity && */}
                     {activity && <div className="mb-3 form-check form-check-inline">
                         <label htmlFor="isCompleted" className="form-label">Mark as completed</label>
-                        <input type="checkbox" id="isCompleted" className="form-check-input" {...register('isCompleted')} onFocus={() => setOpen(true)} />
+                        <input type="checkbox" id="isCompleted" className="form-check-input" {...register('isCompleted')} />
                         {errors.isCompleted && <div className="invalid-feedback">{errors.isCompleted.message}</div>}
                     </div>}
 

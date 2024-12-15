@@ -1,5 +1,6 @@
 import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
+import { Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { EventCard } from "../components/EventCard";
 import { useTimeMachineContext } from "../hooks/useTimeMachineContext";
@@ -46,8 +47,7 @@ export const EventsPreview: React.FC = () => {
     return (
         <div className="d-flex justify-content-center align-items-start pt-2 e">
             {/* Add your content here if needed */}
-            {loading && <div>Loading...</div>}
-            <div className={`h-100 container d-flex flex-column justify-content-${dayEvents.length > 0 ? "start" : "center"}`}>
+            <div className="h-100 container d-flex flex-column justify-content-start">
                 <div className="d-flex justify-content-between align-items-center mb-2">
                     <h3>Events of the day</h3>
                     <button className="btn btn-danger" onClick={() => navigate("/calendar/")}>Go to Calendar<i className="bi bi-box-arrow-up-right ms-2"></i></button>
@@ -66,6 +66,7 @@ export const EventsPreview: React.FC = () => {
                             )) :
                             <span>No Events today !!</span>
                     }
+                    {loading && <Spinner animation="border" variant="danger" />}
                 </div>
             </div>
         </div>
