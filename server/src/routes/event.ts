@@ -1,14 +1,14 @@
 import express from "express";
-import { requireAuth } from "../middleware/requireAuth.js";
 import {
-  createEvent,
-  getAllEvents,
-  getEventById,
-  deleteEventById,
-  deleteAllEvents,
-  updateEvent,
-  exportEvents
+    createEvent,
+    deleteAllEvents,
+    deleteEventById,
+    exportEvents,
+    getAllEvents,
+    getEventById,
+    updateEvent
 } from "../controllers/eventControllers.js";
+import { requireAuth } from "../middleware/requireAuth.js";
 
 const eventRoutes = express.Router();
 
@@ -19,6 +19,8 @@ eventRoutes.use(requireAuth);
 
 //creazione di un evento
 eventRoutes.post("/", createEvent);
+// esporto eventi tramite iCal
+eventRoutes.get("/export-events", exportEvents);
 //ritorna il singolo evento
 eventRoutes.get("/:id", getEventById);
 //ritorna tutti gli eventi o gli eventi filtrati per data
@@ -29,7 +31,5 @@ eventRoutes.delete("/:id", deleteEventById);
 eventRoutes.delete("/", deleteAllEvents);
 //aggiornamento di un evento
 eventRoutes.patch("/:id", updateEvent);
-// esporto eventi tramite iCal
-eventRoutes.post("/export-events", exportEvents);
 
 export { eventRoutes };

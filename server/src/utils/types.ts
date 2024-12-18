@@ -1,13 +1,14 @@
 import { Request } from "express";
 import { ICalEventRepeatingFreq, ICalWeekday } from "ical-generator";
-import { Frequency } from "rrule";
+import pkg from 'rrule';
+const { Frequency } = pkg;
 
 //posso aggiungere user a req object senza errori statici di ts
 export interface Req extends Request {
     user?: any;
 }
 
-export const frequencyToICalEventRepeatingFreq: Record<Frequency, ICalEventRepeatingFreq> = {
+export const frequencyToICalEventRepeatingFreq = {
     [Frequency.YEARLY]: ICalEventRepeatingFreq.YEARLY,
     [Frequency.MONTHLY]: ICalEventRepeatingFreq.MONTHLY,
     [Frequency.WEEKLY]: ICalEventRepeatingFreq.WEEKLY,
@@ -18,7 +19,7 @@ export const frequencyToICalEventRepeatingFreq: Record<Frequency, ICalEventRepea
 };
 
 // Map ICalEventRepeatingFreq enum to Frequency enum
-export const iCalEventRepeatingFreqToFrequency: Record<ICalEventRepeatingFreq, Frequency> = {
+export const iCalEventRepeatingFreqToFrequency = {
     [ICalEventRepeatingFreq.SECONDLY]: Frequency.SECONDLY,
     [ICalEventRepeatingFreq.MINUTELY]: Frequency.MINUTELY,
     [ICalEventRepeatingFreq.HOURLY]: Frequency.HOURLY,

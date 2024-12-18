@@ -20,7 +20,6 @@ import { ActivitiesContextType, Activity, Event, EventsContextType } from '../ut
 const localizer: DateLocalizer = luxonLocalizer(DateTime);
 
 //TODO: delete singolo evento ricorrente
-//TODO: drag and drop, aggiunta di eventi direttamente del calendario
 
 function generateRecurringEvents(events: Event[], activities: Activity[]) {
     let calendarEvents = [];
@@ -153,18 +152,16 @@ const CustomCalendar = () => {
     const handleExportCalendar = async () => {
         try {
             const response = await fetch('/api/events/export-events', {
-                method: 'POST',
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     credentials: "include",
                 },
-                body: JSON.stringify({
-                    userId: user?._id
-                })
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
+                console.log(errorData);
                 throw new Error(errorData.error || 'Errore nell\'esportazione del calendario');
             }
 
@@ -193,7 +190,7 @@ const CustomCalendar = () => {
             // Notifica successo
             alert('Calendario esportato con successo!');
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Errore nell\'esportazione del calendario:', error);
             alert(error instanceof Error ? error.message : 'Errore sconosciuto');
         }

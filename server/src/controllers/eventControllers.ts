@@ -271,21 +271,21 @@ const updateEvent = async (req: Req, res: Response) => {
 };
 
 const exportEvents = async (req: Req, res: Response) => {
-    const userId = req.body.userId;
+    const userId = req.body.user;
 
-    // Validazione dell'ID utente
+    /* id validation */
     if (!userId) {
         return res.status(400).json({ error: "Invalid User Id" });
     }
 
     try {
-        // Verifica che l'utente esista
+        /* user id check */
         const user = await UserModel.findById(userId);
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
 
-        // Recupera tutti gli eventi dell'utente
+        /* retrieving events and activities */
         const events: IEvent[] = await EventModel.find({ _id_user: userId });
         if (!events || events.length === 0) {
             return res.status(404).json({ error: "No events found for this user" });
@@ -296,17 +296,17 @@ const exportEvents = async (req: Req, res: Response) => {
             return res.status(404).json({ error: "No activities found for this user" });
         }
 
-        // Genera il calendario
+        /* ics calendar generation */
         const icalendarContent = createICalendar(events, activities);
 
-        // Imposta gli header per il download del file
+        /* setting headers to allow file download*/
         res.setHeader('Content-Type', 'text/calendar');
         res.setHeader('Content-Disposition', 'attachment; filename=calendario.ics');
 
-        // Invia il contenuto del calendario
         res.send(icalendarContent);
 
     } catch (error: any) {
+        console.log(error);
         res.status(500).json({
             message: error.message
         });

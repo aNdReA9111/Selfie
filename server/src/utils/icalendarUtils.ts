@@ -1,29 +1,37 @@
-import ical, { ICalEventData, ICalRepeatingOptions } from "ical-generator";
-import * as pkg from "rrule";
+import ical, { ICalEventData } from "ical-generator";
+import pkg from "rrule";
 import { IActivity } from "../models/activityModel.js";
 import { IEvent } from "../models/eventModel.js";
 import { frequencyToICalEventRepeatingFreq, rRuleWeekdayIntToICalWeekday } from "./types.js";
 
 const { RRule } = pkg;
-// Funzione per generare un calendario iCal con un array di eventi
+
+/* creation of ics file content, exporting activities and events in Selfie calendar */
 function createICalendar(events: IEvent[], activities: IActivity[]): string {
     const calendar = ical({ name: "Selfie Calendar" });
 
+    /* exporting events */
     events.forEach((event: IEvent) => {
-        const rrule = RRule.fromString(event.recurrenceRule || "");
+
+        let rrule = undefined;
+        let repeating = undefined;
 
         /*rrule infos*/
-        const repeating: ICalRepeatingOptions = {
-            freq: frequencyToICalEventRepeatingFreq[rrule.options.freq],
-            interval: rrule.options.interval,
-            count: typeof rrule.options.count === "number" ? rrule.options.count : undefined,
-            until: rrule.options.until ? rrule.options.until as Date : undefined,
-            byDay: Array.isArray(rrule.options.byweekday) ?
-                rrule.options.byweekday.map(d => rRuleWeekdayIntToICalWeekday[d])
-                : rRuleWeekdayIntToICalWeekday[rrule.options.byweekday],
-            byMonth: rrule.options.bymonth,
-            byMonthDay: rrule.options.bymonthday,
-            bySetPos: rrule.options.bysetpos,
+        if (event.recurrenceRule && event.isRecurring) {
+
+            rrule = RRule.fromString(event.recurrenceRule);
+            repeating = {
+                freq: frequencyToICalEventRepeatingFreq[rrule.options.freq],
+                interval: rrule.options.interval,
+                count: typeof rrule.options.count === "number" ? rrule.options.count : undefined,
+                until: rrule.options.until ? rrule.options.until as Date : undefined,
+                byDay: Array.isArray(rrule.options.byweekday) ?
+                    rrule.options.byweekday.map(d => rRuleWeekdayIntToICalWeekday[d])
+                    : rRuleWeekdayIntToICalWeekday[rrule.options.byweekday],
+                byMonth: rrule.options.bymonth,
+                byMonthDay: rrule.options.bymonthday.length ? rrule.options.bymonthday : undefined,
+                bySetPos: rrule.options.bysetpos,
+            };
         }
 
         const icalEvent: ICalEventData = {
@@ -32,7 +40,7 @@ function createICalendar(events: IEvent[], activities: IActivity[]): string {
             summary: event.title,
             description: event.description,
             location: event.location,
-            url: event.url || "",
+            url: event.url,
             attendees: event.attendees?.map((attendee) => ({
                 name: attendee.name,
                 email: attendee.email,
@@ -66,14 +74,18 @@ function createICalendar(events: IEvent[], activities: IActivity[]): string {
             }
         ]).x([
             {
-                key: "DUE",
+                key: "X-DUE",
                 value: activity.date.toISOString(),
             }
         ]);
     });
 
-    // Converti il calendario in formato iCalendar (.ics)
+    /*converting content to string so it can be placed inside the .ics file*/
     return calendar.toString();
+}
+
+function readCalendar() {
+
 }
 
 export { createICalendar };
