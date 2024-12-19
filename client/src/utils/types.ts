@@ -330,6 +330,10 @@ export type EventsAction =
         payload: Event[];
     }
     | {
+        type: "ADD_EVENTS";
+        payload: Event[];
+    }
+    | {
         type: "CREATE_EVENT";
         payload: Event;
     }
@@ -408,6 +412,10 @@ export type ActivitiesState = {
 export type ActivitiesAction =
     | {
         type: "SET_ACTIVITIES";
+        payload: Activity[];
+    }
+    | {
+        type: "ADD_ACTIVITIES";
         payload: Activity[];
     }
     | {

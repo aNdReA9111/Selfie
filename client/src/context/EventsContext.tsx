@@ -4,46 +4,50 @@ import { Event, EventsAction, EventsContextType, EventsState } from '../utils/ty
 export const EventsContext = createContext<EventsContextType | undefined>(undefined);
 
 const reducer = (state: EventsState, action: EventsAction): EventsState => {
-  switch (action.type) {
-    case 'SET_EVENTS':
-      return {
-        events: action.payload,
-      }
-    case 'CREATE_EVENT':
-      console.log(action.payload)
-      return {
-        events: [action.payload, ...state.events],
-      };
-    case 'DELETE_ONE':
-      return {
-        events: state.events.filter((e: Event) => e._id !== action.payload),
-      };
-    case 'DELETE_ALL':
-      return {
-        events: [],
-      };
-    case 'EDIT_EVENT':
-      return {
-        events: state.events.map((e: Event) =>
-          e._id === action.payload._id
-            ? {
-                ...e,
-                ...action.payload, //volti aggiurnati che sostituiscono i vecchi 
-              }
-            : e
-        ),
-      };
-    default:
-      return state;
-  }
+    switch (action.type) {
+        case 'SET_EVENTS':
+            return {
+                events: action.payload,
+            }
+        case 'ADD_EVENTS':
+            return {
+                events: [...state.events, ...action.payload],
+            }
+        case 'CREATE_EVENT':
+            console.log(action.payload)
+            return {
+                events: [action.payload, ...state.events],
+            };
+        case 'DELETE_ONE':
+            return {
+                events: state.events.filter((e: Event) => e._id !== action.payload),
+            };
+        case 'DELETE_ALL':
+            return {
+                events: [],
+            };
+        case 'EDIT_EVENT':
+            return {
+                events: state.events.map((e: Event) =>
+                    e._id === action.payload._id
+                        ? {
+                            ...e,
+                            ...action.payload, //volti aggiurnati che sostituiscono i vecchi 
+                        }
+                        : e
+                ),
+            };
+        default:
+            return state;
+    }
 };
 
-export const EventsContextProvider = ({children}: { children: React.ReactNode }) => {
-  const [state, dispatch] = useReducer(reducer, { events: [] });
+export const EventsContextProvider = ({ children }: { children: React.ReactNode }) => {
+    const [state, dispatch] = useReducer(reducer, { events: [] });
 
-  return (
-    <EventsContext.Provider value={{ ...state, dispatch }}>
-      { children }
-    </EventsContext.Provider>
-  );
+    return (
+        <EventsContext.Provider value={{ ...state, dispatch }}>
+            {children}
+        </EventsContext.Provider>
+    );
 }

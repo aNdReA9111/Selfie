@@ -9,6 +9,7 @@ import { DNDEventModalForm } from '../components/DNDEventModalForm';
 import { EventComponent } from '../components/EventComponent';
 import { EventDetails } from '../components/EventDetails';
 import { EventModalForm } from '../components/EventModalForm';
+import { ImportCalendarModal } from '../components/ImportCalendarModal';
 import { useActivities } from '../hooks/useActivities';
 import { useActivitiesContext } from '../hooks/useActivitiesContext';
 import { useAuthContext } from '../hooks/useAuthContext';
@@ -87,6 +88,7 @@ const CustomCalendar = () => {
     const [slotStart, setSlotStart] = useState<Date | undefined>(undefined);
     const [slotEnd, setSlotEnd] = useState<Date | undefined>(undefined);
     const [showDND, setShowDND] = useState<boolean>(false);
+    const [showImportModal, setShowImportModal] = useState<boolean>(false);
 
     const { isLoading: isLoadingE, error: errorE } = useEvents("/api/events/", undefined, {
         headers: {
@@ -241,6 +243,10 @@ const CustomCalendar = () => {
                             Export Calendar
                             <i className="ms-2 bi bi-calendar2-x"></i>
                         </Button>
+                        <ImportCalendarModal
+                            show={showImportModal}
+                            handleClose={() => setShowImportModal(false)}
+                        />
                     </div>
                 </div>
             </div>)
