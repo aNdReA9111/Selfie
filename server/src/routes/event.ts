@@ -17,19 +17,21 @@ eventRoutes.use(requireAuth);
 
 /* controllers */
 
-//creazione di un evento
+// event creation
 eventRoutes.post("/", createEvent);
-// esporto eventi tramite iCal
+// events export into ics calendar
 eventRoutes.get("/export-events", exportEvents);
-//ritorna il singolo evento
+// events import from ics calendar
+eventRoutes.post("/export-events", exportEvents);
+// get specific event
 eventRoutes.get("/:id", getEventById);
-//ritorna tutti gli eventi o gli eventi filtrati per data
+// get all events + filters
 eventRoutes.get("/", getAllEvents);
-//eliminazione del singolo evento
+// event deletion
 eventRoutes.delete("/:id", deleteEventById);
-//eliminazione di tutti gli eventi
+// delete all events
 eventRoutes.delete("/", deleteAllEvents);
-//aggiornamento di un evento
+// update specific event
 eventRoutes.patch("/:id", updateEvent);
 
 export { eventRoutes };

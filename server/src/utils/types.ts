@@ -2,11 +2,18 @@ import { Request } from "express";
 import { ICalEventRepeatingFreq, ICalWeekday } from "ical-generator";
 import pkg from 'rrule';
 const { Frequency } = pkg;
+import { IActivity } from "../models/activityModel.js";
+import { IEvent } from "../models/eventModel.js";
 
 //posso aggiungere user a req object senza errori statici di ts
 export interface Req extends Request {
     user?: any;
 }
+
+export type ImportedCalendar = {
+    events: IEvent[];
+    activities: IActivity[];
+};
 
 export const frequencyToICalEventRepeatingFreq = {
     [Frequency.YEARLY]: ICalEventRepeatingFreq.YEARLY,

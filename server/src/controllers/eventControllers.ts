@@ -4,11 +4,11 @@ import pkg from "rrule";
 import { ActivityModel, IActivity } from "../models/activityModel.js";
 import { EventModel, IEvent } from "../models/eventModel.js";
 import { IUser, UserModel } from "../models/userModel.js";
-import { Req } from "../utils/types.js";
+import { ImportedCalendar, Req } from "../utils/types.js";
 
 const { RRule } = pkg;
 
-import { createICalendar } from "../utils/icalendarUtils.js";
+import { createICalendar, readICalendar } from "../utils/icalendarUtils.js";
 
 const createEvent = async (req: Req, res: Response) => {
     const {
@@ -313,7 +313,35 @@ const exportEvents = async (req: Req, res: Response) => {
     }
 };
 
+const importEvents = async (req: Req, res: Response) => {
+    const { icalData } = req.body;
+    const userId = req.body.user;
+
+    /* id validation */
+    if (!userId) {
+        return res.status(400).json({ error: "Invalid User Id" });
+    }
+
+
+    if (!icalData) {
+        return res.status(400).json({ error: "Missing ics data" });
+    }
+
+    try {
+        const calendar: ImportedCalendar = await readICalendar(icalData, userId);
+
+        res.status(200).json(calendar);
+
+    } catch (error: any) {
+        res.status(400).json({
+            error: "Error happened while importing calendar",
+            details: error.message
+        });
+    }
+};
+
 export {
     createEvent, deleteAllEvents, deleteEventById, exportEvents, getAllEvents,
-    getEventById, updateEvent
+    getEventById, importEvents, updateEvent
 };
+
