@@ -23,7 +23,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ title, timezone, dat
                 {
                     start2 && (
                         <div>
-                            {start2 && (<h6>In the event's timezone: </h6>)}
+                            {start2 && (<h6>In the activity's timezone: </h6>)}
                             <p><i className="bi bi-clock-fill me-2"></i>{start2.toLocaleString(DateTime.DATETIME_SHORT)}</p>
                         </div>
                     )

@@ -16,7 +16,7 @@ type RealAttendee = Exclude<Attendee, string>;
 
 type CustomVEvent = VEvent & {
     DUE?: Date;
-    COMPLETED: boolean;
+    COMPLETED: string;
     url: any;
 };
 
@@ -89,15 +89,13 @@ function createICalendar(events: IEvent[], activities: IActivity[]): string {
             .x([
                 {
                     key: "X-COMPLETED",
-                    value: activity.isCompleted.toString(),
+                    value: activity.isCompleted ? "TRUE" : "FALSE",
                 },
-            ])
-            .x([
                 {
                     key: "X-DUE",
                     value: activity.date.toISOString(),
                 },
-            ]);
+            ])
     });
 
     /*converting content to string so it can be placed inside the .ics file*/
@@ -168,17 +166,14 @@ async function readICalendar(
                             Intl.DateTimeFormat().resolvedOptions().timeZone,
                         _id_user: userId,
                         attendees,
-                        isCompleted: event.COMPLETED || false,
+                        isCompleted: event.COMPLETED === "TRUE" ? true : false,
                     });
                     createdActivities.push(createdActivity);
                 }
 
                 successCount++;
             } catch (err) {
-                console.error(
-                    `Error while importing: ${event.summary}`,
-                    err,
-                );
+                console.error(`Error while importing: ${event.summary}`, err);
                 errorCount++;
             }
         }
