@@ -63,12 +63,11 @@ export const ImportCalendarModal = ({ show, handleClose }: { show: boolean; hand
             }
 
             const imported = await response.json();
-            dispatchEvents({ type: 'SET_EVENTS', payload: imported.events });
-            dispatchActivities({ type: 'SET_ACTIVITIES', payload: imported.activities });
+            dispatchEvents({ type: 'ADD_EVENTS', payload: imported.events });
+            dispatchActivities({ type: 'ADD_ACTIVITIES', payload: imported.activities });
 
             handleClose();
             setFile(null);
-            // alert(imported.message);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error while importing calendar');
         }

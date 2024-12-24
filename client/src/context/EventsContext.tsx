@@ -11,7 +11,7 @@ const reducer = (state: EventsState, action: EventsAction): EventsState => {
             }
         case 'ADD_EVENTS':
             return {
-                events: [...state.events, ...action.payload],
+                events: state.events.concat(action.payload),
             }
         case 'CREATE_EVENT':
             console.log(action.payload)

@@ -6,18 +6,19 @@ import { ActivityModel, IActivity } from "../models/activityModel.js";
 import { EventModel, IEvent } from "../models/eventModel.js";
 import {
     frequencyToICalEventRepeatingFreq,
+    ImportedCalendar,
     rRuleWeekdayIntToICalWeekday,
 } from "./types.js";
 
-
 const { RRule } = pkg;
 
-type RealAttendee = Exclude<Attendee, string>
+type RealAttendee = Exclude<Attendee, string>;
 
 type CustomVEvent = VEvent & {
-    DUE?: Date,
-    COMPLETED: boolean
-}
+    DUE?: Date;
+    COMPLETED: boolean;
+    url: any;
+};
 
 /* creation of ics file content, exporting activities and events in Selfie calendar */
 function createICalendar(events: IEvent[], activities: IActivity[]): string {
@@ -114,23 +115,28 @@ async function readICalendar(
     let createdEvents: IEvent[] = [];
     let createdActivities: IActivity[] = [];
 
+    console.log(events.length);
     for (let key in events) {
         const event: CustomVEvent = events[key] as CustomVEvent;
         if (event.type === "VEVENT") {
             try {
-                console.log(event);
-                // Gestione degli attendees
-                const icsAttendees = Array.isArray(event.attendee) ? event.attendee as RealAttendee[] : [event.attendee as RealAttendee];
+                console.log("BROOO");
+                /* attendees handling */
+                const icsAttendees = Array.isArray(event.attendee)
+                    ? (event.attendee as RealAttendee[])
+                    : [event.attendee as RealAttendee];
 
-                /*  !!! TESTARE BENE  */
-                const attendees = icsAttendees.map((attendee: RealAttendee) => ({
-                    name: attendee.params?.CN || "",
-                    email: attendee.val.slice(7), // remove the "mailto:" prefix
-                    responded: attendee.params?.RSVP,
-                    accepted: attendee.params?.PARTSTAT === "ACCEPTED" ? true : false,
-                }));
+                /* TODO: check esistenza utenti nel db (eventi di gruppo)*/
+                const attendees = icsAttendees
+                    .filter((attendee) => attendee)
+                    .map((attendee: RealAttendee) => ({
+                        name: attendee.params?.CN || "",
+                        email: attendee.val.slice(7), // remove the "mailto:" prefix
+                        responded: attendee.params?.RSVP,
+                        accepted: attendee.params?.PARTSTAT === "ACCEPTED" ? true : false,
+                    }));
 
-                if (event.DUE != undefined) {
+                if (event.DUE == undefined) {
                     /*DUE is undefined --> event*/
                     const createdEvent: IEvent = await EventModel.create({
                         title: event.summary || "Evento senza titolo",
@@ -138,25 +144,31 @@ async function readICalendar(
                         date: event.start,
                         endDate: event.end || new Date(event.start.getTime() + 3600000),
                         location: event.location,
-                        url: event.url,
+                        url: event.url?.val,
                         duration: event.end.getTime() - event.start.getTime(),
-                        isRecurring: false,
-                        timezone: event.start.tz || Intl.DateTimeFormat().resolvedOptions().timeZone,
+                        isRecurring:
+                            event.rrule && event.rrule.toString().length > 0 ? true : false,
+                        timezone:
+                            event.start.tz ||
+                            Intl.DateTimeFormat().resolvedOptions().timeZone,
                         _id_user: userId,
                         attendees,
-                        recurrenceRule: event.rrule?.toString()
+                        recurrenceRule: event.rrule?.toString(),
+                        isPomodoro: false,
                     });
                     createdEvents.push(createdEvent);
-
                 } else {
                     /*DUE is defined --> activity*/
                     const createdActivity: IActivity = await ActivityModel.create({
                         title: event.summary || "Activity without title",
-                        description: event.description || "",
+                        description: event.description || "  ",
                         date: event.DUE,
-                        timezone: event.start?.tz || Intl.DateTimeFormat().resolvedOptions().timeZone,
+                        timezone:
+                            event.start?.tz ||
+                            Intl.DateTimeFormat().resolvedOptions().timeZone,
                         _id_user: userId,
                         attendees,
+                        isCompleted: event.COMPLETED || false,
                     });
                     createdActivities.push(createdActivity);
                 }
@@ -164,7 +176,7 @@ async function readICalendar(
                 successCount++;
             } catch (err) {
                 console.error(
-                    `Errore nell'importazione dell'evento: ${event.summary}`,
+                    `Error while importing: ${event.summary}`,
                     err,
                 );
                 errorCount++;
@@ -172,7 +184,7 @@ async function readICalendar(
         }
     }
 
-    return { events: createdEvents, activities: [] };
+    return { events: createdEvents, activities: createdActivities };
 }
 
 export { createICalendar, readICalendar };

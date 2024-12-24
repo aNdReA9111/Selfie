@@ -6,6 +6,7 @@ import {
     exportEvents,
     getAllEvents,
     getEventById,
+    importEvents,
     updateEvent
 } from "../controllers/eventControllers.js";
 import { requireAuth } from "../middleware/requireAuth.js";
@@ -22,7 +23,7 @@ eventRoutes.post("/", createEvent);
 // events export into ics calendar
 eventRoutes.get("/export-events", exportEvents);
 // events import from ics calendar
-eventRoutes.post("/export-events", exportEvents);
+eventRoutes.post("/import-events", importEvents);
 // get specific event
 eventRoutes.get("/:id", getEventById);
 // get all events + filters

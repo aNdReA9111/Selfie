@@ -11,7 +11,7 @@ const reducer = (state: ActivitiesState, action: ActivitiesAction): ActivitiesSt
             }
         case 'ADD_ACTIVITIES':
             return {
-                activities: [...state.activities, ...action.payload],
+                activities: state.activities.concat(action.payload),
             }
         case 'CREATE_ACTIVITY':
             console.log(action.payload)
