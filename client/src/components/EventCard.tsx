@@ -7,6 +7,7 @@ type EventCardProps = {
     endDate: Date;
 }
 
+/* Event card for homepage events' preview */
 export const EventCard: React.FC<EventCardProps> = ({ title, timezone, date, endDate }: EventCardProps) => {
     const start: DateTime = DateTime.fromJSDate(date);
     const end: DateTime = DateTime.fromJSDate(endDate);

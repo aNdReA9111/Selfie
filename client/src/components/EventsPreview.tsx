@@ -2,6 +2,7 @@ import { DateTime } from "luxon";
 import { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { RRule } from 'rrule';
 import { EventCard } from "../components/EventCard";
 import { useTimeMachineContext } from "../hooks/useTimeMachineContext";
 import { Event } from "../utils/types";
@@ -29,7 +30,7 @@ export const EventsPreview: React.FC = () => {
                 events.forEach((e: Event) => {
                     e.date = new Date(e.date);
                     e.endDate = new Date(e.endDate);
-                })
+                });
 
                 setLoading(false);
                 setDayEvents(events);
@@ -44,6 +45,7 @@ export const EventsPreview: React.FC = () => {
         getEventsOfTheDay();
     }, [offset]);
 
+
     return (
         <div className="d-flex justify-content-center align-items-start pt-2 e">
             {/* Add your content here if needed */}
@@ -55,15 +57,34 @@ export const EventsPreview: React.FC = () => {
                 <div id="eventsCards">
                     {
                         dayEvents.length > 0 ?
-                            dayEvents.map((e: Event) => (
-                                <EventCard
+                            dayEvents.map((e: Event) => {
+                                let dates: { start: Date, end: Date } = {
+                                    start: e.date,
+                                    end: e.endDate
+                                }
+
+                                /* caclulate right occurence date in case of recurring event */
+                                if (e.isRecurring) {
+                                    const rrule = RRule.fromString(e.recurrenceRule as string);
+                                    const occurrences: Date[] = rrule.between(
+                                        new Date(new Date(DateTime.now().plus(offset).toMillis()).setHours(0, 0, 0, 0)),
+                                        new Date(new Date(DateTime.now().plus(offset).toMillis()).setHours(23, 59, 59, 999)),
+                                        true
+                                    );
+                                    dates = {
+                                        start: occurrences[0],
+                                        end: DateTime.fromJSDate(occurrences[0]).plus(e.duration as number).toJSDate()
+                                    }
+                                }
+
+                                return <EventCard
                                     key={e._id} // Ensure to use a unique key, assuming `e.id` exists.
                                     title={e.title}
                                     timezone={e.timezone}
-                                    date={e.date}
-                                    endDate={e.endDate}
+                                    date={dates.start}
+                                    endDate={dates.end}
                                 />
-                            )) :
+                            }) :
                             <span>No Events today !!</span>
                     }
                     {loading && <Spinner animation="border" variant="danger" />}
