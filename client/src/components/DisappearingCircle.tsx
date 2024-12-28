@@ -1,11 +1,15 @@
+
+
+// import React, { useState, useEffect } from 'react';
+// import { Time, formatTime } from '../utils/pomUtils';
 interface circleProps {
-    timeLeft:number;
-    duration:number;
-    size:number;
-    color:string;
+    timeLeft: number;
+    duration: number;
+    size: number;
+    color: string;
 }
 
-const disappearingCircle : React.FC<circleProps> = ({timeLeft, duration, size, color}) => {
+const disappearingCircle: React.FC<circleProps> = ({ timeLeft, duration, size, color }) => {
     const thickness = 11;
     const r = (size - thickness) / 2;
     const circ = 2 *Math.PI *r;    

@@ -1,11 +1,14 @@
 import { Response } from "express";
 import mongoose from "mongoose";
+import pkg from "rrule";
+import { ActivityModel, IActivity } from "../models/activityModel.js";
 import { EventModel, IEvent } from "../models/eventModel.js";
 import { IUser, UserModel } from "../models/userModel.js";
-import { Req } from "../utils/types.js";
+import { ImportedCalendar, Req } from "../utils/types.js";
 
-import { createICalendar } from "../utils/icalendarUtils.js";
-import { updatePastPomodoro } from "../utils/pomEventUtils.js";
+const { RRule } = pkg;
+
+import { createICalendar, readICalendar } from "../utils/icalendarUtils.js";
 
 const createEvent = async (req: Req, res: Response) => {
     const {
@@ -159,22 +162,36 @@ const getAllEvents = async (req: Req, res: Response) => {
                             },
                             //eventi in date precedenti la cui durata li fa arrivare fino alla data della query
                             {
-                                $expr: {
-                                    $gte: [
-                                        { $add: ["$date", "$duration"] },
-                                        new Date(new Date(date).setHours(0, 0, 0, 0)),
-                                    ],
+                                date: {
+                                    $lte: new Date(new Date(date).setHours(0, 0, 0, 0)),
                                 },
+                                endDate: {
+                                    $gte: new Date(new Date(date).setHours(0, 0, 0, 0)),
+                                }
                             },
+                            {
+                                isRecurring: true
+                            }
                         ],
                     },
                 ],
+            });
+
+            events = events.filter((e: IEvent) => {
+                if (e.isRecurring) {
+                    const rrule: pkg.RRule = RRule.fromString(e.recurrenceRule);
+                    const occurrences: Date[] = rrule.between(new Date(new Date(date).setHours(0, 0, 0, 0)), new Date(new Date(date).setHours(23, 59, 59, 999)), true);
+                    console.log(occurrences.length);
+                    return occurrences.length > 0;
+                } else
+                    return true;
             });
         }
 
         
         res.status(200).json(events);
     } catch (error: any) {
+        console.log(error);
         res.status(400).json({ message: error.message });
     }
 };
@@ -257,45 +274,77 @@ const updateEvent = async (req: Req, res: Response) => {
 };
 
 const exportEvents = async (req: Req, res: Response) => {
-    const userId = req.body.userId;
+    const userId = req.body.user;
 
-    // Validazione dell'ID utente
+    /* id validation */
     if (!userId) {
         return res.status(400).json({ error: "Invalid User Id" });
     }
 
     try {
-        // Verifica che l'utente esista
+        /* user id check */
         const user = await UserModel.findById(userId);
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
 
-        // Recupera tutti gli eventi dell'utente
-        const events = await EventModel.find({ _id_user: userId });
+        /* retrieving events and activities */
+        const events: IEvent[] = await EventModel.find({ _id_user: userId });
         if (!events || events.length === 0) {
             return res.status(404).json({ error: "No events found for this user" });
         }
 
-        // Genera il calendario
-        const icalendarContent = createICalendar(events);
+        const activities: IActivity[] = await ActivityModel.find({ _id_user: userId });
+        if (!activities || activities.length === 0) {
+            return res.status(404).json({ error: "No activities found for this user" });
+        }
 
-        // Imposta gli header per il download del file
+        /* ics calendar generation */
+        const icalendarContent = createICalendar(events, activities);
+
+        /* setting headers to allow file download*/
         res.setHeader('Content-Type', 'text/calendar');
         res.setHeader('Content-Disposition', 'attachment; filename=calendario.ics');
 
-        // Invia il contenuto del calendario
         res.send(icalendarContent);
 
     } catch (error: any) {
+        console.log(error);
         res.status(500).json({
             message: error.message
         });
     }
 };
 
+const importEvents = async (req: Req, res: Response) => {
+    const { icalData } = req.body;
+    const userId = req.body.user;
+
+    /* id validation */
+    if (!userId) {
+        return res.status(400).json({ error: "Invalid User Id" });
+    }
+
+
+    if (!icalData) {
+        return res.status(400).json({ error: "Missing ics data" });
+    }
+
+    try {
+        const calendar: ImportedCalendar = await readICalendar(icalData, userId);
+
+        res.status(200).json(calendar);
+
+    } catch (error: any) {
+        res.status(400).json({
+            error: "Error happened while importing calendar",
+            details: error.message
+        });
+    }
+};
+
 export {
     createEvent, deleteAllEvents, deleteEventById, exportEvents, getAllEvents,
-    getEventById, updateEvent
+    getEventById, importEvents, updateEvent
 };
 

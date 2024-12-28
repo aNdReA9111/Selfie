@@ -9,6 +9,10 @@ const reducer = (state: ActivitiesState, action: ActivitiesAction): ActivitiesSt
             return {
                 activities: action.payload,
             }
+        case 'ADD_ACTIVITIES':
+            return {
+                activities: state.activities.concat(action.payload),
+            }
         case 'CREATE_ACTIVITY':
             console.log(action.payload)
             return {

@@ -9,9 +9,9 @@ import { DNDEventModalForm } from '../components/DNDEventModalForm';
 import { EventComponent } from '../components/EventComponent';
 import { EventDetails } from '../components/EventDetails';
 import { EventModalForm } from '../components/EventModalForm';
+import { ImportCalendarModal } from '../components/ImportCalendarModal';
 import { useActivities } from '../hooks/useActivities';
 import { useActivitiesContext } from '../hooks/useActivitiesContext';
-import { useAuthContext } from '../hooks/useAuthContext';
 import { useEvents } from '../hooks/useEvents';
 import { useEventsContext } from '../hooks/useEventsContext';
 import { useTimeMachineContext } from '../hooks/useTimeMachineContext';
@@ -21,7 +21,6 @@ import { updatePastPomodoro} from '../.../../../../server/src/utils/pomEventUtil
 const localizer: DateLocalizer = luxonLocalizer(DateTime);
 
 //TODO: delete singolo evento ricorrente
-//TODO: drag and drop, aggiunta di eventi direttamente del calendario
 
 function generateRecurringEvents(events: Event[], activities: Activity[]) {
     let calendarEvents = [];
@@ -60,7 +59,6 @@ function generateRecurringEvents(events: Event[], activities: Activity[]) {
             title: activity.title,
             start: activity.date,
             end: activity.date,
-            // end: new Date(activity.date.getTime() + 30 * 60 * 1000),
             resources: {
                 _id: activity._id,
                 isActivity: true
@@ -75,20 +73,20 @@ function generateRecurringEvents(events: Event[], activities: Activity[]) {
 const CustomCalendar = () => {
     const { events, dispatch: dispatchE }: EventsContextType = useEventsContext();
     const { activities, dispatch: dispatchA }: ActivitiesContextType = useActivitiesContext();
-    const { user } = useAuthContext();
-    console.log(user.token)
     const { offset } = useTimeMachineContext();
-    //useMemo --> ricalcolo eventi sul calendario solo quando cambiano gli eventi sul context
+    /* useMemo --> calcuate events on calendar only when the events in the context change */
     const calendarEvents = useMemo(() => generateRecurringEvents(events, activities), [events, activities, offset]);
+
     const [showDetailsA, setShowDetailsA] = useState<boolean>(false);
     const [showDetailsE, setShowDetailsE] = useState<boolean>(false);
     const [currentEvent, setCurrentEvent] = useState<Event | undefined>(undefined);
     const [currentActivity, setCurrentActivity] = useState<Activity | undefined>(undefined);
     const [date, setDate] = useState<Date | undefined>(undefined);
-    /*slot interval*/
+    /* slot interval for drag and drop */
     const [slotStart, setSlotStart] = useState<Date | undefined>(undefined);
     const [slotEnd, setSlotEnd] = useState<Date | undefined>(undefined);
     const [showDND, setShowDND] = useState<boolean>(false);
+    const [showImportModal, setShowImportModal] = useState<boolean>(false);
 
 
     const { isLoading: isLoadingE, error: errorE } = useEvents("/api/events/", undefined, {
@@ -156,49 +154,47 @@ const CustomCalendar = () => {
     const handleExportCalendar = async () => {
         try {
             const response = await fetch('/api/events/export-events', {
-                method: 'POST',
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     credentials: "include",
                 },
-                body: JSON.stringify({
-                    userId: user?._id
-                })
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || 'Errore nell\'esportazione del calendario');
+                console.log(errorData);
+                throw new Error(errorData.error || 'Error while exporting calendar');
             }
 
-            // Ottieni il contenuto del calendario come stringa
+            /* Get calendar content as a string */
             const calendarData = await response.text();
 
-            // Crea un Blob con il contenuto del calendario
+            /* Create a Blob with the calendar data */
             const blob = new Blob([calendarData], { type: 'text/calendar' });
 
-            // Crea un URL per il blob
+            /* Create a URL for the Blob */
             const url = window.URL.createObjectURL(blob);
 
-            // Crea un elemento <a> per il download
+            /* Create <a> element for download */
             const link = document.createElement('a');
             link.href = url;
             link.download = 'calendario.ics';
 
-            // Aggiungi il link al documento e simula il click
+            /* Add link to the document and simulate a click */
             document.body.appendChild(link);
             link.click();
 
-            // Pulisci rimuovendo il link e revocando l'URL
+            /* Remove link and URL */
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
 
-            // Notifica successo
-            alert('Calendario esportato con successo!');
+            /* Success notification */
+            alert('Calendar exported successfully!');
 
-        } catch (error) {
-            console.error('Errore nell\'esportazione del calendario:', error);
-            alert(error instanceof Error ? error.message : 'Errore sconosciuto');
+        } catch (error: any) {
+            console.error('Error while exporting calendar:', error);
+            alert(error instanceof Error ? error.message : 'Unknown error');
         }
     };
 
@@ -246,7 +242,18 @@ const CustomCalendar = () => {
                         <Button className="mt-3" variant="secondary" onClick={handleExportCalendar}>
                             Export Calendar
                             <i className="ms-2 bi bi-calendar2-x"></i>
+                        </Button><Button
+                            className="mt-3"
+                            variant="info"
+                            onClick={() => setShowImportModal(true)}
+                        >
+                            <i className="bi bi-cloud-upload me-2"></i>
+                            Import Calendar
                         </Button>
+                        <ImportCalendarModal
+                            show={showImportModal}
+                            handleClose={() => setShowImportModal(false)}
+                        />
                     </div>
                 </div>
             </div>)
