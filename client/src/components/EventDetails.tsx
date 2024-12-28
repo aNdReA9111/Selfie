@@ -45,7 +45,8 @@ export const EventDetails = ({ id, date, show, setShow }: EventDetailsProps) => 
             state:
             {
                 eventIdFromEvent: event?._id,
-                settingFromEvent: event?.pomodoroSetting
+                settingFromEvent: event?.pomodoroSetting,
+                isRecurFromEvent: event?.isRecurring
             }
         });
     };

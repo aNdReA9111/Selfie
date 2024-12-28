@@ -51,7 +51,7 @@ export function generateSettings(tempoDisp: number): PomodoroSetting[] {
 	let out : PomodoroSetting[] = [];
 	for(const i in arrayCicli){
 		let tempoCiclo = Math.round(tempoDisp/arrayCicli[i]);
-		let studio = Math.round((tempoCiclo/100) *85); //85% la percentuale di studio sul tempo di un ciclo proposta di default
+		let studio = Math.round((tempoCiclo/100) *85); 	//85% la percentuale di studio sul tempo di un ciclo proposta di default
 		let x: PomodoroSetting = {studioTime: studio, riposoTime: (tempoCiclo-studio), nCicli: arrayCicli[i], isComplete: false}
 		out.push(x);
 	}

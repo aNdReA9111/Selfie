@@ -223,10 +223,12 @@ const eventSchema = new Schema<IEvent>({
 });
 
 const EventModel: Model<IEvent> = mongoose.model<IEvent>("event", eventSchema);
+const PomodoroModel: Model<IPomodoro> = mongoose.model<IPomodoro>("pomodoro", pomodoroSchema);
+
 
 export {
-    attendeeSchema, EventModel,
-    IAttendee, IEvent, INotification,
+    attendeeSchema, EventModel, PomodoroModel,
+    IAttendee, IEvent, INotification, IPomodoro,
     notificationSchema
 };
 

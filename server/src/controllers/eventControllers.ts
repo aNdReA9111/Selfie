@@ -5,6 +5,7 @@ import { IUser, UserModel } from "../models/userModel.js";
 import { Req } from "../utils/types.js";
 
 import { createICalendar } from "../utils/icalendarUtils.js";
+import { updatePastPomodoro } from "../utils/pomEventUtils.js";
 
 const createEvent = async (req: Req, res: Response) => {
     const {
@@ -106,6 +107,8 @@ const getAllEvents = async (req: Req, res: Response) => {
 
 
     try {
+        updatePastPomodoro(userId.toString(), user.email, user.dateOffset);
+
         let events: IEvent[];
         if (typeof date !== "string") {
             if (onlyRecurring) {
@@ -169,6 +172,7 @@ const getAllEvents = async (req: Req, res: Response) => {
             });
         }
 
+        
         res.status(200).json(events);
     } catch (error: any) {
         res.status(400).json({ message: error.message });

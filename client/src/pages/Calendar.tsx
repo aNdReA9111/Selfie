@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Calendar as BigCalendar, DateLocalizer, luxonLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { Button } from 'react-bootstrap';
@@ -16,6 +16,7 @@ import { useEvents } from '../hooks/useEvents';
 import { useEventsContext } from '../hooks/useEventsContext';
 import { useTimeMachineContext } from '../hooks/useTimeMachineContext';
 import { ActivitiesContextType, Activity, Event, EventsContextType } from '../utils/types';
+import { updatePastPomodoro} from '../.../../../../server/src/utils/pomEventUtils';
 
 const localizer: DateLocalizer = luxonLocalizer(DateTime);
 
@@ -89,12 +90,14 @@ const CustomCalendar = () => {
     const [slotEnd, setSlotEnd] = useState<Date | undefined>(undefined);
     const [showDND, setShowDND] = useState<boolean>(false);
 
+
     const { isLoading: isLoadingE, error: errorE } = useEvents("/api/events/", undefined, {
         headers: {
             'Content-Type': 'application/json',
             credentials: "include",
         }
-    }, [offset]);
+    });
+    // }, [offset]);
 
     const { isLoading: isLoadingA, error: errorA } = useActivities("/api/activities/", undefined, {
         headers: {
