@@ -5,6 +5,7 @@ import { ActivityModel, IActivity } from "../models/activityModel.js";
 import { EventModel, IEvent } from "../models/eventModel.js";
 import { IUser, UserModel } from "../models/userModel.js";
 import { ImportedCalendar, Req } from "../utils/types.js";
+import { updatePastPomodoro } from "../utils/pomEventUtils.js";
 
 const { RRule } = pkg;
 
