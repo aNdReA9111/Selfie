@@ -110,6 +110,8 @@ const getAllEvents = async (req: Req, res: Response) => {
 
 
     try {
+        updatePastPomodoro(userId.toString(), user.email, user.dateOffset);
+
         let events: IEvent[];
         if (typeof date !== "string") {
             if (onlyRecurring) {
@@ -186,6 +188,7 @@ const getAllEvents = async (req: Req, res: Response) => {
             });
         }
 
+        
         res.status(200).json(events);
     } catch (error: any) {
         console.log(error);

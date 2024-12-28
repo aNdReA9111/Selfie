@@ -1,12 +1,13 @@
- .body {
 
-  background: transparent; 
+.pomBody {
+  height: 100%;
+  background: rgb(90, 5, 20); 
 }
 
   
-  .visually-hidden {
-    display: none; 
-  }
+.visually-hidden {  
+  display: none; 
+}
   
 
 .card-pm:hover {
@@ -34,72 +35,72 @@
 }
   
 .cycles-arrow {
-    box-sizing: border-box;
-    position: relative;
-    display: block;
-    transform: scale(var(--ggs, 1));
-    width: 45px;
-    height: 45px;
-    border: 2px solid;
-    border-right-color: transparent;
-    border-radius: 100px;
-    color:	#4B0082
-  }
-  .cycles-arrow::before {
-    content: "";
-    display: block;
-    box-sizing: border-box;
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    border-top: 2px solid;
-    border-right: 2px solid;
-    top: -2px;
-    right: 4px;
-    transform: rotate(84deg);
-    color: 	#4B0082
-  }
+  box-sizing: border-box;
+  position: relative;
+  display: block;
+  transform: scale(var(--ggs, 1));
+  width: 45px;
+  height: 45px;
+  border: 2px solid;
+  border-right-color: transparent;
+  border-radius: 100px;
+  color:	#4B0082
+}
+.cycles-arrow::before {
+  content: "";
+  display: block;
+  box-sizing: border-box;
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid;
+  border-right: 2px solid;
+  top: -2px;
+  right: 4px;
+  transform: rotate(84deg);
+  color: 	#4B0082
+}
 
 
-  .color-1 {
-    background-color: #1d4213;  
-    color: white;            
-    border-color:#1d4213;   
-  }
+.color-1 {
+  background-color: #1d4213;  
+  color: white;            
+  border-color:#1d4213;   
+}
 
-  .color-2 {
-    background-color:#ff1100 ; 
-    color: white;
-    border-color:#ff1100;    
-  }
+.color-2 {
+  background-color:#ff1100 ; 
+  color: white;
+  border-color:#ff1100;    
+}
 
-  .color-3 {
-    background-color: #0008ff;  
-    color: white;
-    border-color:#0008ff;
-  }
+.color-3 {
+  background-color: #0008ff;  
+  color: white;
+  border-color:#0008ff;
+}
 
-  .color-4 {
-    background-color: #0a0092;
-    color: white;
-    border-color:#0a0092;
-  }
-  .color-5 {
-    background-color: #801300;
-    color: white;
-    border-color: #801300;
-  }
-  .color-6 {
-    background-color: #a3002c;
-    color: white;
-  }
-  .color-text{
-    color: white;
-  }
+.color-4 {
+  background-color: #0a0092;
+  color: white;
+  border-color:#0a0092;
+}
+.color-5 {
+  background-color: #801300;
+  color: white;
+  border-color: #801300;
+}
+.color-6 {
+  background-color: #a3002c;
+  color: white;
+}
+.color-text{
+  color: white;
+}
 
-  .color-text-2{
-    color: 	#4B0082;
-  }
+.color-text-2{
+  color: 	#4B0082;
+}
   
 .timer {
   width: 300px;
@@ -124,4 +125,15 @@
   transform-origin: 50% 50%;
   transform: rotate(-90deg);
   background: transparent; 
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin: 5px;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none;
 }
