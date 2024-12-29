@@ -35,6 +35,7 @@ const createEvent = async (req: Req, res: Response) => {
 
     try {
         const validAttendees = await setEmails(attendees);
+        console.log(validAttendees);
 
         const event: IEvent = await EventModel.create({
             title,
@@ -251,17 +252,17 @@ const updateEvent = async (req: Req, res: Response) => {
             return res.status(404).json({ error: "Event not found" });
         }
 
-        /* fiter only new attendees from eventData.attendee to send invitations only to them*/
-        newAttendees = eventData.attendees.filter(
-            (newAttendee: IAttendee) => {
-                return !event.attendees?.some((attendee: IAttendee) => {
-                    return (
-                        attendee.name === newAttendee.name &&
-                        attendee.email === newAttendee.email
-                    );
-                });
-            },
-        );
+        for (const newAttendee of eventData.attendees) {
+            let isNew: boolean = true;
+            for (const attendee of event.attendees || []) {
+                if (newAttendee.name === attendee.name) {
+                    isNew = false
+                }
+            }
+            if (isNew)
+                newAttendees.push(newAttendee);
+        }
+
     }
 
     try {
