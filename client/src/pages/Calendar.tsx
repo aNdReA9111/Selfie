@@ -94,8 +94,7 @@ const CustomCalendar = () => {
             'Content-Type': 'application/json',
             credentials: "include",
         }
-    });
-    // }, [offset]);
+    }, [offset]);
 
     const { isLoading: isLoadingA, error: errorA } = useActivities("/api/activities/", undefined, {
         headers: {
