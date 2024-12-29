@@ -2,8 +2,12 @@ import { Response } from "express";
 import mongoose from "mongoose";
 import pkg from "rrule";
 import { ActivityModel, IActivity } from "../models/activityModel.js";
-import { EventModel, IEvent } from "../models/eventModel.js";
+import { EventModel, IAttendee, IEvent } from "../models/eventModel.js";
 import { IUser, UserModel } from "../models/userModel.js";
+import {
+    sendEventInvitationEmail,
+    setEmails,
+} from "../utils/invitationUtils.js";
 import { ImportedCalendar, Req } from "../utils/types.js";
 
 const { RRule } = pkg;
@@ -29,12 +33,9 @@ const createEvent = async (req: Req, res: Response) => {
         pomodoroSetting,
     } = req.body;
 
-    const user: IUser | null = await UserModel.findOne({ _id: userId });
-    if (!user) {
-        return res.status(404).json({ error: "User not found" });
-    }
-
     try {
+        const validAttendees = await setEmails(attendees);
+
         const event: IEvent = await EventModel.create({
             title,
             description,
@@ -52,6 +53,8 @@ const createEvent = async (req: Req, res: Response) => {
             isPomodoro,
             pomodoroSetting,
         });
+
+        sendEventInvitationEmail(userId, event, event.attendees || []);
 
         res.status(201).json(event);
     } catch (error: any) {
@@ -103,11 +106,10 @@ const getAllEvents = async (req: Req, res: Response) => {
     const date = req.query.date;
     const onlyRecurring = /^true$/i.test(req.query.onlyRecurring as string);
 
-    const user: IUser | null = await UserModel.findOne({ _id: userId });
+    const user: IUser | null = await UserModel.findOne({ _id: userId }).select("email");
     if (!user) {
         return res.status(404).json({ error: "User not found" });
     }
-
 
     try {
         let events: IEvent[];
@@ -165,11 +167,11 @@ const getAllEvents = async (req: Req, res: Response) => {
                                 },
                                 endDate: {
                                     $gte: new Date(new Date(date).setHours(0, 0, 0, 0)),
-                                }
+                                },
                             },
                             {
-                                isRecurring: true
-                            }
+                                isRecurring: true,
+                            },
                         ],
                     },
                 ],
@@ -178,11 +180,14 @@ const getAllEvents = async (req: Req, res: Response) => {
             events = events.filter((e: IEvent) => {
                 if (e.isRecurring) {
                     const rrule: pkg.RRule = RRule.fromString(e.recurrenceRule);
-                    const occurrences: Date[] = rrule.between(new Date(new Date(date).setHours(0, 0, 0, 0)), new Date(new Date(date).setHours(23, 59, 59, 999)), true);
+                    const occurrences: Date[] = rrule.between(
+                        new Date(new Date(date).setHours(0, 0, 0, 0)),
+                        new Date(new Date(date).setHours(23, 59, 59, 999)),
+                        true,
+                    );
                     console.log(occurrences.length);
                     return occurrences.length > 0;
-                } else
-                    return true;
+                } else return true;
             });
         }
 
@@ -196,11 +201,6 @@ const getAllEvents = async (req: Req, res: Response) => {
 const deleteEventById = async (req: Req, res: Response) => {
     const eventId = req.params.id;
     const userId: mongoose.Types.ObjectId = req.body.user;
-
-    const user: IUser | null = await UserModel.findOne({ _id: userId });
-    if (!user) {
-        return res.status(404).json({ error: "User not found" });
-    }
 
     if (!mongoose.Types.ObjectId.isValid(eventId)) {
         return res.status(400).json({ error: "Invalid Event Id" });
@@ -219,11 +219,6 @@ const deleteEventById = async (req: Req, res: Response) => {
 
 const deleteAllEvents = async (req: Req, res: Response) => {
     const userId: mongoose.Types.ObjectId = req.body.user;
-
-    const user: IUser | null = await UserModel.findOne({ _id: userId });
-    if (!user) {
-        return res.status(404).json({ error: "User not found" });
-    }
 
     try {
         const result: mongoose.mongo.DeleteResult = await EventModel.deleteMany({
@@ -244,25 +239,50 @@ const updateEvent = async (req: Req, res: Response) => {
     const eventId = req.params.id;
     const { user: userId, ...eventData } = req.body;
 
-    const user: IUser | null = await UserModel.findOne({ _id: userId });
-    if (!user) {
-        return res.status(404).json({ error: "User not found" });
-    }
-
     if (!mongoose.Types.ObjectId.isValid(eventId)) {
         return res.status(400).json({ error: "Invalid Event Id" });
     }
 
+    let newAttendees: IAttendee[] = [];
+    if ("attendees" in eventData) {
+        const event: IEvent | null = await EventModel.findOne({ _id: eventId }).select("attendees");
+
+        if (!event) {
+            return res.status(404).json({ error: "Event not found" });
+        }
+
+        /* fiter only new attendees from eventData.attendee to send invitations only to them*/
+        newAttendees = eventData.attendees.filter(
+            (newAttendee: IAttendee) => {
+                return !event.attendees?.some((attendee: IAttendee) => {
+                    return (
+                        attendee.name === newAttendee.name &&
+                        attendee.email === newAttendee.email
+                    );
+                });
+            },
+        );
+    }
+
     try {
-        //update evento
+        //update event
+        const newValidAttendees = await setEmails(newAttendees);
+
         const newEvent: IEvent | null = await EventModel.findOneAndUpdate(
             {
                 _id: new mongoose.Types.ObjectId(eventId),
                 _id_user: userId,
             },
-            { ...eventData },
+            {
+                ...eventData,
+            },
             { new: true },
         );
+
+        if (!newEvent)
+            res.status(404).json({ message: "Event doesn't exist" })
+        else
+            sendEventInvitationEmail(userId, newEvent as IEvent, newValidAttendees)
 
         res.status(200).json(newEvent);
     } catch (error: any) {
@@ -273,42 +293,34 @@ const updateEvent = async (req: Req, res: Response) => {
 const exportEvents = async (req: Req, res: Response) => {
     const userId = req.body.user;
 
-    /* id validation */
-    if (!userId) {
-        return res.status(400).json({ error: "Invalid User Id" });
-    }
-
     try {
-        /* user id check */
-        const user = await UserModel.findById(userId);
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
-
         /* retrieving events and activities */
         const events: IEvent[] = await EventModel.find({ _id_user: userId });
         if (!events || events.length === 0) {
             return res.status(404).json({ error: "No events found for this user" });
         }
 
-        const activities: IActivity[] = await ActivityModel.find({ _id_user: userId });
+        const activities: IActivity[] = await ActivityModel.find({
+            _id_user: userId,
+        });
         if (!activities || activities.length === 0) {
-            return res.status(404).json({ error: "No activities found for this user" });
+            return res
+                .status(404)
+                .json({ error: "No activities found for this user" });
         }
 
         /* ics calendar generation */
         const icalendarContent = createICalendar(events, activities);
 
         /* setting headers to allow file download*/
-        res.setHeader('Content-Type', 'text/calendar');
-        res.setHeader('Content-Disposition', 'attachment; filename=calendario.ics');
+        res.setHeader("Content-Type", "text/calendar");
+        res.setHeader("Content-Disposition", "attachment; filename=calendario.ics");
 
         res.send(icalendarContent);
-
     } catch (error: any) {
         console.log(error);
         res.status(500).json({
-            message: error.message
+            message: error.message,
         });
     }
 };
@@ -316,12 +328,6 @@ const exportEvents = async (req: Req, res: Response) => {
 const importEvents = async (req: Req, res: Response) => {
     const { icalData } = req.body;
     const userId = req.body.user;
-
-    /* id validation */
-    if (!userId) {
-        return res.status(400).json({ error: "Invalid User Id" });
-    }
-
 
     if (!icalData) {
         return res.status(400).json({ error: "Missing ics data" });
@@ -331,17 +337,22 @@ const importEvents = async (req: Req, res: Response) => {
         const calendar: ImportedCalendar = await readICalendar(icalData, userId);
 
         res.status(200).json(calendar);
-
     } catch (error: any) {
         res.status(400).json({
             error: "Error happened while importing calendar",
-            details: error.message
+            details: error.message,
         });
     }
 };
 
 export {
-    createEvent, deleteAllEvents, deleteEventById, exportEvents, getAllEvents,
-    getEventById, importEvents, updateEvent
+    createEvent,
+    deleteAllEvents,
+    deleteEventById,
+    exportEvents,
+    getAllEvents,
+    getEventById,
+    importEvents,
+    updateEvent
 };
 

@@ -1,45 +1,34 @@
-import express, { Response } from "express";
-import { Req } from "../utils/types.js";
+import { Response } from "express";
 import mongoose from "mongoose";
-import { UserModel, IUser } from "../models/userModel.js";
+import { UserModel } from "../models/userModel.js";
+import { Req } from "../utils/types.js";
 
 export const setOffset = async (req: Req, res: Response) => {
-  const userId: mongoose.Types.ObjectId = req.body.user;
-  const user: IUser | null = await UserModel.findOne({ _id: userId });
-  console.log(userId);
+    const userId: mongoose.Types.ObjectId = req.body.user;
 
-  if (!user) {
-    return res.status(404).json({ error: "User not found" });
-  }
+    const dateOffset = req.body.offset;
 
-  const dateOffset = req.body.offset;
-  console.log(dateOffset);
+    try {
+        const user = await UserModel.findByIdAndUpdate(userId, { dateOffset });
+    } catch (error: any) {
+        console.log(error);
+        res.status(400).json({ message: error.message });
+    }
 
-  try {
-    const user = await UserModel.findByIdAndUpdate(userId, { dateOffset });
-  } catch (error: any) {
-    console.log(error);
-    res.status(400).json({ message: error.message });
-  }
-
-  res.status(200).json({ dateOffset });
+    res.status(200).json({ dateOffset });
 };
 
 export const getOffset = async (req: Req, res: Response) => {
-  const userId: mongoose.Types.ObjectId = req.body.user;
-  const user: IUser | null = await UserModel.findOne({ _id: userId });
+    const userId: mongoose.Types.ObjectId = req.body.user;
 
-  if (!user) {
-    return res.status(404).json({ error: "User not found" });
-  }
+    try {
+        const user = await UserModel.findById(userId).select("dateOffset");
+        if (!user) {
+            throw Error("user doesn't exist")
+        }
+        res.status(200).json({ dateOffset: user.dateOffset });
+    } catch (error: any) {
+        res.status(400).json({ message: error.message });
+    }
 
-  const dateOffset = req.body.user;
-
-  try {
-    const user = await UserModel.findById(userId).select("dateOffset");
-  } catch (error: any) {
-    res.status(400).json({ message: error.message });
-  }
-
-  res.status(200).json({ dateOffset });
 };

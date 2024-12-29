@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 import { Attendee, default as icalImport, VEvent } from "node-ical";
 import pkg from "rrule";
 import { ActivityModel, IActivity } from "../models/activityModel.js";
-import { EventModel, IEvent } from "../models/eventModel.js";
+import { EventModel, IAttendee, IEvent } from "../models/eventModel.js";
+import { checkUser, sendActivityInvitationEmail, sendEventInvitationEmail } from "./invitationUtils.js";
 import {
     frequencyToICalEventRepeatingFreq,
     ImportedCalendar,
@@ -113,31 +114,36 @@ async function readICalendar(
     let createdEvents: IEvent[] = [];
     let createdActivities: IActivity[] = [];
 
-    console.log(events.length);
     for (let key in events) {
         const event: CustomVEvent = events[key] as CustomVEvent;
         if (event.type === "VEVENT") {
             try {
-                console.log("BROOO");
                 /* attendees handling */
                 const icsAttendees = Array.isArray(event.attendee)
                     ? (event.attendee as RealAttendee[])
                     : [event.attendee as RealAttendee];
 
-                /* TODO: check esistenza utenti nel db (eventi di gruppo)*/
-                const attendees = icsAttendees
+                const validAttendees: IAttendee[] = icsAttendees
                     .filter((attendee) => attendee)
                     .map((attendee: RealAttendee) => ({
                         name: attendee.params?.CN || "",
                         email: attendee.val.slice(7), // remove the "mailto:" prefix
-                        responded: attendee.params?.RSVP,
+                        responded: attendee.params?.RSVP || false,
                         accepted: attendee.params?.PARTSTAT === "ACCEPTED" ? true : false,
                     }));
+
+                /* check if user exist inside database */
+                let attendees: IAttendee[] = [];
+                for (const attendee of validAttendees) {
+                    let exist: boolean = await checkUser(attendee.name);
+                    if (exist)
+                        attendees.push(attendee);
+                }
 
                 if (event.DUE == undefined) {
                     /*DUE is undefined --> event*/
                     const createdEvent: IEvent = await EventModel.create({
-                        title: event.summary || "Evento senza titolo",
+                        title: event.summary || "Event without title",
                         description: event.description || "",
                         date: event.start,
                         endDate: event.end || new Date(event.start.getTime() + 3600000),
@@ -154,6 +160,9 @@ async function readICalendar(
                         recurrenceRule: event.rrule?.toString(),
                         isPomodoro: false,
                     });
+
+                    sendEventInvitationEmail(userId, createdEvent, createdEvent.attendees || []);
+
                     createdEvents.push(createdEvent);
                 } else {
                     /*DUE is defined --> activity*/
@@ -168,6 +177,9 @@ async function readICalendar(
                         attendees,
                         isCompleted: event.COMPLETED === "TRUE" ? true : false,
                     });
+
+                    sendActivityInvitationEmail(userId, createdActivity, createdActivity.attendees || []);
+
                     createdActivities.push(createdActivity);
                 }
 

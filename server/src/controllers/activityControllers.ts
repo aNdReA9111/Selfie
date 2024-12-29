@@ -1,29 +1,30 @@
 import { Response } from "express";
 import mongoose from "mongoose";
 import { ActivityModel, IActivity } from "../models/activityModel.js";
+import { IAttendee } from "../models/eventModel.js";
 import { IUser, UserModel } from "../models/userModel.js";
 import { changeActivitiesDate } from "../utils/activityUtils.js";
+import { sendActivityInvitationEmail, setEmails } from "../utils/invitationUtils.js";
 import { Req } from "../utils/types.js";
 
 const createActivity = async (req: Req, res: Response) => {
     const { title, description, date, attendees, notifications, timezone, user: userId } = req.body;
 
-    const user: IUser | null = await UserModel.findOne({ _id: userId });
-    if (!user) {
-        return res.status(404).json({ error: "User not found" });
-    }
-
     try {
+        const validAttendees = await setEmails(attendees);
+        console.log(validAttendees);
         const activity: IActivity = await ActivityModel.create({
             title,
             description,
             date,
-            attendees,
+            attendees: validAttendees,
             notifications,
             isCompleted: false,
             _id_user: userId,
             timezone
         });
+
+        sendActivityInvitationEmail(userId, activity, activity.attendees || []);
 
         res.status(201).json(activity);
     } catch (error: any) {
@@ -35,7 +36,7 @@ const getActivities = async (req: Req, res: Response) => {
     const userId: mongoose.Types.ObjectId = req.body.user;
     const date: string | undefined = req.query.date ? req.query.date.toString() : undefined;
 
-    const user: IUser | null = await UserModel.findOne({ _id: userId });
+    const user = await UserModel.findOne({ _id: userId }).select("email dateOffset");
     if (!user) {
         return res.status(404).json({ error: "User not found" });
     }
@@ -97,7 +98,7 @@ const getActivityById = async (req: Req, res: Response) => {
     const activityId = req.params.id;
     const userId: mongoose.Types.ObjectId = req.body.user;
 
-    const user: IUser | null = await UserModel.findOne({ _id: userId });
+    const user: IUser | null = await UserModel.findOne({ _id: userId }).select("email");
     if (!user) {
         return res.status(404).json({ error: "User not found" });
     }
@@ -132,11 +133,6 @@ const deleteActivityById = async (req: Req, res: Response) => {
     const activityId = req.params.id;
     const userId: mongoose.Types.ObjectId = req.body.user;
 
-    const user: IUser | null = await UserModel.findOne({ _id: userId });
-    if (!user) {
-        return res.status(404).json({ error: "User not found" });
-    }
-
     if (!mongoose.Types.ObjectId.isValid(activityId)) {
         return res.status(400).json({ error: "Invalid Activity Id" });
     }
@@ -154,11 +150,6 @@ const deleteActivityById = async (req: Req, res: Response) => {
 
 const deleteActivities = async (req: Req, res: Response) => {
     const userId: mongoose.Types.ObjectId = req.body.user;
-
-    const user: IUser | null = await UserModel.findOne({ _id: userId });
-    if (!user) {
-        return res.status(404).json({ error: "User not found" });
-    }
 
     try {
         const result: mongoose.mongo.DeleteResult = await ActivityModel.deleteMany({
@@ -188,13 +179,43 @@ const updateActivity = async (req: Req, res: Response) => {
         return res.status(400).json({ error: "Invalid Activity Id" });
     }
 
+
+    let newAttendees: IAttendee[] = [];
+    if ("attendees" in activityData) {
+        const activity: IActivity | null = await ActivityModel.findOne({ _id: activityId }).select("attendees");
+
+        if (!activity) {
+            return res.status(404).json({ error: "Activity not found" });
+        }
+
+        /* fiter only new attendees from eventData.attendee to send invitations only to them*/
+        newAttendees = activityData.attendees.filter(
+            (newAttendee: IAttendee) => {
+                return !activity.attendees?.some((attendee: IAttendee) => {
+                    return (
+                        attendee.name === newAttendee.name &&
+                        attendee.email === newAttendee.email
+                    );
+                });
+            },
+        );
+    }
+
     try {
-        const activity: IActivity | null = await ActivityModel.findOneAndUpdate(
+        const newValidAttendees = await setEmails(newAttendees);
+
+        const newActivity: IActivity | null = await ActivityModel.findOneAndUpdate(
             { _id: new mongoose.Types.ObjectId(activityId), _id_user: userId.toString() },
             { ...activityData },
             { new: true },
         );
-        res.status(200).json(activity);
+
+        if (!newActivity)
+            res.status(404).json({ message: "Activity doesn't exist" })
+        else
+            sendActivityInvitationEmail(userId, newActivity as IActivity, newValidAttendees);
+
+        res.status(200).json(newActivity);
     } catch (error: any) {
         res.status(400).json({ message: error.message });
     }
