@@ -16,7 +16,6 @@ import { useEvents } from '../hooks/useEvents';
 import { useEventsContext } from '../hooks/useEventsContext';
 import { useTimeMachineContext } from '../hooks/useTimeMachineContext';
 import { ActivitiesContextType, Activity, Event, EventsContextType } from '../utils/types';
-import { updatePastPomodoro} from '../.../../../../server/src/utils/pomEventUtils';
 
 const localizer: DateLocalizer = luxonLocalizer(DateTime);
 
