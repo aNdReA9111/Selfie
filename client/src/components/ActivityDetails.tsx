@@ -34,7 +34,7 @@ export const ActivityDetails = ({ id, show, setShow }: ActivityDetailsProps) => 
     }
 
     return (
-        event && (
+        activity && (
             <Modal
                 show={show}
                 onHide={() => { setShow(false); }}

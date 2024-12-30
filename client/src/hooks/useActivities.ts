@@ -15,7 +15,7 @@ export const useActivities = (
     useEffect(() => {
         let isCancelled = false;
 
-        const fetchEvents = async () => {
+        const fetchActivities = async () => {
             try {
                 const params = new URLSearchParams(query).toString();
                 const res = await fetch(url + params, { method: "GET", ...options });
@@ -41,7 +41,7 @@ export const useActivities = (
             }
         };
 
-        fetchEvents();
+        fetchActivities();
 
         // Cleanup function to prevent state update if component unmounts
         return () => {

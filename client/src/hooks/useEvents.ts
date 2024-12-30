@@ -31,9 +31,9 @@ export const useEvents = (
                     result.forEach((el: Event) => {
                         el.date = new Date(el.date);
                         el.endDate = new Date(el.endDate);
-                        el.nextDate = el.nextDate ? new Date(el.nextDate) : undefined;
                     });
                     dispatch({ type: "SET_EVENTS", payload: result });
+                    console.log(result);
                 }
             } catch (err: any) {
                 if (!isCancelled) {

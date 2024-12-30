@@ -117,7 +117,7 @@ const getAllEvents = async (req: Req, res: Response) => {
     }
 
     try {
-        updatePastPomodoro(userId.toString(), user.email, user.dateOffset);
+        await updatePastPomodoro(userId.toString(), user.email, user.dateOffset);
 
         let events: IEvent[];
         if (typeof date !== "string") {
