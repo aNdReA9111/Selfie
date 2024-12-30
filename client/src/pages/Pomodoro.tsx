@@ -12,7 +12,7 @@ const Pomodoro: React.FC = () => {
     const navigate = useNavigate();
 
     let location = useLocation();
-    const { eventIdFromEvent, settingFromEvent } = location.state || {};
+    const { eventIdFromEvent, settingFromEvent, isRecurFromEvent } = location.state || {};
 
     //tempi di studio e riposo del timer (non variano mentre scorre il timer)
     const [eventId, setEventId] = useState<string | null>(location.state ? eventIdFromEvent : null)
@@ -58,7 +58,7 @@ const Pomodoro: React.FC = () => {
                     credentials: "include",
                 },
                 body: JSON.stringify({
-                    pomodoroSetting: { "studioTime": settingFromEvent.studioTime, "riposoTime": settingFromEvent.riposoTime, "nCicli": cicliRimanenti, "isComplete": cicliRimanenti > 0 ? false : true }
+                    pomodoroSetting: { "studioTime": toNum(studioTime), "riposoTime": toNum(riposoTime), "nCicli": cicliRimanenti, "isComplete": cicliRimanenti > 0 ? false : true }
                 })
             });
         } catch (error) {
@@ -71,7 +71,9 @@ const Pomodoro: React.FC = () => {
         if (isComplete) {
             stop();
         }
-        updatePomodoroEvent();
+        if(!isRecurFromEvent){
+            updatePomodoroEvent();
+        }
     }, [cicliRimanenti]);
 
     const decrementaCicli = () => {
@@ -178,8 +180,6 @@ const Pomodoro: React.FC = () => {
         navigate("/calendar");
     }
 
-  
-
     const newSession = () => {
         location.state = undefined;
         setEventId(null);
@@ -190,28 +190,8 @@ const Pomodoro: React.FC = () => {
         setDisplayTime(toTime(30));
     }
 
-    const handleKeyDown = (event: React.KeyboardEvent) => {
-        // Verifica se il tasto premuto è Enter o Space
-        if (event.key === 'Enter' || event.key === ' ') {
-          if(isRunning)
-            stop();
-          else
-            start();
-        }
-      };
-
-    useEffect(() => {
-        // Modifica lo sfondo quando il componente è montato
-        document.body.style.backgroundColor = "rgb(90, 5, 20)";
-
-        // Opzionalmente ripristina il colore al momento dello smontaggio
-        return () => {
-            document.body.style.backgroundColor = "";
-        };
-    }, []);
-
     return (
-    <body className='body'>
+    <body className='pomBody' style={{ height: '100vh', backgroundColor: "rgb(90, 5, 20)" }}>
         {isComplete ? (
             <div className='d-flex justify-content-center'>
                 <div className="d-flex-column justify-content-center mt-4">
@@ -242,6 +222,7 @@ const Pomodoro: React.FC = () => {
                                             color='#801300'
                                         />
                                     </div>
+
                                     <div style={{ position: 'absolute' }}>
                                         <DisappearingCircle
                                             timeLeft={toNum(displayTime ? displayTime : (isStudying ? studioTime : riposoTime))}
@@ -262,12 +243,12 @@ const Pomodoro: React.FC = () => {
                                 <div className="d-flex justify-content-center text-center">
                                     <div>
                                         {!isRunning && (
-                                            <Button className='color-1 me-2' onClick={start} onKeyDown={handleKeyDown}>
+                                            <Button className='color-1 me-2' onClick={start}>
                                                 <i className="bi bi-play-circle"></i> Start
                                             </Button>
                                         )}
                                         {isRunning && (
-                                            <Button className='color-2 me-2' onClick={stop} onKeyDown={handleKeyDown}>
+                                            <Button className='color-2 me-2' onClick={stop} >
                                                 <i className="bi bi-pause-circle"></i> Stop
                                             </Button>
                                         )}

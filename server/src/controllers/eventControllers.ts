@@ -8,6 +8,7 @@ import {
     sendEventInvitationEmail,
     setEmails,
 } from "../utils/invitationUtils.js";
+import { updatePastPomodoro } from "../utils/pomEventUtils.js";
 import { ImportedCalendar, Req } from "../utils/types.js";
 
 const { RRule } = pkg;
@@ -113,6 +114,8 @@ const getAllEvents = async (req: Req, res: Response) => {
     }
 
     try {
+        updatePastPomodoro(userId.toString(), user.email, user.dateOffset);
+
         let events: IEvent[];
         if (typeof date !== "string") {
             if (onlyRecurring) {
@@ -191,6 +194,7 @@ const getAllEvents = async (req: Req, res: Response) => {
                 } else return true;
             });
         }
+
 
         res.status(200).json(events);
     } catch (error: any) {

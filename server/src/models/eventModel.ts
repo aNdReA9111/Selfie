@@ -199,13 +199,6 @@ const eventSchema = new Schema<IEvent>({
         type: Boolean,
         default: false,
     },
-    // nextDate: {
-    //   type: Date,
-    //   // default: this.date,
-    //   required: function () {
-    //     this.isRecurring === true;
-    //   },
-    // },
     _id_user: {
         type: String,
         required: true,
@@ -223,13 +216,17 @@ const eventSchema = new Schema<IEvent>({
 });
 
 const EventModel: Model<IEvent> = mongoose.model<IEvent>("event", eventSchema);
+const PomodoroModel: Model<IPomodoro> = mongoose.model<IPomodoro>(
+    "pomodoro",
+    pomodoroSchema,
+);
 
 export {
     attendeeSchema,
-    EventModel,
-    IAttendee,
+    EventModel, IAttendee,
     IEvent,
     INotification,
-    notificationSchema
+    IPomodoro,
+    notificationSchema, PomodoroModel
 };
 

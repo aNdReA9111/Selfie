@@ -87,6 +87,7 @@ const CustomCalendar = () => {
     const [showDND, setShowDND] = useState<boolean>(false);
     const [showImportModal, setShowImportModal] = useState<boolean>(false);
 
+
     const { isLoading: isLoadingE, error: errorE } = useEvents("/api/events/", undefined, {
         headers: {
             'Content-Type': 'application/json',
