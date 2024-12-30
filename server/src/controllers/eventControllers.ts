@@ -107,8 +107,11 @@ const getAllEvents = async (req: Req, res: Response) => {
     const userId: mongoose.Types.ObjectId = req.body.user;
     const date = req.query.date;
     const onlyRecurring = /^true$/i.test(req.query.onlyRecurring as string);
+    const nextPom = /^true$/i.test(req.query.nextPom as string);
 
-    const user: IUser | null = await UserModel.findOne({ _id: userId }).select("email");
+    const user: IUser | null = await UserModel.findOne({ _id: userId }).select(
+        "email dateOffset",
+    );
     if (!user) {
         return res.status(404).json({ error: "User not found" });
     }
@@ -137,7 +140,7 @@ const getAllEvents = async (req: Req, res: Response) => {
                     ],
                 });
             }
-        } else {
+        } else if (nextPom !== true) {
             //query di eventi in una certa data, NON fa query di eventi ricorrenti
             events = await EventModel.find({
                 $and: [
@@ -193,8 +196,92 @@ const getAllEvents = async (req: Req, res: Response) => {
                     return occurrences.length > 0;
                 } else return true;
             });
-        }
+        } else {
+            events = await EventModel.find({
+                $and: [
+                    {
+                        $or: [
+                            { _id_user: userId.toString() },
+                            {
+                                attendees: {
+                                    $elemMatch: {
+                                        email: user.email,
+                                        accepted: true,
+                                    },
+                                },
+                            },
+                        ]
+                    },
+                    {
+                        $or: [
+                            {
+                                date: {
+                                    $gte: new Date(new Date(date).setHours(0, 0, 0, 0)),
+                                },
+                            },
+                            {
+                                isRecurring: true
+                            }
+                        ]
+                    }
+                ],
+                isPomodoro: true,
+            });
 
+            /* next non-recurring pomodoro event */
+            const eventWithLowestDate: IEvent = events.filter((e: IEvent) => !e.isRecurring).reduce((min: IEvent, current: IEvent) => {
+                return current.date < min.date ? current : min;
+            });
+
+            // console.log("NEXT POM", eventWithLowestDate);
+
+            let minRDate: Date | undefined = undefined;
+            /* next recurring pomodoro event */
+            const recurringPomEvents: IEvent[] = events.filter((e: IEvent) => {
+                if (e.isRecurring) {
+                    const rrule: pkg.RRule = RRule.fromString(e.recurrenceRule);
+                    const occurrence: Date | null = rrule.after(
+                        new Date(new Date(date).setHours(0, 0, 0, 0)),
+                    );
+                    return occurrence !== null;
+                } else return false;
+            });
+
+            console.log("REC POMS", recurringPomEvents);
+
+            let eventWithLowestDateR: IEvent | undefined = undefined;
+            if (recurringPomEvents.length > 0) {
+                eventWithLowestDateR = recurringPomEvents.reduce((min: IEvent, current: IEvent) => {
+                    const rruleMin: pkg.RRule = RRule.fromString(min.recurrenceRule);
+                    const rruleCurrent: pkg.RRule = RRule.fromString(current.recurrenceRule);
+
+                    const occurrenceMin: Date = rruleMin.after(
+                        new Date(new Date(date).setHours(0, 0, 0, 0)),
+                    ) as Date;
+                    const occurrenceCurrent: Date = rruleCurrent.after(
+                        new Date(new Date(date).setHours(0, 0, 0, 0)),
+                    ) as Date;
+
+                    if (occurrenceMin < occurrenceCurrent) {
+                        minRDate = occurrenceMin;
+                        return min;
+                    } else {
+                        minRDate = occurrenceCurrent;
+                        return current;
+                    }
+                }, recurringPomEvents[0]);
+            }
+
+            if (eventWithLowestDate && eventWithLowestDateR && typeof minRDate !== "undefined") {
+                events = [(minRDate as Date) < eventWithLowestDate.date ? eventWithLowestDateR : eventWithLowestDate];
+            } else if (eventWithLowestDate) {
+                events = [eventWithLowestDate];
+            } else if (eventWithLowestDateR) {
+                events = [eventWithLowestDateR];
+            } else {
+                events = []
+            }
+        }
 
         res.status(200).json(events);
     } catch (error: any) {
@@ -250,7 +337,9 @@ const updateEvent = async (req: Req, res: Response) => {
 
     let newAttendees: IAttendee[] = [];
     if ("attendees" in eventData) {
-        const event: IEvent | null = await EventModel.findOne({ _id: eventId }).select("attendees");
+        const event: IEvent | null = await EventModel.findOne({
+            _id: eventId,
+        }).select("attendees");
 
         if (!event) {
             return res.status(404).json({ error: "Event not found" });
@@ -260,13 +349,11 @@ const updateEvent = async (req: Req, res: Response) => {
             let isNew: boolean = true;
             for (const attendee of event.attendees || []) {
                 if (newAttendee.name === attendee.name) {
-                    isNew = false
+                    isNew = false;
                 }
             }
-            if (isNew)
-                newAttendees.push(newAttendee);
+            if (isNew) newAttendees.push(newAttendee);
         }
-
     }
 
     try {
@@ -284,10 +371,9 @@ const updateEvent = async (req: Req, res: Response) => {
             { new: true },
         );
 
-        if (!newEvent)
-            res.status(404).json({ message: "Event doesn't exist" })
+        if (!newEvent) res.status(404).json({ message: "Event doesn't exist" });
         else
-            sendEventInvitationEmail(userId, newEvent as IEvent, newValidAttendees)
+            sendEventInvitationEmail(userId, newEvent as IEvent, newValidAttendees);
 
         res.status(200).json(newEvent);
     } catch (error: any) {
@@ -360,4 +446,3 @@ export {
     importEvents,
     updateEvent
 };
-

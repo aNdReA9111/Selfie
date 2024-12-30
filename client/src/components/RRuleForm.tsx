@@ -316,6 +316,7 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({ watch, register, 
                             type="number"
                             id="count"
                             defaultValue={1}
+                            min={1}
                             className={`w-50 form-control ${errors.recurrenceRule ? 'is-invalid' : ''}`}
                             {...register('recurrenceRule.count')}
                         />

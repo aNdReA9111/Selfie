@@ -51,7 +51,7 @@ export const EventsPreview: React.FC = () => {
             {/* Add your content here if needed */}
             <div className="h-100 container d-flex flex-column justify-content-start">
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                    <h3>Events of the day</h3>
+                    <h2>Events of the day</h2>
                     <button className="btn btn-danger" onClick={() => navigate("/calendar/")}>Go to Calendar<i className="bi bi-box-arrow-up-right ms-2"></i></button>
                 </div>
                 <div id="eventsCards">
