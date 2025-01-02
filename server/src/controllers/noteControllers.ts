@@ -1,13 +1,13 @@
 import { Response } from "express";
 import mongoose from "mongoose";
 import { INote, NoteModel } from "../models/noteModel.js";
-import { IUser, UserModel } from "../models/userModel.js";
+import { UserModel } from "../models/userModel.js";
 import { Req } from "../utils/types.js";
 
 const addNote = async (req: Req, res: Response) => {
     const { user: _id, ...noteData } = req.body;
 
-    const user: IUser | null = await UserModel.findOne({ _id });
+    const user = await UserModel.findOne({ _id }).select("username");
     if (!user) {
         return res.status(404).json({ error: "User not found" });
     }
@@ -27,7 +27,7 @@ const addNote = async (req: Req, res: Response) => {
 const getNotes = async (req: Req, res: Response) => {
     const _id: mongoose.Types.ObjectId = req.body.user;
 
-    const user: IUser | null = await UserModel.findOne({ _id });
+    const user = await UserModel.findOne({ _id }).select("username");
     if (!user) {
         return res.status(404).json({ error: "User not found" });
     }
@@ -83,7 +83,7 @@ const getNote = async (req: Req, res: Response) => {
     const userId: mongoose.Types.ObjectId = req.body.user;
     const noteId: string = req.params.id;
 
-    const user: IUser | null = await UserModel.findOne({ _id: userId });
+    const user = await UserModel.findOne({ _id: userId }).select("username");
     if (!user) {
         return res.status(404).json({ error: "User not found" });
     }
@@ -111,7 +111,7 @@ const updateNote = async (req: Req, res: Response) => {
     const { user: userId, ...noteData } = req.body;
     const noteId: string = req.params.id;
 
-    const user: IUser | null = await UserModel.findOne({ _id: userId });
+    const user = await UserModel.findOne({ _id: userId }).select("username");
     if (!user) {
         return res.status(404).json({ error: "User not found" });
     }
@@ -142,7 +142,7 @@ const deleteNote = async (req: Req, res: Response) => {
     const { user: userId, ...noteData } = req.body;
     const noteId: string = req.params.id;
 
-    const user: IUser | null = await UserModel.findOne({ _id: userId });
+    const user = await UserModel.findOne({ _id: userId }).select("username");
     if (!user) {
         return res.status(404).json({ error: "User not found" });
     }
@@ -168,7 +168,7 @@ const deleteNote = async (req: Req, res: Response) => {
 const deleteNotes = async (req: Req, res: Response) => {
     const { user: userId } = req.body;
 
-    const user: IUser | null = await UserModel.findOne({ _id: userId });
+    const user = await UserModel.findOne({ _id: userId }).select("username");
     if (!user) {
         return res.status(404).json({ error: "User not found" });
     }

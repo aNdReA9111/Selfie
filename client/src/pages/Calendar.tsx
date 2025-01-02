@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Calendar as BigCalendar, DateLocalizer, luxonLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { Button } from 'react-bootstrap';
@@ -205,7 +205,7 @@ const CustomCalendar = () => {
 
     return (
         isLoadingA || isLoadingE ? <h2>Loading...</h2> :
-            errorA || errorE ? <h2>{errorA || ""} + "\n" + {errorE || ""}</h2> : (<div className="container mt-5">
+            errorA || errorE ? <h2>{errorA || ""} + {"\n"} + {errorE || ""}</h2> : (<div className="container mt-5">
                 <div className="row justify-content-center">
                     <div className="col-md-10">
                         <BigCalendar
@@ -240,7 +240,8 @@ const CustomCalendar = () => {
                         <Button className="mt-3" variant="secondary" onClick={handleExportCalendar}>
                             Export Calendar
                             <i className="ms-2 bi bi-calendar2-x"></i>
-                        </Button><Button
+                        </Button>
+                        <Button
                             className="mt-3"
                             variant="info"
                             onClick={() => setShowImportModal(true)}

@@ -121,11 +121,12 @@
   position: absolute;
   top: 35%;
   left: 50%; 
-  transition: 0.1s linear;
+  transition:  0.9s linear;
   transform-origin: 50% 50%;
   transform: rotate(-90deg);
   background: transparent; 
 }
+
 
 button {
   padding: 10px 20px;

@@ -6,6 +6,7 @@ import '../css/pomodoro.css';
 import { Time, toNum, toTime, formatTime } from '../utils/pomUtils';
 import { PomodoroSetting } from '../utils/types';
 import DisappearingCircle from '../components/DisappearingCircle';
+import SecondsCircle from '../components/secondsCircle';
 
 const Pomodoro: React.FC = () => {
 
@@ -32,7 +33,9 @@ const Pomodoro: React.FC = () => {
 
     //id timer
     const [timerId, setTimerId] = useState<number | null>(null);
-
+    
+    const [secTick, setSecTick] = useState<number>(0);
+    
 
 
     //aggiorno il display con il nuovo studioTime se sto studiando
@@ -48,6 +51,7 @@ const Pomodoro: React.FC = () => {
             setDisplayTime(riposoTime);
         }
     }, [riposoTime]);
+
 
     const updatePomodoroEvent = async () => {
         try {
@@ -84,7 +88,6 @@ const Pomodoro: React.FC = () => {
     };
 
     useEffect(() => {
-        console.log(timerId);
         if ((toNum(displayTime) + (displayTime.seconds ? displayTime.seconds : 0)) <= 0) {
 
             if (!isStudying) {
@@ -100,14 +103,24 @@ const Pomodoro: React.FC = () => {
         }
     }, [displayTime])
 
+    const tick = async () => {
+        if(secTick==0){
+            setSecTick(1);
+        } else {
+            setSecTick(0);
+        }
+    }
+
+    useEffect(()=>{
+        tick();
+    },[displayTime.seconds])
+
     const start = () => {
-        console.log(isSettingsOpen);
         if (timerId == null && !isRunning) {
             setIsRunning(true);
             const id = window.setInterval(() => {
                 setDisplayTime((prevDisplay) => {
                     let newDisplay = { ...prevDisplay };
-
                     if (newDisplay.seconds && newDisplay.seconds > 0) {
                         newDisplay.seconds -= 1;
                     } else if (newDisplay.minutes > 0) {
@@ -214,23 +227,49 @@ const Pomodoro: React.FC = () => {
 
                             <div className='d-flex'>
                                 <div className = "d-flex-column mt-3 concentric-circles">
-                                    <div style={{ position: 'absolute' }}>
-                                        <DisappearingCircle
-                                            timeLeft={displayTime.seconds ? displayTime.seconds : 60}
-                                            duration={60}
-                                            size={displayTime.hours>0 ? 350 : 268}
-                                            color='#801300'
-                                        />
-                                    </div>
+                                    {isStudying &&
+                                        <>
+                                            <div style={{ position: 'absolute' }}>
+                                                <DisappearingCircle
+                                                timeLeft={displayTime.seconds ? displayTime.seconds : 60}
+                                                duration={60}
+                                                size={displayTime.hours>0 ? 350 : 274}
+                                                color='#801300'
+                                            />
+                                            </div>
 
-                                    <div style={{ position: 'absolute' }}>
-                                        <DisappearingCircle
-                                            timeLeft={toNum(displayTime ? displayTime : (isStudying ? studioTime : riposoTime))}
-                                            duration={toNum(isStudying ? studioTime : riposoTime)}
-                                            size={displayTime.hours>0 ? 370 : 290}
-                                            color='#ff1100'
-                                        />
-                                    </div>
+                                            <div style={{ position: 'absolute' }}>
+                                                <DisappearingCircle
+                                                    timeLeft={toNum(displayTime ? displayTime : (isStudying ? studioTime : riposoTime))}
+                                                    duration={toNum(isStudying ? studioTime : riposoTime)}
+                                                    size={displayTime.hours>0 ? 370 : 296}
+                                                    color='#ff1100'
+                                                />
+                                            </div>
+                                        </>
+                                    }
+                                    {!isStudying &&
+                                        <>
+                                            <div style={{ position: 'absolute' }}>
+                                                <SecondsCircle
+                                                    timeLeft={secTick}
+                                                    duration={1}
+                                                    size={displayTime.hours>0 ? 350 : 274}
+                                                    color='#801300'
+                                                />
+                                            </div>
+
+                                            <div style={{ position: 'absolute' }}>
+                                                <DisappearingCircle
+                                                    timeLeft={toNum(displayTime ? displayTime : (isStudying ? studioTime : riposoTime))}
+                                                    duration={toNum(isStudying ? studioTime : riposoTime)}
+                                                    size={displayTime.hours>0 ? 370 : 296}
+                                                    color='#ff1100'
+                                                />
+                                            </div>
+                                        </>
+                                    }
+                                    
                                     <div className={displayTime.hours>0 ? 'mt-5' : ''}>
                                         <h1 className="display-1 color-text">{formatTime(displayTime)}</h1>
                                         <h4 className="color-text">{isStudying ? 'Focus on your tasks!' : 'Rest'}</h4>
