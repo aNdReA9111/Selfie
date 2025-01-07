@@ -26,17 +26,6 @@ const disappearingCircle: React.FC<circleProps> = ({ timeLeft, duration, size, c
                         strokeDashoffset={strokeDashoffset}
                         className='circle-timer'
                     />
-                    <circle
-                        cx={size / 2}
-                        cy={size / 2}
-                        r={r}
-                        fill="none"
-                        stroke={color}
-                        strokeWidth={thickness}
-                        strokeDasharray={circ}
-                        strokeDashoffset={circ - strokeDashoffset}
-                        className="circle-timer"
-                    />
                 </svg>
             </div>
         </div>
