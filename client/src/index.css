@@ -11,6 +11,12 @@ a {
   text-decoration: none;
 }
 
+/*simpel style for markdown table*/
+td, th {
+    border: 1px solid grey;
+    padding: .3rem 1rem;
+}
+
 .form-check-input:checked {
   background-color: #ff6f20 !important; /* Change this to your preferred color */
   border-color: #ff6f20 !important;

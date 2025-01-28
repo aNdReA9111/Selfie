@@ -65,6 +65,26 @@ export const EditBar: React.FC<EditBarProps> = ({ textAreaRef }) => {
         }
     }
 
+    const table = () => {
+        const { start, end } = getTextSelection();
+
+        if (start && end && textAreaRef.current) {
+            const initialText = textAreaRef.current.value || "";
+            const newText = initialText?.substring(0, start) + `\n|${initialText?.substring(start, end).padEnd(2, " ")}|  |\n|--|--|\n|  |  |\n` + initialText?.substring(end);
+            textAreaRef.current.value = newText;
+        }
+    }
+
+    const headerText = (level: number) => {
+        const { start, end } = getTextSelection();
+
+        if (start && textAreaRef.current) {
+            const initialText = textAreaRef.current.value || "";
+            const newText = initialText?.substring(0, start) + " " + "#".repeat(level) + " " + initialText?.substring(start, end);
+            textAreaRef.current.value = newText;
+        }
+    }
+
     return (
         <div className="btn-toolbar mb-3" role="toolbar" aria-label="Toolbar with button groups">
             <div className="btn-group me-2" role="group" aria-label="Formatting options">
@@ -86,6 +106,18 @@ export const EditBar: React.FC<EditBarProps> = ({ textAreaRef }) => {
                 <button type="button" className="btn btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="URL" onClick={() => link(false)}>
                     <i className="bi bi-link-45deg"></i>
                 </button>
+                <button type="button" className="btn btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Table" onClick={() => table()}>
+                    <i className="bi bi-table"></i>
+                </button>
+            </div>
+            <div className="btn-group me-2" role="group" aria-label="Formatting options">
+                {
+                    [1, 2, 3, 4, 5, 6].map(level => (
+                        <button type="button" className="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title={`H${level}`} onClick={() => headerText(level)}>
+                            <i className={`bi bi-type-h${level}`}></i>
+                        </button>
+                    ))
+                }
             </div>
         </div>
     )
