@@ -10,6 +10,7 @@ import { EventComponent } from '../components/EventComponent';
 import { EventDetails } from '../components/EventDetails';
 import { EventModalForm } from '../components/EventModalForm';
 import { ImportCalendarModal } from '../components/ImportCalendarModal';
+import '../css/calendar.css';
 import { useActivities } from '../hooks/useActivities';
 import { useActivitiesContext } from '../hooks/useActivitiesContext';
 import { useEvents } from '../hooks/useEvents';
@@ -207,7 +208,7 @@ const CustomCalendar = () => {
         isLoadingA || isLoadingE ? <h2>Loading...</h2> :
             errorA || errorE ? <h2>{errorA || ""} + {"\n"} + {errorE || ""}</h2> : (<div className="container mt-5">
                 <div className="row justify-content-center">
-                    <div className="col-md-10">
+                    <div className="col-md-12">
                         <BigCalendar
                             localizer={localizer}
                             components={{ event: EventComponent }}
@@ -218,7 +219,7 @@ const CustomCalendar = () => {
                             timeslots={4}
                             onSelectEvent={handleSelectEvent}
                             onSelectSlot={handleSelectSlot}
-                            style={{ height: 600 }}
+                            style={{ height: "70vh", width: "60vw" }}
                             defaultDate={DateTime.now().plus(offset || 0).toJSDate()}  /*update current date to time machine date*/
                             getNow={() => DateTime.now().plus(offset || 0).toJSDate()}
                             popup

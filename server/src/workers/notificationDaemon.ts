@@ -16,11 +16,9 @@ function sendNotification(
     url: string,
     notifica_desktop: boolean,
     notifica_mail: boolean,
-    priority: number,
+    priority: number,  /*useless as of now*/
     isActivity: boolean,
 ) {
-    //priority serve per cambiare il testo in base alla priorità della notifica
-
     console.log(`Sending notification: ${title}`);
     if (notifica_desktop)
         webpush
@@ -28,7 +26,7 @@ function sendNotification(
                 sub,
                 JSON.stringify({
                     title,
-                    body: "Ricordati dell'" + isActivity ? "attività!" : "evento!",
+                    body: "Ricordati dell'" + (isActivity ? "attività!" : "evento!"),
                     url,
                 }),
             )

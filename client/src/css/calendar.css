@@ -1,0 +1,88 @@
+.calendar-container {
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-header {
+  margin-bottom: 2rem;
+}
+
+.calendar-title {
+  color: #dc3545;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.calendar-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+/* Stili per react-big-calendar */
+.rbc-calendar {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.rbc-header {
+  padding: 10px !important;
+  background-color: #f8f9fa;
+  font-weight: 600 !important;
+}
+
+.rbc-event {
+  background-color: #dc3545 !important;
+  border-radius: 4px !important;
+  opacity: 0.9;
+}
+
+.rbc-event:hover {
+  opacity: 1;
+}
+
+.rbc-today {
+  background-color: #fff3f4 !important;
+}
+
+.rbc-toolbar button {
+  color: #495057 !important;
+  border: 1px solid #ced4da !important;
+}
+
+.rbc-toolbar button:hover {
+  background-color: #f8f9fa !important;
+  border-color: #dc3545 !important;
+}
+
+.rbc-toolbar button.rbc-active {
+  background-color: #dc3545 !important;
+  color: white !important;
+  border-color: #dc3545 !important;
+}
+
+.rbc-toolbar {
+  margin-bottom: 1.5rem !important;
+}
+
+.calendar-button {
+  transition: all 0.3s ease;
+}
+
+.calendar-button:hover {
+  transform: translateY(-2px);
+}
+
+.export-button {
+  background-color: #28a745 !important;
+  border-color: #28a745 !important;
+}
+
+.export-button:hover {
+  background-color: #218838 !important;
+  border-color: #1e7e34 !important;
+}
