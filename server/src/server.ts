@@ -21,6 +21,7 @@ import { messageRoutes } from "./routes/message.js";
 import { notesRoutes } from "./routes/note.js";
 import { timeMachineRoutes } from "./routes/timeMachine.js";
 import { userRoutes } from "./routes/user.js";
+import { invitationRoutes } from "./routes/invitation.js";
 
 const app = express();
 
@@ -61,6 +62,7 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/activities", activityRoutes);
 app.use("/api/timeMachine", timeMachineRoutes);
 app.use("/api/email", emailRoutes);
+app.use("/api/invitations", invitationRoutes);
 
 // Connessione al database
 const PORT = Number(process.env.PORT as unknown) || 4000;

@@ -184,6 +184,7 @@ const getAllEvents = async (req: Req, res: Response) => {
                 ],
             });
 
+
             events = events.filter((e: IEvent) => {
                 if (e.isRecurring) {
                     const rrule: pkg.RRule = RRule.fromString(e.recurrenceRule);
@@ -229,9 +230,13 @@ const getAllEvents = async (req: Req, res: Response) => {
             });
 
             /* next non-recurring pomodoro event */
-            const eventWithLowestDate: IEvent = events.filter((e: IEvent) => !e.isRecurring).reduce((min: IEvent, current: IEvent) => {
-                return current.date < min.date ? current : min;
-            });
+            const nonRecurringEvents = events.filter((e: IEvent) => !e.isRecurring);
+
+            const eventWithLowestDate: IEvent | null = nonRecurringEvents.length > 0
+                ? nonRecurringEvents.reduce((min: IEvent, current: IEvent) => {
+                    return current.date < min.date ? current : min;
+                })
+                : null;  // Return null if no non-recurring events exist
 
             // console.log("NEXT POM", eventWithLowestDate);
 
@@ -272,6 +277,7 @@ const getAllEvents = async (req: Req, res: Response) => {
                 }, recurringPomEvents[0]);
             }
 
+
             if (eventWithLowestDate && eventWithLowestDateR && typeof minRDate !== "undefined") {
                 events = [(minRDate as Date) < eventWithLowestDate.date ? eventWithLowestDateR : eventWithLowestDate];
             } else if (eventWithLowestDate) {
@@ -289,6 +295,8 @@ const getAllEvents = async (req: Req, res: Response) => {
         res.status(400).json({ message: error.message });
     }
 };
+
+
 
 const deleteEventById = async (req: Req, res: Response) => {
     const eventId = req.params.id;
