@@ -5,7 +5,7 @@ export const AttendeesForm = ({ register, errors, setValue, watch }: any) => {
     const [suggestions, setSuggestions] = useState<string[]>([]);
 
     const inputField = watch('attendees');
-    const inputText = inputField ? inputField.join(',') : "";
+    const inputText = Array.isArray(inputField) && inputField ? inputField.join(',') : "";
 
     const getSuggestions = async (substring: string) => {
         console.log(substring);

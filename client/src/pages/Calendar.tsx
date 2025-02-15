@@ -206,9 +206,9 @@ const CustomCalendar = () => {
 
     return (
         isLoadingA || isLoadingE ? <h2>Loading...</h2> :
-            errorA || errorE ? <h2>{errorA || ""} + {"\n"} + {errorE || ""}</h2> : (<div className="container mt-5">
+            errorA || errorE ? <h2>{errorA || ""} + {"\n"} + {errorE || ""}</h2> : (<div className="mx-5 my-4">
                 <div className="row justify-content-center">
-                    <div className="col-md-12">
+                    <div className="col-12">
                         <BigCalendar
                             localizer={localizer}
                             components={{ event: EventComponent }}

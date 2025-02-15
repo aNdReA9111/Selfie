@@ -141,6 +141,10 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
 
     const onSubmit = async (data: EventFormData) => {
         console.log(data);
+        if (data.isPomodoro) {
+            const duration: number = (data.pomodoroSetting.studioTime + data.pomodoroSetting.riposoTime) * 60 * 1000 * data.pomodoroSetting.nCicli;
+            data.endDate = DateTime.fromJSDate(data.date).plus(duration).toJSDate();
+        }
 
         const notifications = {
             notifica_email: data.notifications?.notifica_email,
@@ -210,10 +214,8 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
                 body: JSON.stringify(newEvent)
             });
             const data: Event = await res.json();
-            //SISTEMA TIMEZONE QUI
             data.date = new Date(data.date);
             data.endDate = new Date(data.endDate);
-            data.nextDate = data.nextDate ? new Date(data.nextDate) : undefined;
             if (res.ok) {
                 dispatch({ type: event?._id ? 'EDIT_EVENT' : 'CREATE_EVENT', payload: data });
                 setShow(false);
@@ -262,16 +264,18 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
                         {errors.date && <div className="invalid-feedback">{errors.date.message}</div>}
                     </div>
 
-                    <div className="mb-3">
-                        <label htmlFor="endDate" className="form-label">End Date</label>
-                        <input
-                            id="endDate"
-                            type="datetime-local"
-                            className={`form-control ${errors.endDate ? 'is-invalid' : ''}`}
-                            {...register('endDate')}
-                        />
-                        {errors.endDate && <div className="invalid-feedback">{errors.endDate.message}</div>}
-                    </div>
+                    {!isPomodoro &&
+                        <div className="mb-3">
+                            <label htmlFor="endDate" className="form-label">End Date</label>
+                            <input
+                                id="endDate"
+                                type="datetime-local"
+                                className={`form-control ${errors.endDate ? 'is-invalid' : ''}`}
+                                {...register('endDate')}
+                            />
+                            {errors.endDate && <div className="invalid-feedback">{errors.endDate.message}</div>}
+                        </div>
+                    }
 
                     <div className="mb-3 form-check">
                         <input
