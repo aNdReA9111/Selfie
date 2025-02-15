@@ -241,13 +241,16 @@ const notificationsSchema = z
         (data) => {
             if (!data.advanceType) return true;
             if (data.advanceType === "DAYS" && data.advance) return data.advance <= 5;
-            if (data.advanceType === "HOURS" && data.advance) return data.advance <= 120;
-            if (data.advanceType === "MINUTES" && data.advance) return data.advance <= 7200;
+            if (data.advanceType === "HOURS" && data.advance)
+                return data.advance <= 120;
+            if (data.advanceType === "MINUTES" && data.advance)
+                return data.advance <= 7200;
             return true;
         },
         {
-            message: "You cannot set notifications with an advance higher than 5 days"
-        }
+            message:
+                "You cannot set notifications with an advance higher than 5 days",
+        },
     )
     .refine(
         (data) => {
@@ -256,7 +259,9 @@ const notificationsSchema = z
                 return data.repetitions && data?.repetitions <= 5;
             }
             if (
-                data.advance && data.frequency && data.repetitions &&
+                data.advance &&
+                data.frequency &&
+                data.repetitions &&
                 data.advanceType === "HOURS"
             ) {
                 switch (data.frequencyType) {
@@ -271,14 +276,16 @@ const notificationsSchema = z
                 }
             }
             if (
-                data.advance && data.frequency && data.repetitions &&
+                data.advance &&
+                data.frequency &&
+                data.repetitions &&
                 data.advanceType === "MINUTES"
             ) {
                 switch (data.frequencyType) {
                     case "DAILY":
                         return data.repetitions * data.frequency * 24 * 60 <= data.advance;
                     case "HOURLY":
-                        return data.repetitions * data.frequency * 60 <= data.advance
+                        return data.repetitions * data.frequency * 60 <= data.advance;
                     case "MINUTELY":
                         return data.repetitions * data.frequency <= data.advance;
                     default:
@@ -345,7 +352,8 @@ export const eventFormSchema = eventSchema
     )
     .refine(
         (data) => {
-            if (data.date.getTime() - data.endDate.getTime() > 0) {
+            if (data.isPomodoro) return true;
+            if (data.endDate && data.date.getTime() - data.endDate.getTime() > 0) {
                 return false;
             }
             return true;
