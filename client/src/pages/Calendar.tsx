@@ -219,37 +219,40 @@ const CustomCalendar = () => {
                             timeslots={4}
                             onSelectEvent={handleSelectEvent}
                             onSelectSlot={handleSelectSlot}
-                            style={{ height: "70vh", width: "60vw" }}
+                            style={{ height: "70vh", width: "100%" }}
                             defaultDate={DateTime.now().plus(offset || 0).toJSDate()}  /*update current date to time machine date*/
                             getNow={() => DateTime.now().plus(offset || 0).toJSDate()}
                             popup
                         />
                         <DNDEventModalForm slotStart={slotStart} slotEnd={slotEnd} show={showDND} setShow={setShowDND} />
-                        <EventModalForm isActivity={false} />
-                        <EventModalForm isActivity={true} />
                         {currentEvent && <EventDetails id={currentEvent._id} date={date} show={showDetailsE} setShow={setShowDetailsE} />}
                         {currentActivity && <ActivityDetails id={currentActivity._id} show={showDetailsA} setShow={setShowDetailsA} />}
-                        <Button className="mt-3" variant="danger" onClick={handleDeleteAllE}>
-                            Delete All Events
-                            <i className="ms-2 bi bi-calendar2-x"></i>
-                        </Button>
-                        <Button className="mt-3" variant="danger" onClick={handleDeleteAllA}>
-                            Delete All Activities
-                            <i className="ms-2 bi bi-calendar2-x"></i>
-                        </Button>
+                        <div className="mt-2 d-flex flex-wrap justify-content-start">
+                            <EventModalForm isActivity={false} />
+                            <EventModalForm isActivity={true} />
+                            <Button className="mt-3 me-3" variant="danger" onClick={handleDeleteAllE}>
+                                Delete All Events
+                                <i className="ms-2 bi bi-calendar2-x"></i>
+                            </Button>
+                            <Button className="mt-3 me-3" variant="danger" onClick={handleDeleteAllA}>
+                                Delete All Activities
+                                <i className="ms-2 bi bi-calendar2-x"></i>
+                            </Button>
 
-                        <Button className="mt-3" variant="secondary" onClick={handleExportCalendar}>
-                            Export Calendar
-                            <i className="ms-2 bi bi-calendar2-x"></i>
-                        </Button>
-                        <Button
-                            className="mt-3"
-                            variant="info"
-                            onClick={() => setShowImportModal(true)}
-                        >
-                            <i className="bi bi-cloud-upload me-2"></i>
-                            Import Calendar
-                        </Button>
+                            <Button className="mt-3 me-3" variant="secondary" onClick={handleExportCalendar}>
+                                Export Calendar
+                                <i className="ms-2 bi bi-calendar2-x"></i>
+                            </Button>
+                            <Button
+                                className="mt-3 me-3"
+                                variant="info"
+                                onClick={() => setShowImportModal(true)}
+                            >
+                                <i className="bi bi-cloud-upload me-2"></i>
+                                Import Calendar
+                            </Button>
+
+                        </div>
                         <ImportCalendarModal
                             show={showImportModal}
                             handleClose={() => setShowImportModal(false)}

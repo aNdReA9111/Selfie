@@ -128,7 +128,7 @@ export const NoteForm = ({ isEdit, isView }: { isEdit: boolean, isView: boolean 
                         aria-describedby="tagsHelper"
                     />
                     <label htmlFor="tags">Tag</label>
-                    <div id="tagsHelper" className="form-text">Esempio: tag1, tag2</div>
+                    <div id="tagsHelper" className="form-text">Example: tag1,tag2</div>
                     {errors.tags && <div className="invalid-feedback">{errors.tags.message}</div>}
                 </div>
 
@@ -143,7 +143,7 @@ export const NoteForm = ({ isEdit, isView }: { isEdit: boolean, isView: boolean 
                         aria-describedby="usersHelper"
                     />
                     <label htmlFor="users">Utenti</label>
-                    <div id="usersHelper" className="form-text">Esempio: user1, user2</div>
+                    <div id="usersHelper" className="form-text">Example: user1,user2</div>
                     {errors.allowedUsers && <div className="invalid-feedback">{errors.allowedUsers.message}</div>}
                 </div>
 

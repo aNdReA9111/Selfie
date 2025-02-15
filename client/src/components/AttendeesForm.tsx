@@ -51,6 +51,7 @@ export const AttendeesForm = ({ register, errors, setValue, watch }: any) => {
                     onFocus={() => setOpen(true)}
                     onChange={onInputChange}
                 />
+                <div id="attendeesHelper" className="form-text">Example: user1,user2</div>
                 {errors.attendees && <div className="invalid-feedback">{errors.attendees.message}</div>}
                 <ul onBlur={() => setOpen(false)} className={`list-group ${!open ? 'd-none' : ''} scrollable-list`}>
                     {

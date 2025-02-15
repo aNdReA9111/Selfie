@@ -2,6 +2,7 @@ export const NotificationsForm = ({ watch, register, errors }: any) => {
     const mailNotification: boolean | undefined | null = watch('notifications.notifica_email');
     const desktopNotification: boolean | undefined | null = watch('notifications.notifica_desktop');
     const frequencyType: string | undefined | null = watch('notifications.frequencyType');
+    // console.log()
 
     return (
         <>
@@ -32,7 +33,6 @@ export const NotificationsForm = ({ watch, register, errors }: any) => {
                                 type="number"
                                 id="advance"
                                 min={1}
-                                max={5}
                                 defaultValue={1}
                                 className={`form-control ms-2 w-25 ${errors.notifications?.advance ? 'is-invalid' : ''}`}
                                 {...register('notifications.advance')}

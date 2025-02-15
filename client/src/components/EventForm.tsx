@@ -223,6 +223,8 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
         }
     };
 
+    console.log(errors)
+
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <div className="row">
@@ -370,6 +372,8 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
                     </div>
                     <AttendeesForm setValue={setValue} register={register} errors={errors} watch={watch} />
                     <NotificationsForm register={register} errors={errors} watch={watch} setValue={setValue} />
+
+                    {errors.notifications?.root?.message && <div className="text-danger">{errors.notifications?.root.message}</div>}
                     <button className="btn btn-danger mt-3" type="submit">
                         Submit
                         <i className="ms-2 bi bi-send"></i>

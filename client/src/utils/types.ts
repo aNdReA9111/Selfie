@@ -231,22 +231,64 @@ const notificationsSchema = z
         notifica_desktop: z.boolean().default(false).optional().nullable(),
         text: z.string().min(1).optional().nullable(), // Ensure text is a non-empty string
         before: z.boolean().optional().nullable(),
-        advance: createNumberFromString(5).optional().nullable(),
-        repetitions: createNumberFromString(5).optional().nullable(),
-        frequency: createNumberFromString(5).optional().nullable(),
+        advance: createNumberFromString(10000).optional().nullable(),
+        repetitions: createNumberFromString(10000).optional().nullable(),
+        frequency: createNumberFromString(10000).optional().nullable(),
         frequencyType: notificationsFrequencyEnum.optional().nullable(),
         advanceType: notificationAdvanceEnum.optional().nullable(),
     })
     .refine(
         (data) => {
-            if (data.frequencyType === undefined) return true;
-            if (data.repetitions !== undefined && data.frequencyType === "DAILY") {
+            if (!data.advanceType) return true;
+            if (data.advanceType === "DAYS" && data.advance) return data.advance <= 5;
+            if (data.advanceType === "HOURS" && data.advance) return data.advance <= 120;
+            if (data.advanceType === "MINUTES" && data.advance) return data.advance <= 7200;
+            return true;
+        },
+        {
+            message: "You cannot set notifications with an advance higher than 5 days"
+        }
+    )
+    .refine(
+        (data) => {
+            if (!data.frequencyType) return true;
+            if (data.repetitions && data.frequencyType === "DAILY") {
                 return data.repetitions && data?.repetitions <= 5;
+            }
+            if (
+                data.advance && data.frequency && data.repetitions &&
+                data.advanceType === "HOURS"
+            ) {
+                switch (data.frequencyType) {
+                    case "DAILY":
+                        return data.repetitions * data.frequency * 24 <= data.advance;
+                    case "HOURLY":
+                        return data.repetitions * data.frequency <= data.advance;
+                    case "MINUTELY":
+                        return data.repetitions * (data.frequency / 60) <= data.advance;
+                    default:
+                        break;
+                }
+            }
+            if (
+                data.advance && data.frequency && data.repetitions &&
+                data.advanceType === "MINUTES"
+            ) {
+                switch (data.frequencyType) {
+                    case "DAILY":
+                        return data.repetitions * data.frequency * 24 * 60 <= data.advance;
+                    case "HOURLY":
+                        return data.repetitions * data.frequency * 60 <= data.advance
+                    case "MINUTELY":
+                        return data.repetitions * data.frequency <= data.advance;
+                    default:
+                        break;
+                }
             }
             return true;
         },
         {
-            message: "With daily frequency, repetitions must be 5 or less",
+            message: "You cannot set notifications after start of the event.",
         },
     );
 
@@ -382,7 +424,7 @@ export const activityFormSchema = activitySchema
         date: true,
         notifications: true,
         timezone: true,
-        isCompleted: true
+        isCompleted: true,
     })
     .merge(
         z.object({
