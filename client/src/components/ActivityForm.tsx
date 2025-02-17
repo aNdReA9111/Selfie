@@ -4,12 +4,15 @@ import { DateTime } from "luxon";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useActivitiesContext } from "../hooks/useActivitiesContext";
+import { useAuthContext } from "../hooks/useAuthContext";
 import { toUTC } from "../utils/dateUtils";
 import { Activity, ActivityFormData, activityFormSchema } from "../utils/types";
 import { AttendeesForm } from "./AttendeesForm";
 import { NotificationsForm } from "./NotificationsForm";
 
 export const ActivityForm = ({ setShow, activity }: { setShow: Dispatch<SetStateAction<boolean>>, activity?: Activity }) => {
+    const { user } = useAuthContext();
+    const readonly = activity ? user._id !== activity._id_user : false;
 
     const defaultValues = {
         title: activity?.title || undefined,
@@ -117,73 +120,75 @@ export const ActivityForm = ({ setShow, activity }: { setShow: Dispatch<SetState
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="row">
-                <div className="col-sm-12 col-md-6">
-                    <div className="mb-3">
-                        <label htmlFor="title" className="form-label">Title</label>
-                        <input
-                            type="text"
-                            id="title"
-                            className={`form-control ${errors.title ? 'is-invalid' : ''}`}
-                            {...register('title')}
-                        />
-                        {errors.title && <div className="invalid-feedback">{errors.title.message}</div>}
+            <fieldset disabled={readonly}>
+                <div className="row">
+                    <div className="col-sm-12 col-md-6">
+                        <div className="mb-3">
+                            <label htmlFor="title" className="form-label">Title</label>
+                            <input
+                                type="text"
+                                id="title"
+                                className={`form-control ${errors.title ? 'is-invalid' : ''}`}
+                                {...register('title')}
+                            />
+                            {errors.title && <div className="invalid-feedback">{errors.title.message}</div>}
+                        </div>
+
+                        <div className="mb-3">
+                            <label htmlFor="description" className="form-label">Description</label>
+                            <textarea
+                                id="description"
+                                className={`form-control ${errors.description ? 'is-invalid' : ''}`}
+                                {...register('description')}
+                                rows={5}
+                            />
+                            {errors.description && <div className="invalid-feedback">{errors.description.message}</div>}
+                        </div>
+
+                        <div className="mb-3">
+                            <label htmlFor="date" className="form-label">Date</label>
+                            <input
+                                id="date"
+                                type="datetime-local"
+                                className={`form-control ${errors.date ? 'is-invalid' : ''}`}
+                                {...register('date')}
+                            />
+                            {errors.date && <div className="invalid-feedback">{errors.date.message}</div>}
+                        </div>
+
+                        <div className="mb-3">
+                            <label htmlFor="timezone" className="form-label">Timezone</label>
+                            <input id="timezone" className={`form-control ${errors.timezone ? 'is-invalid' : ''}`} {...register('timezone')} onFocus={() => setOpen(true)} />
+                            {errors.timezone && <div className="invalid-feedback">{errors.timezone.message}</div>}
+                            <ul onBlur={() => setOpen(false)} className={`list-group ${!open ? 'd-none' : ''} scrollable-list`}>
+                                {
+                                    suggestions.map((suggestion: string, index: number) => (
+                                        <li className="list-group-item" key={index} onClick={() => { onSuggestionClick(suggestion) }} style={{ cursor: 'pointer' }}>
+                                            {suggestion}
+                                        </li>
+                                    ))
+                                }
+                            </ul>
+                        </div>
+
+                        {/* cannot mark an activity as completed when creating it --> activity && */}
+                        {activity && <div className="mb-3 form-check form-check-inline">
+                            <label htmlFor="isCompleted" className="form-label">Mark as completed</label>
+                            <input type="checkbox" id="isCompleted" className="form-check-input" {...register('isCompleted')} />
+                            {errors.isCompleted && <div className="invalid-feedback">{errors.isCompleted.message}</div>}
+                        </div>}
+
                     </div>
-
-                    <div className="mb-3">
-                        <label htmlFor="description" className="form-label">Description</label>
-                        <textarea
-                            id="description"
-                            className={`form-control ${errors.description ? 'is-invalid' : ''}`}
-                            {...register('description')}
-                            rows={5}
-                        />
-                        {errors.description && <div className="invalid-feedback">{errors.description.message}</div>}
+                    <div className="col-sm-12 col-md-6">
+                        <AttendeesForm setValue={setValue} register={register} errors={errors} watch={watch} />
+                        <NotificationsForm register={register} errors={errors} watch={watch} setValue={setValue} />
+                        <button className="btn btn-danger mt-3" type="submit">
+                            Submit
+                            <i className="ms-2 bi bi-send"></i>
+                        </button>
                     </div>
-
-                    <div className="mb-3">
-                        <label htmlFor="date" className="form-label">Date</label>
-                        <input
-                            id="date"
-                            type="datetime-local"
-                            className={`form-control ${errors.date ? 'is-invalid' : ''}`}
-                            {...register('date')}
-                        />
-                        {errors.date && <div className="invalid-feedback">{errors.date.message}</div>}
-                    </div>
-
-                    <div className="mb-3">
-                        <label htmlFor="timezone" className="form-label">Timezone</label>
-                        <input id="timezone" className={`form-control ${errors.timezone ? 'is-invalid' : ''}`} {...register('timezone')} onFocus={() => setOpen(true)} />
-                        {errors.timezone && <div className="invalid-feedback">{errors.timezone.message}</div>}
-                        <ul onBlur={() => setOpen(false)} className={`list-group ${!open ? 'd-none' : ''} scrollable-list`}>
-                            {
-                                suggestions.map((suggestion: string, index: number) => (
-                                    <li className="list-group-item" key={index} onClick={() => { onSuggestionClick(suggestion) }} style={{ cursor: 'pointer' }}>
-                                        {suggestion}
-                                    </li>
-                                ))
-                            }
-                        </ul>
-                    </div>
-
-                    {/* cannot mark an activity as completed when creating it --> activity && */}
-                    {activity && <div className="mb-3 form-check form-check-inline">
-                        <label htmlFor="isCompleted" className="form-label">Mark as completed</label>
-                        <input type="checkbox" id="isCompleted" className="form-check-input" {...register('isCompleted')} />
-                        {errors.isCompleted && <div className="invalid-feedback">{errors.isCompleted.message}</div>}
-                    </div>}
-
                 </div>
-                <div className="col-sm-12 col-md-6">
-                    <AttendeesForm setValue={setValue} register={register} errors={errors} watch={watch} />
-                    <NotificationsForm register={register} errors={errors} watch={watch} setValue={setValue} />
-                    <button className="btn btn-danger mt-3" type="submit">
-                        Submit
-                        <i className="ms-2 bi bi-send"></i>
-                    </button>
-                </div>
-            </div>
+            </fieldset>
         </form>
     )
 }

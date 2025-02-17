@@ -13,6 +13,7 @@ import { ImportedCalendar, Req } from "../utils/types.js";
 
 const { RRule } = pkg;
 
+import { console } from "inspector";
 import { createICalendar, readICalendar } from "../utils/icalendarUtils.js";
 
 const createEvent = async (req: Req, res: Response) => {
@@ -367,6 +368,7 @@ const updateEvent = async (req: Req, res: Response) => {
     try {
         //update event
         const newValidAttendees = await setEmails(newAttendees);
+        console.log(newValidAttendees);
 
         const newEvent: IEvent | null = await EventModel.findOneAndUpdate(
             {
