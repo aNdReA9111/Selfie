@@ -17,6 +17,7 @@ import { useEvents } from '../hooks/useEvents';
 import { useEventsContext } from '../hooks/useEventsContext';
 import { useTimeMachineContext } from '../hooks/useTimeMachineContext';
 import { ActivitiesContextType, Activity, Event, EventsContextType } from '../utils/types';
+import { ActivitiesPreview } from '../components/ActivitiesPreview';
 
 const localizer: DateLocalizer = luxonLocalizer(DateTime);
 
@@ -206,9 +207,9 @@ const CustomCalendar = () => {
 
     return (
         isLoadingA || isLoadingE ? <h2>Loading...</h2> :
-            errorA || errorE ? <h2>{errorA || ""} + {"\n"} + {errorE || ""}</h2> : (<div className="mx-5 my-4">
-                <div className="row justify-content-center">
-                    <div className="col-12">
+            errorA || errorE ? <h2>{errorA || ""} + {"\n"} + {errorE || ""}</h2> : (<div className="">
+                <div className="row justify-content-center m-0">
+                    <div className="col-12 m-0">
                         <BigCalendar
                             localizer={localizer}
                             components={{ event: EventComponent }}
@@ -258,6 +259,7 @@ const CustomCalendar = () => {
                             handleClose={() => setShowImportModal(false)}
                         />
                     </div>
+                    <ActivitiesPreview isPreview={false} />
                 </div>
             </div>)
     );
