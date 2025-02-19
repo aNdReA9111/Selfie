@@ -317,6 +317,7 @@ export const eventSchema = z.object({
     timezone: z.string(),
     isPomodoro: z.boolean(),
     pomodoroSetting: pomodoroSettingSchema,
+    _id_user: z.string(),
 });
 
 export const eventFormSchema = eventSchema

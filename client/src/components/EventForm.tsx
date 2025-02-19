@@ -4,6 +4,7 @@ import { DateTime } from "luxon";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useForm } from "react-hook-form";
 import { RRule } from "rrule";
+import { useAuthContext } from "../hooks/useAuthContext";
 import { useEventsContext } from "../hooks/useEventsContext";
 import { frequenciesMap, revereseFrequenciesMap, reverseWeekDaysMap, weekDaysMap } from "../utils/const";
 import { toUTC } from "../utils/dateUtils";
@@ -44,6 +45,8 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
     slotStart?: Date,
     slotEnd?: Date
 }) => {
+    const { user } = useAuthContext();
+    const readonly = event ? user._id !== event._id_user : false;
 
     let defaultStart: string | undefined;
     let defaultEnd: string | undefined;
@@ -197,6 +200,7 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
             location: data.location,
             url: data.url,
             notifications,
+            //ERRORE QUA SOTTO
             attendees: data.attendees?.map((a: string) => ({ name: a, email: "default@mail.com", accepted: false, responded: false })) || [],
             recurrenceRule: rrule ? rrule.toString() : undefined,
             timezone: data.timezone,
@@ -229,161 +233,163 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
 
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="row">
-                <div className="col-sm-12 col-md-6">
-                    <div className="mb-3">
-                        <label htmlFor="title" className="form-label">Title</label>
-                        <input
-                            type="text"
-                            id="title"
-                            className={`form-control ${errors.title ? 'is-invalid' : ''}`}
-                            {...register('title')}
-                        />
-                        {errors.title && <div className="invalid-feedback">{errors.title.message}</div>}
-                    </div>
-
-                    <div className="mb-3">
-                        <label htmlFor="description" className="form-label">Description</label>
-                        <textarea
-                            id="description"
-                            className={`form-control ${errors.description ? 'is-invalid' : ''}`}
-                            {...register('description')}
-                            rows={5}
-                        />
-                        {errors.description && <div className="invalid-feedback">{errors.description.message}</div>}
-                    </div>
-
-                    <div className="mb-3">
-                        <label htmlFor="date" className="form-label">Start Date</label>
-                        <input
-                            id="date"
-                            type="datetime-local"
-                            className={`form-control ${errors.date ? 'is-invalid' : ''}`}
-                            {...register('date')}
-                        />
-                        {errors.date && <div className="invalid-feedback">{errors.date.message}</div>}
-                    </div>
-
-                    {!isPomodoro &&
+            <fieldset disabled={readonly}>
+                <div className="row">
+                    <div className="col-sm-12 col-md-6">
                         <div className="mb-3">
-                            <label htmlFor="endDate" className="form-label">End Date</label>
+                            <label htmlFor="title" className="form-label">Title</label>
                             <input
-                                id="endDate"
-                                type="datetime-local"
-                                className={`form-control ${errors.endDate ? 'is-invalid' : ''}`}
-                                {...register('endDate')}
+                                type="text"
+                                id="title"
+                                className={`form-control ${errors.title ? 'is-invalid' : ''}`}
+                                {...register('title')}
                             />
-                            {errors.endDate && <div className="invalid-feedback">{errors.endDate.message}</div>}
+                            {errors.title && <div className="invalid-feedback">{errors.title.message}</div>}
                         </div>
-                    }
 
-                    <div className="mb-3 form-check">
-                        <input
-                            type="checkbox"
-                            id="isRecurring"
-                            className="form-check-input"
-                            {...register('isRecurring')}
-                        />
-                        <label className="form-check-label" htmlFor="isRecurring">Is this event recurring?</label>
-                    </div>
-                    {isRecurring && (<RRuleForm watch={watch} register={register} errors={errors} setValue={setValue} />)}
-
-                    <div className="mb-3 form-check">
-                        <input
-                            type="checkbox"
-                            id="isPomodoro"
-                            className="form-check-input"
-                            {...register('isPomodoro')}
-                        />
-                        <label className="form-check-label" htmlFor="isPomodoro">Include Pomodoro Session</label>
-                    </div>
-
-                    {isPomodoro && (
-                        <div className="row">
-                            <div className="col mb-3">
-                                <label className="form-label w-50 text-center">Study Time (minutes)</label>
-                                <input
-                                    type="number"
-                                    min="5"
-                                    step="5"
-                                    className="form-control w-50"
-                                    {...register('pomodoroSetting.studioTime')}
-                                />
-                            </div>
-
-                            <div className="col mb-3">
-                                <label className="form-label w-50 text-center">Rest Time (minutes)</label>
-                                <input
-                                    type="number"
-                                    min="1"
-                                    className="form-control w-50"
-                                    {...register('pomodoroSetting.riposoTime')}
-                                />
-                            </div>
-
-                            <div className=" col mb-3">
-                                <label className="form-label w-50 text-center">Amount of cycles</label>
-                                <input
-                                    type="number"
-                                    min="1"
-                                    className="form-control w-50"
-                                    {...register('pomodoroSetting.nCicli')}
-                                />
-                            </div>
+                        <div className="mb-3">
+                            <label htmlFor="description" className="form-label">Description</label>
+                            <textarea
+                                id="description"
+                                className={`form-control ${errors.description ? 'is-invalid' : ''}`}
+                                {...register('description')}
+                                rows={5}
+                            />
+                            {errors.description && <div className="invalid-feedback">{errors.description.message}</div>}
                         </div>
-                    )}
+
+                        <div className="mb-3">
+                            <label htmlFor="date" className="form-label">Start Date</label>
+                            <input
+                                id="date"
+                                type="datetime-local"
+                                className={`form-control ${errors.date ? 'is-invalid' : ''}`}
+                                {...register('date')}
+                            />
+                            {errors.date && <div className="invalid-feedback">{errors.date.message}</div>}
+                        </div>
+
+                        {!isPomodoro &&
+                            <div className="mb-3">
+                                <label htmlFor="endDate" className="form-label">End Date</label>
+                                <input
+                                    id="endDate"
+                                    type="datetime-local"
+                                    className={`form-control ${errors.endDate ? 'is-invalid' : ''}`}
+                                    {...register('endDate')}
+                                />
+                                {errors.endDate && <div className="invalid-feedback">{errors.endDate.message}</div>}
+                            </div>
+                        }
+
+                        <div className="mb-3 form-check">
+                            <input
+                                type="checkbox"
+                                id="isRecurring"
+                                className="form-check-input"
+                                {...register('isRecurring')}
+                            />
+                            <label className="form-check-label" htmlFor="isRecurring">Is this event recurring?</label>
+                        </div>
+                        {isRecurring && (<RRuleForm watch={watch} register={register} errors={errors} setValue={setValue} />)}
+
+                        <div className="mb-3 form-check">
+                            <input
+                                type="checkbox"
+                                id="isPomodoro"
+                                className="form-check-input"
+                                {...register('isPomodoro')}
+                            />
+                            <label className="form-check-label" htmlFor="isPomodoro">Include Pomodoro Session</label>
+                        </div>
+
+                        {isPomodoro && (
+                            <div className="row">
+                                <div className="col mb-3">
+                                    <label className="form-label w-50 text-center">Study Time (minutes)</label>
+                                    <input
+                                        type="number"
+                                        min="5"
+                                        step="5"
+                                        className="form-control w-50"
+                                        {...register('pomodoroSetting.studioTime')}
+                                    />
+                                </div>
+
+                                <div className="col mb-3">
+                                    <label className="form-label w-50 text-center">Rest Time (minutes)</label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        className="form-control w-50"
+                                        {...register('pomodoroSetting.riposoTime')}
+                                    />
+                                </div>
+
+                                <div className=" col mb-3">
+                                    <label className="form-label w-50 text-center">Amount of cycles</label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        className="form-control w-50"
+                                        {...register('pomodoroSetting.nCicli')}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    <div className="col-sm-12 col-md-6">
+                        <div className="mb-3">
+                            <label htmlFor="timezone" className="form-label">Timezone</label>
+                            <input id="timezone" className={`form-control ${errors.timezone ? 'is-invalid' : ''}`} {...register('timezone')} onFocus={() => setOpen(true)} />
+                            {errors.timezone && <div className="invalid-feedback">{errors.timezone.message}</div>}
+                            <ul onBlur={() => setOpen(false)} className={`list-group ${!open ? 'd-none' : ''} scrollable-list`}>
+                                {
+                                    suggestions.map((suggestion: string, index: number) => (
+                                        <li className="list-group-item" key={index} onClick={() => { onSuggestionClick(suggestion) }} style={{ cursor: 'pointer' }}>
+                                            {suggestion}
+                                        </li>
+                                    ))
+                                }
+                            </ul>
+                        </div>
+
+                        <div className="mb-3">
+                            <label htmlFor="location" className="form-label">
+                                <i className="bi bi-geo-alt-fill"></i> Location
+                            </label>
+                            <input
+                                id="location"
+                                type="text"
+                                className={`form-control ${errors.location ? 'is-invalid' : ''}`}
+                                {...register('location')}
+                            />
+                            {errors.location && <div className="invalid-feedback">{errors.location.message}</div>}
+                        </div>
+
+                        <div className="mb-3">
+                            <label htmlFor="url" className="form-label">
+                                <i className="bi bi-link-45deg"></i> URL
+                            </label>
+                            <input
+                                type="url"
+                                id="url"
+                                className={`form-control ${errors.url ? 'is-invalid' : ''}`}
+                                {...register('url')}
+                            />
+                            {errors.url && <div className="invalid-feedback">{errors.url.message}</div>}
+                        </div>
+                        <AttendeesForm setValue={setValue} register={register} errors={errors} watch={watch} />
+                        <NotificationsForm register={register} errors={errors} watch={watch} setValue={setValue} />
+
+                        {errors.notifications?.root?.message && <div className="text-danger">{errors.notifications?.root.message}</div>}
+                        <button className="btn btn-danger mt-3" type="submit">
+                            Submit
+                            <i className="ms-2 bi bi-send"></i>
+                        </button>
+                    </div>
                 </div>
-                <div className="col-sm-12 col-md-6">
-                    <div className="mb-3">
-                        <label htmlFor="timezone" className="form-label">Timezone</label>
-                        <input id="timezone" className={`form-control ${errors.timezone ? 'is-invalid' : ''}`} {...register('timezone')} onFocus={() => setOpen(true)} />
-                        {errors.timezone && <div className="invalid-feedback">{errors.timezone.message}</div>}
-                        <ul onBlur={() => setOpen(false)} className={`list-group ${!open ? 'd-none' : ''} scrollable-list`}>
-                            {
-                                suggestions.map((suggestion: string, index: number) => (
-                                    <li className="list-group-item" key={index} onClick={() => { onSuggestionClick(suggestion) }} style={{ cursor: 'pointer' }}>
-                                        {suggestion}
-                                    </li>
-                                ))
-                            }
-                        </ul>
-                    </div>
-
-                    <div className="mb-3">
-                        <label htmlFor="location" className="form-label">
-                            <i className="bi bi-geo-alt-fill"></i> Location
-                        </label>
-                        <input
-                            id="location"
-                            type="text"
-                            className={`form-control ${errors.location ? 'is-invalid' : ''}`}
-                            {...register('location')}
-                        />
-                        {errors.location && <div className="invalid-feedback">{errors.location.message}</div>}
-                    </div>
-
-                    <div className="mb-3">
-                        <label htmlFor="url" className="form-label">
-                            <i className="bi bi-link-45deg"></i> URL
-                        </label>
-                        <input
-                            type="url"
-                            id="url"
-                            className={`form-control ${errors.url ? 'is-invalid' : ''}`}
-                            {...register('url')}
-                        />
-                        {errors.url && <div className="invalid-feedback">{errors.url.message}</div>}
-                    </div>
-                    <AttendeesForm setValue={setValue} register={register} errors={errors} watch={watch} />
-                    <NotificationsForm register={register} errors={errors} watch={watch} setValue={setValue} />
-
-                    {errors.notifications?.root?.message && <div className="text-danger">{errors.notifications?.root.message}</div>}
-                    <button className="btn btn-danger mt-3" type="submit">
-                        Submit
-                        <i className="ms-2 bi bi-send"></i>
-                    </button>
-                </div>
-            </div>
+            </fieldset>
         </form>
     )
 }

@@ -6,12 +6,14 @@ import { useEventsContext } from '../hooks/useEventsContext';
 import { EventDetailsProps } from '../utils/types';
 import { EventModalForm } from './EventModalForm';
 import { PomConfiguration } from './PomConfiguration';
+import { useAuthContext } from '../hooks/useAuthContext';
 
 export const EventDetails = ({ id, date, show, setShow }: EventDetailsProps) => {
     const { events, dispatch } = useEventsContext();
     const event = events.find((event) => event._id === id);
     if (!event) return null;
 
+    const { user } = useAuthContext();
     const start = event?.isRecurring === false ? DateTime.fromJSDate(event?.date) : DateTime.fromJSDate(date as Date);
     const end = event?.isRecurring === false ? DateTime.fromJSDate(event?.endDate) : DateTime.fromJSDate(date as Date).plus(event?.duration as number);
     const rruleString = event?.isRecurring === false ? undefined : RRule.fromString(event?.recurrenceRule as string).toText();
@@ -73,7 +75,7 @@ export const EventDetails = ({ id, date, show, setShow }: EventDetailsProps) => 
                         <div className="d-flex justify-content-between align-items-center">
                             <h3>{event.title}</h3>
                             <div className='d-flex align-items-center'>
-                                {!event.isRecurring && <Button variant="danger" className='me-2' onClick={handleDeleteEvent}>Delete<i className="ms-2 bi bi-trash"></i></Button>}
+                                {event._id_user === user._id && <Button variant="danger" className='me-2' onClick={handleDeleteEvent}>Delete<i className="ms-2 bi bi-trash"></i></Button>}
                                 <EventModalForm event={event} isActivity={false} />
                             </div>
                         </div>
