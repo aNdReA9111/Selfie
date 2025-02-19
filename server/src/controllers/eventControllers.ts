@@ -185,7 +185,6 @@ const getAllEvents = async (req: Req, res: Response) => {
                 ],
             });
 
-
             events = events.filter((e: IEvent) => {
                 if (e.isRecurring) {
                     const rrule: pkg.RRule = RRule.fromString(e.recurrenceRule);
@@ -212,7 +211,7 @@ const getAllEvents = async (req: Req, res: Response) => {
                                     },
                                 },
                             },
-                        ]
+                        ],
                     },
                     {
                         $or: [
@@ -222,10 +221,10 @@ const getAllEvents = async (req: Req, res: Response) => {
                                 },
                             },
                             {
-                                isRecurring: true
-                            }
-                        ]
-                    }
+                                isRecurring: true,
+                            },
+                        ],
+                    },
                 ],
                 isPomodoro: true,
             });
@@ -233,11 +232,12 @@ const getAllEvents = async (req: Req, res: Response) => {
             /* next non-recurring pomodoro event */
             const nonRecurringEvents = events.filter((e: IEvent) => !e.isRecurring);
 
-            const eventWithLowestDate: IEvent | null = nonRecurringEvents.length > 0
-                ? nonRecurringEvents.reduce((min: IEvent, current: IEvent) => {
-                    return current.date < min.date ? current : min;
-                })
-                : null;  // Return null if no non-recurring events exist
+            const eventWithLowestDate: IEvent | null =
+                nonRecurringEvents.length > 0
+                    ? nonRecurringEvents.reduce((min: IEvent, current: IEvent) => {
+                        return current.date < min.date ? current : min;
+                    })
+                    : null; // Return null if no non-recurring events exist
 
             // console.log("NEXT POM", eventWithLowestDate);
 
@@ -257,36 +257,48 @@ const getAllEvents = async (req: Req, res: Response) => {
 
             let eventWithLowestDateR: IEvent | undefined = undefined;
             if (recurringPomEvents.length > 0) {
-                eventWithLowestDateR = recurringPomEvents.reduce((min: IEvent, current: IEvent) => {
-                    const rruleMin: pkg.RRule = RRule.fromString(min.recurrenceRule);
-                    const rruleCurrent: pkg.RRule = RRule.fromString(current.recurrenceRule);
+                eventWithLowestDateR = recurringPomEvents.reduce(
+                    (min: IEvent, current: IEvent) => {
+                        const rruleMin: pkg.RRule = RRule.fromString(min.recurrenceRule);
+                        const rruleCurrent: pkg.RRule = RRule.fromString(
+                            current.recurrenceRule,
+                        );
 
-                    const occurrenceMin: Date = rruleMin.after(
-                        new Date(new Date(date).setHours(0, 0, 0, 0)),
-                    ) as Date;
-                    const occurrenceCurrent: Date = rruleCurrent.after(
-                        new Date(new Date(date).setHours(0, 0, 0, 0)),
-                    ) as Date;
+                        const occurrenceMin: Date = rruleMin.after(
+                            new Date(new Date(date).setHours(0, 0, 0, 0)),
+                        ) as Date;
+                        const occurrenceCurrent: Date = rruleCurrent.after(
+                            new Date(new Date(date).setHours(0, 0, 0, 0)),
+                        ) as Date;
 
-                    if (occurrenceMin < occurrenceCurrent) {
-                        minRDate = occurrenceMin;
-                        return min;
-                    } else {
-                        minRDate = occurrenceCurrent;
-                        return current;
-                    }
-                }, recurringPomEvents[0]);
+                        if (occurrenceMin < occurrenceCurrent) {
+                            minRDate = occurrenceMin;
+                            return min;
+                        } else {
+                            minRDate = occurrenceCurrent;
+                            return current;
+                        }
+                    },
+                    recurringPomEvents[0],
+                );
             }
 
-
-            if (eventWithLowestDate && eventWithLowestDateR && typeof minRDate !== "undefined") {
-                events = [(minRDate as Date) < eventWithLowestDate.date ? eventWithLowestDateR : eventWithLowestDate];
+            if (
+                eventWithLowestDate &&
+                eventWithLowestDateR &&
+                typeof minRDate !== "undefined"
+            ) {
+                events = [
+                    (minRDate as Date) < eventWithLowestDate.date
+                        ? eventWithLowestDateR
+                        : eventWithLowestDate,
+                ];
             } else if (eventWithLowestDate) {
                 events = [eventWithLowestDate];
             } else if (eventWithLowestDateR) {
                 events = [eventWithLowestDateR];
             } else {
-                events = []
+                events = [];
             }
         }
 
@@ -296,8 +308,6 @@ const getAllEvents = async (req: Req, res: Response) => {
         res.status(400).json({ message: error.message });
     }
 };
-
-
 
 const deleteEventById = async (req: Req, res: Response) => {
     const eventId = req.params.id;
@@ -359,6 +369,9 @@ const updateEvent = async (req: Req, res: Response) => {
             for (const attendee of event.attendees || []) {
                 if (newAttendee.name === attendee.name) {
                     isNew = false;
+                    newAttendee.accepted = attendee.accepted;
+                    newAttendee.responded = attendee.responded;
+                    newAttendee.email = attendee.email;
                 }
             }
             if (isNew) newAttendees.push(newAttendee);
@@ -454,5 +467,5 @@ export {
     getAllEvents,
     getEventById,
     importEvents,
-    updateEvent
+    updateEvent,
 };

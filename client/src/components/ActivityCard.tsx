@@ -1,5 +1,6 @@
 import { DateTime } from "luxon";
 import { useActivitiesContext } from "../hooks/useActivitiesContext";
+import { useAuthContext } from "../hooks/useAuthContext";
 import { Activity } from "../utils/types";
 import { EventModalForm } from "./EventModalForm";
 
@@ -10,6 +11,7 @@ type ActivityCardProps = {
 
 export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, isPreview }: ActivityCardProps) => {
     const { dispatch } = useActivitiesContext();
+    const { user } = useAuthContext();
     const start: DateTime = DateTime.fromJSDate(activity.date);
 
     let start2: DateTime | undefined = activity.timezone != Intl.DateTimeFormat().resolvedOptions().timeZone ? start.setZone(activity.timezone as string) : undefined;
@@ -45,7 +47,7 @@ export const ActivityCard: React.FC<ActivityCardProps> = ({ activity, isPreview 
                     )
                 }
                 {!activity.isCompleted && <p>Not completed yet !!</p>}
-                {!isPreview && <button className="btn btn-danger" onClick={handleDeleteActivity}>Delete</button>}
+                {!isPreview && activity._id_user === user._id && <button className="btn btn-danger me-2" onClick={handleDeleteActivity}>Delete</button>}
                 {!isPreview && <EventModalForm activity={activity} isActivity={true} />}
             </div>
         </div>

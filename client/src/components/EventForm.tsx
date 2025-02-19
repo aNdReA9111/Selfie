@@ -200,6 +200,7 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
             location: data.location,
             url: data.url,
             notifications,
+            //ERRORE QUA SOTTO
             attendees: data.attendees?.map((a: string) => ({ name: a, email: "default@mail.com", accepted: false, responded: false })) || [],
             recurrenceRule: rrule ? rrule.toString() : undefined,
             timezone: data.timezone,

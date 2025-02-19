@@ -74,7 +74,7 @@ export const ActivitiesPreview: React.FC<{ isPreview: boolean }> = ({ isPreview 
     }, [offset]);
 
     return (
-        <div className="d-flex justify-content-center align-items-start pt-2 a">
+        <div className="d-flex justify-content-center align-items-start pt-2 a" style={{ height: "75vh" }}>
             {/* Add your content here if needed */}
             <div className="h-100 container d-flex flex-column justify-content-start overflow-y-scroll">
                 <div className="d-flex justify-content-between align-items-center mb-2">

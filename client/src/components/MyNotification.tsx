@@ -1,4 +1,4 @@
-import { useEffect, useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { AuthContext } from '../context/authContext';
 
 const MyNotification = () => {
@@ -6,9 +6,9 @@ const MyNotification = () => {
 
     const check = () => {
         if (!('serviceWorker' in navigator))
-            throw new Error("Service Worker non supportato");
+            throw new Error("Service Worker not supported");
         if (!('PushManager' in window))
-            throw new Error("No support per Push API");
+            throw new Error("No support for Push API");
     }
 
     const askNotificationPermission = async () => {
@@ -20,8 +20,9 @@ const MyNotification = () => {
     };
 
     async function subscribeUserToPush(registration: any) {
-        const applicationServerKey = urlB64ToUint8Array(process.env.VAPID_PUBLIC_KEY as string);
+        console.log(import.meta.env.VITE_VAPID_PUBLIC_KEY);
         try {
+            const applicationServerKey = urlB64ToUint8Array(import.meta.env.VITE_VAPID_PUBLIC_KEY as string);
             const subscription = await registration.pushManager.subscribe({
                 userVisibleOnly: true,
                 applicationServerKey,

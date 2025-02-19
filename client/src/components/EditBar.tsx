@@ -110,7 +110,7 @@ export const EditBar: React.FC<EditBarProps> = ({ textAreaRef }) => {
                     <i className="bi bi-table"></i>
                 </button>
             </div>
-            <div className="btn-group me-2" role="group" aria-label="Formatting options">
+            <div className="btn-group me-2" role="group" aria-label="Headers options">
                 {
                     [1, 2, 3, 4, 5, 6].map(level => (
                         <button type="button" className="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title={`H${level}`} onClick={() => headerText(level)}>

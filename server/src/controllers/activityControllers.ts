@@ -191,8 +191,12 @@ const updateActivity = async (req: Req, res: Response) => {
         for (const newAttendee of activityData.attendees) {
             let isNew: boolean = true;
             for (const attendee of activity.attendees || []) {
-                if (newAttendee.name === attendee.name)
-                    isNew = false
+                if (newAttendee.name === attendee.name) {
+                    isNew = false;
+                    newAttendee.accepted = attendee.accepted;
+                    newAttendee.responded = attendee.responded;
+                    newAttendee.email = attendee.email;
+                }
             }
             if (isNew)
                 newAttendees.push(newAttendee);
