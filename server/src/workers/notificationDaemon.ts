@@ -5,6 +5,8 @@ import { ActivityModel, IActivity } from "../models/activityModel.js";
 import { EventModel, IEvent, INotification } from "../models/eventModel.js";
 import { IUser, UserModel } from "../models/userModel.js";
 
+import { sendEmail } from "../utils/emailUtils.js";
+
 const { RRule } = pkg;
 
 const MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
@@ -18,6 +20,7 @@ function sendNotification(
     notifica_mail: boolean,
     priority: number,  /*useless as of now*/
     isActivity: boolean,
+    email: string,
 ) {
     console.log(`Sending notification: ${title}`);
     if (notifica_desktop)
@@ -34,10 +37,22 @@ function sendNotification(
             .catch((error) => console.error(`Error sending notification: ${error}`));
 
     //CODICE PER INVIO EMAIL
+    if(notifica_mail) {
+        console.log("Sending email notification");
+        sendEmail(
+            email,
+            "Ricordati dell'" + (isActivity ? "attività!" : "evento!"),
+            `Ricordati dell'${isActivity ? "attività" : "evento"}: ${title}`,
+            [],
+        );  
+    }
+
+    
 }
 
 /*monitoring and possible sending of notifications*/
 async function checkAndSendNotifications() {
+    console.log("Checking notifications");
     /*users that can receive notifications*/
     const users: IUser[] = await UserModel.find({
         $or: [
@@ -252,6 +267,7 @@ function checkNotifications(
                     (event.notifications?.notifica_email || false),
                     priority,
                     isActivity,
+                    user.email,
                 );
             });
         } else {
