@@ -83,6 +83,7 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
         location: event?.location || undefined,
         url: event?.url || undefined,
         isPomodoro: event?.isPomodoro || false,
+        isDoNotDisturb: event?.isDoNotDisturb || false,
         pomodoroSetting: event?.pomodoroSetting || { studioTime: 25, riposoTime: 5, nCicli: 2, isComplete: false },
     };
 
@@ -119,6 +120,7 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
             location: defaultValues.location,
             url: defaultValues.url,
             isPomodoro: defaultValues.isPomodoro,
+            isDoNotDisturb: defaultValues.isDoNotDisturb,
             pomodoroSetting: defaultValues.pomodoroSetting,
         } as Partial<EventFormData>,
     }
@@ -127,6 +129,8 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
     const isRecurring: boolean = watch('isRecurring');
 
     const isPomodoro: boolean = watch('isPomodoro');
+
+    const isDoNotDisturb: boolean = watch('isDoNotDisturb');
 
     const [open, setOpen] = useState<boolean>(false); //for suggestions
 
@@ -200,11 +204,11 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
             location: data.location,
             url: data.url,
             notifications,
-            //ERRORE QUA SOTTO
             attendees: data.attendees?.map((a: string) => ({ name: a, email: "default@mail.com", accepted: false, responded: false })) || [],
             recurrenceRule: rrule ? rrule.toString() : undefined,
             timezone: data.timezone,
             isPomodoro: data.isPomodoro,
+            isDoNotDisturb: data.isDoNotDisturb,
             pomodoroSetting: data.pomodoroSetting ? data.pomodoroSetting : { "studioTime": 5, "riposoTime": 5, "nCicli": 2, "isComplete": false },
         }
 
@@ -243,6 +247,7 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
                                 id="title"
                                 className={`form-control ${errors.title ? 'is-invalid' : ''}`}
                                 {...register('title')}
+                                disabled={isDoNotDisturb}
                             />
                             {errors.title && <div className="invalid-feedback">{errors.title.message}</div>}
                         </div>
@@ -254,6 +259,7 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
                                 className={`form-control ${errors.description ? 'is-invalid' : ''}`}
                                 {...register('description')}
                                 rows={5}
+                                disabled={isDoNotDisturb}
                             />
                             {errors.description && <div className="invalid-feedback">{errors.description.message}</div>}
                         </div>
@@ -299,8 +305,32 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
                                 id="isPomodoro"
                                 className="form-check-input"
                                 {...register('isPomodoro')}
+                                onChange={(e) => {
+                                    register("isPomodoro").onChange(e);
+                                    if (e.target.checked) {
+                                        setValue("isDoNotDisturb", !e.target.checked);
+                                    }
+                                }}
                             />
                             <label className="form-check-label" htmlFor="isPomodoro">Include Pomodoro Session</label>
+                        </div>
+
+                        <div className="mb-3 form-check">
+                            <input
+                                type="checkbox"
+                                id="isDoNotDisturb"
+                                className="form-check-input"
+                                {...register('isDoNotDisturb')}
+                                onChange={(e) => {
+                                    register("isDoNotDisturb").onChange(e);
+                                    setValue("isPomodoro", !e.target.checked);
+                                    if (e.target.checked) {
+                                        setValue("title", "DO NOT DISTURB");
+                                        setValue("description", "DO NOT DISTURB");
+                                    }
+                                }}
+                            />
+                            <label className="form-check-label" htmlFor="isPomodoro">Do Not Disturb</label>
                         </div>
 
                         {isPomodoro && (
@@ -353,34 +383,39 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
                                 }
                             </ul>
                         </div>
+                        {
+                            !isDoNotDisturb &&
+                            <div className="mb-3">
+                                <label htmlFor="location" className="form-label">
+                                    <i className="bi bi-geo-alt-fill"></i> Location
+                                </label>
+                                <input
+                                    id="location"
+                                    type="text"
+                                    className={`form-control ${errors.location ? 'is-invalid' : ''}`}
+                                    {...register('location')}
+                                />
+                                {errors.location && <div className="invalid-feedback">{errors.location.message}</div>}
+                            </div>
+                        }
 
-                        <div className="mb-3">
-                            <label htmlFor="location" className="form-label">
-                                <i className="bi bi-geo-alt-fill"></i> Location
-                            </label>
-                            <input
-                                id="location"
-                                type="text"
-                                className={`form-control ${errors.location ? 'is-invalid' : ''}`}
-                                {...register('location')}
-                            />
-                            {errors.location && <div className="invalid-feedback">{errors.location.message}</div>}
-                        </div>
-
-                        <div className="mb-3">
-                            <label htmlFor="url" className="form-label">
-                                <i className="bi bi-link-45deg"></i> URL
-                            </label>
-                            <input
-                                type="url"
-                                id="url"
-                                className={`form-control ${errors.url ? 'is-invalid' : ''}`}
-                                {...register('url')}
-                            />
-                            {errors.url && <div className="invalid-feedback">{errors.url.message}</div>}
-                        </div>
-                        <AttendeesForm setValue={setValue} register={register} errors={errors} watch={watch} />
-                        <NotificationsForm register={register} errors={errors} watch={watch} setValue={setValue} />
+                        {
+                            !isDoNotDisturb &&
+                            <div className="mb-3">
+                                <label htmlFor="url" className="form-label">
+                                    <i className="bi bi-link-45deg"></i> URL
+                                </label>
+                                <input
+                                    type="url"
+                                    id="url"
+                                    className={`form-control ${errors.url ? 'is-invalid' : ''}`}
+                                    {...register('url')}
+                                />
+                                {errors.url && <div className="invalid-feedback">{errors.url.message}</div>}
+                            </div>
+                        }
+                        {!isDoNotDisturb && <AttendeesForm setValue={setValue} register={register} errors={errors} watch={watch} />}
+                        {!isDoNotDisturb && <NotificationsForm register={register} errors={errors} watch={watch} setValue={setValue} />}
 
                         {errors.notifications?.root?.message && <div className="text-danger">{errors.notifications?.root.message}</div>}
                         <button className="btn btn-danger mt-3" type="submit">

@@ -32,12 +32,12 @@ const createEvent = async (req: Req, res: Response) => {
         timezone,
         user: userId,
         isPomodoro,
+        isDoNotDisturb,
         pomodoroSetting,
     } = req.body;
 
     try {
         const validAttendees = await setEmails(attendees);
-        console.log(validAttendees);
 
         const event: IEvent = await EventModel.create({
             title,
@@ -49,15 +49,18 @@ const createEvent = async (req: Req, res: Response) => {
             duration,
             isRecurring,
             recurrenceRule,
-            attendees,
+            attendees: validAttendees,
             notifications,
             timezone,
             _id_user: userId,
             isPomodoro,
+            isDoNotDisturb,
             pomodoroSetting,
         });
+        console.log("EVENTONE", event);
 
         sendEventInvitationEmail(userId, event, event.attendees || []);
+
 
         res.status(201).json(event);
     } catch (error: any) {
@@ -467,5 +470,6 @@ export {
     getAllEvents,
     getEventById,
     importEvents,
-    updateEvent,
+    updateEvent
 };
+

@@ -316,6 +316,7 @@ export const eventSchema = z.object({
     isRecurring: z.boolean(),
     timezone: z.string(),
     isPomodoro: z.boolean(),
+    isDoNotDisturb: z.boolean(),
     pomodoroSetting: pomodoroSettingSchema,
     _id_user: z.string(),
 });
@@ -333,6 +334,7 @@ export const eventFormSchema = eventSchema
         isRecurring: true,
         timezone: true,
         isPomodoro: true,
+        isDoNotDisturb: true,
         pomodoroSetting: true,
     })
     .merge(
