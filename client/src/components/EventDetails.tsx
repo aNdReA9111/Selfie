@@ -2,11 +2,11 @@ import { DateTime } from 'luxon';
 import { Button, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { RRule } from 'rrule';
+import { useAuthContext } from '../hooks/useAuthContext';
 import { useEventsContext } from '../hooks/useEventsContext';
 import { EventDetailsProps } from '../utils/types';
 import { EventModalForm } from './EventModalForm';
 import { PomConfiguration } from './PomConfiguration';
-import { useAuthContext } from '../hooks/useAuthContext';
 
 export const EventDetails = ({ id, date, show, setShow }: EventDetailsProps) => {
     const { events, dispatch } = useEventsContext();
@@ -15,7 +15,7 @@ export const EventDetails = ({ id, date, show, setShow }: EventDetailsProps) => 
 
     const { user } = useAuthContext();
     const start = event?.isRecurring === false ? DateTime.fromJSDate(event?.date) : DateTime.fromJSDate(date as Date);
-    const end = event?.isRecurring === false ? DateTime.fromJSDate(event?.endDate) : DateTime.fromJSDate(date as Date).plus(event?.duration as number);
+    const end = event?.isRecurring === false ? DateTime.fromJSDate(event?.endDate as Date) : DateTime.fromJSDate(date as Date).plus(event?.duration as number);
     const rruleString = event?.isRecurring === false ? undefined : RRule.fromString(event?.recurrenceRule as string).toText();
     let start2, end2;
 

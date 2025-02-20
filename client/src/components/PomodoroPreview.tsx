@@ -39,7 +39,7 @@ export const PomodoroPreview = () => {
                 const pomEvent: Event[] = await res.json();
                 pomEvent.forEach((e: Event) => {
                     e.date = new Date(e.date);
-                    e.endDate = new Date(e.endDate);
+                    e.endDate = new Date(e.endDate as Date);
                 })
 
                 setLoading(false);
@@ -63,7 +63,7 @@ export const PomodoroPreview = () => {
     if (event) {
         dates = {
             start: event.date,
-            end: event.endDate
+            end: event.endDate as Date
         }
 
         /* caclulate right occurence date in case of recurring event */

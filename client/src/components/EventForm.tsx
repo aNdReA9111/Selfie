@@ -53,7 +53,7 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
 
     if (event) {
         defaultStart = DateTime.fromJSDate(event?.date).setZone(event?.timezone).toFormat("yyyy-MM-dd'T'HH:mm")
-        defaultEnd = DateTime.fromJSDate(event?.endDate).setZone(event?.timezone).toFormat("yyyy-MM-dd'T'HH:mm")
+        defaultEnd = DateTime.fromJSDate(event?.endDate as Date).setZone(event?.timezone).toFormat("yyyy-MM-dd'T'HH:mm")
     } else if (slotStart && slotEnd) {
         defaultStart = DateTime.fromJSDate(slotStart).setZone(Intl.DateTimeFormat().resolvedOptions().timeZone).toFormat("yyyy-MM-dd'T'HH:mm")
         defaultEnd = DateTime.fromJSDate(slotEnd).setZone(Intl.DateTimeFormat().resolvedOptions().timeZone).toFormat("yyyy-MM-dd'T'HH:mm")
@@ -197,8 +197,8 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
             title: data.title,
             description: data.description,
             date: toUTC(data.date, data.timezone),
-            endDate: toUTC(data.endDate, data.timezone),
-            duration: toUTC(data.endDate, data.timezone).getTime() - toUTC(data.date, data.timezone).getTime(),
+            endDate: toUTC(data.endDate as Date, data.timezone),
+            duration: toUTC(data.endDate as Date, data.timezone).getTime() - toUTC(data.date, data.timezone).getTime(),
             isRecurring: data.isRecurring,
             nextDate: toUTC(rrule?.after(DateTime.now().toJSDate()) || data.date, data.timezone),
             location: data.location,
@@ -223,7 +223,7 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
             });
             const data: Event = await res.json();
             data.date = new Date(data.date);
-            data.endDate = new Date(data.endDate);
+            data.endDate = new Date(data.endDate as Date | string);
             if (res.ok) {
                 dispatch({ type: event?._id ? 'EDIT_EVENT' : 'CREATE_EVENT', payload: data });
                 setShow(false);

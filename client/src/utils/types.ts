@@ -6,7 +6,7 @@ const dateFromString = z.preprocess((val) => {
         const parsed = new Date(val);
         return isNaN(parsed.getTime()) ? undefined : parsed;
     }
-    return val; // If it's already a number, return it
+    return val; // If it's already a date, return it
 }, z.date());
 
 //date-string preprocessing, but optional
@@ -15,7 +15,7 @@ const dateFromStringOptional = z.preprocess((val) => {
         const parsed = new Date(val);
         return isNaN(parsed.getTime()) ? undefined : parsed;
     }
-    return val; // If it's already a number, return it
+    return val; // If it's already a date, return it
 }, z.date().optional());
 
 //custom types for time machine context
@@ -305,7 +305,7 @@ export const eventSchema = z.object({
     title: z.string().min(2).max(30),
     description: z.string().min(2).max(150),
     date: dateFromString,
-    endDate: dateFromString,
+    endDate: dateFromStringOptional,
     duration: z.number().positive().optional().nullable(),
     nextDate: z.date().optional().nullable(),
     location: z.string().optional().nullable(),
@@ -352,6 +352,16 @@ export const eventFormSchema = eventSchema
                 .optional()
                 .nullable(),
         }),
+    )
+    .refine(
+        (data) => {
+            if (!data.isPomodoro && !data.endDate) return false;
+            return true;
+        },
+        {
+            message: "End date is required if event is not a pomodoro",
+            path: ["endDate"],
+        },
     )
     .refine(
         (data) => {
