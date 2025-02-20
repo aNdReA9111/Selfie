@@ -25,10 +25,10 @@ function About() {
         <div className="auth-container">
             <Container fluid className="auth-box p-3 p-md-5">
                 <div className="about-content text-center">
-                    <h1 className="auth-title mb-4">Chi Siamo? 🤔</h1>
+                    <h1 className="auth-title mb-4">Who are we? 🤔</h1>
 
                     <div className="about-section mb-4 mb-md-5">
-                        <h2 className="h4 text-danger mb-3">La Storia di Selfie 📚</h2>
+                        <h2 className="h4 text-danger mb-3">The History of Selfie 📚</h2>
                         <p>
                         Created by desperate students for desperate students, Selfie is the university 
                         buddy you always wanted to have (but probably don't deserve 😉).
