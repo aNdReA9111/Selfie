@@ -11,16 +11,14 @@ const { RRule } = pkg;
 
 const MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
 
-/*send notification*/
+/*send notification NO email*/
 function sendNotification(
     sub: PushSubscription,
     title: string,
     url: string,
     notifica_desktop: boolean,
-    notifica_mail: boolean,
     priority: number,  /*useless as of now*/
     isActivity: boolean,
-    email: string,
 ) {
     console.log(`Sending notification: ${title}`);
     if (notifica_desktop)
@@ -38,19 +36,6 @@ function sendNotification(
             )
             .then(() => console.log(`Notification sent: ${title}`))
             .catch((error) => console.error(`Error sending notification: ${error}`));
-
-    //CODICE PER INVIO EMAIL
-    if (notifica_mail) {
-        console.log("Sending email notification");
-        sendEmail(
-            email,
-            "Ricordati dell'" + (isActivity ? "attività!" : "evento!"),
-            `Ricordati dell'${isActivity ? "attività" : "evento"}: ${title}`,
-            [],
-        );
-    }
-
-
 }
 
 /*monitoring and possible sending of notifications*/
@@ -266,13 +251,23 @@ function checkNotifications(
                     url,
                     user.flags.notifica_desktop &&
                     (event.notifications?.notifica_desktop || false),
-                    user.flags.notifica_email &&
-                    (event.notifications?.notifica_email || false),
                     priority,
                     isActivity,
-                    user.email,
                 );
             });
+
+            //sending email
+            if (user.flags.notifica_email && event.notifications?.notifica_email) {
+                console.log("Sending email notification");
+                sendEmail(
+                    user.email,
+                    "Ricordati dell'" + (isActivity ? "attività!" : "evento!"),
+                    `Ricordati dell'${isActivity ? "attività" : "evento"}: ${title}`,
+                    [],
+                );
+            }
+
+
         } else {
             console.log(`Skipping notification: ${title}`);
         }
