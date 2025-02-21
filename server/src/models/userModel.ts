@@ -15,7 +15,6 @@ interface IPushSubscription {
 export interface IFlags extends Document {
     notifica_email: boolean;
     notifica_desktop: boolean;
-    notifica_alert: boolean;
 }
 
 // Definire un'interfaccia che rappresenta le proprietà di un documento User
@@ -45,10 +44,6 @@ const flagsSchema = new Schema<IFlags>({
         default: false
     },
     notifica_desktop: {
-        type: Boolean,
-        default: true
-    },
-    notifica_alert: {
         type: Boolean,
         default: true
     }
@@ -108,12 +103,12 @@ const userSchema = new Schema<IUser>({
     ],
     flags: {
         type: flagsSchema,
-        default: { notifica_email: false, notifica_desktop: true, notifica_alert: true }
+        default: { notifica_email: false, notifica_desktop: true }
     },
     dateOffset: {
       type: Number,
       default: 0
-    },
+    }
 });
 
 // aggiungo il metodo statico per la regiostrarzione
@@ -130,7 +125,7 @@ userSchema.statics.signup = async function(email: string, password: string, nome
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(password, salt);
 
-    const user = await this.create({ email, password: hashedPassword, nome, cognome, username, data_nascita});
+    const user = await this.create({ email, password: hashedPassword, nome, cognome, username, data_nascita, doNotDisturb: Array(7).fill(Array(24).fill(false))});
     return user;
 };
 

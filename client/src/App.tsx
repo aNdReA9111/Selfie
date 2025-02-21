@@ -10,9 +10,9 @@ import Login from './pages/Login';
 import { NotesPreview } from './pages/NotesPage';
 import Pomodoro from './pages/Pomodoro';
 import SignUp from './pages/Signup';
-
 import EventInvitation from './pages/EventInvitation';
 import ActivityInvitation from './pages/ActivityInvitation';
+import UserInfo from './pages/UserInfo';
 
 // Components
 import { Editor } from './components/Editor';
@@ -107,7 +107,7 @@ function App() {
                             path="/account-settings"
                             element={
                                 <ProtectedRoute>
-                                    <About />
+                                    <UserInfo />
                                 </ProtectedRoute>
                             }
                         />
