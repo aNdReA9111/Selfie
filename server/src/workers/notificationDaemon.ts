@@ -32,22 +32,25 @@ function sendNotification(
                     body: "Ricordati dell'" + (isActivity ? "attività!" : "evento!"),
                     url,
                 }),
+                {
+                    TTL: 86400, // 1 day in seconds
+                }
             )
             .then(() => console.log(`Notification sent: ${title}`))
             .catch((error) => console.error(`Error sending notification: ${error}`));
 
     //CODICE PER INVIO EMAIL
-    if(notifica_mail) {
+    if (notifica_mail) {
         console.log("Sending email notification");
         sendEmail(
             email,
             "Ricordati dell'" + (isActivity ? "attività!" : "evento!"),
             `Ricordati dell'${isActivity ? "attività" : "evento"}: ${title}`,
             [],
-        );  
+        );
     }
 
-    
+
 }
 
 /*monitoring and possible sending of notifications*/
