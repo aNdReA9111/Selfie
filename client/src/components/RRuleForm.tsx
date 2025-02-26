@@ -67,7 +67,7 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({ watch, register, 
 
     const onFrequencyChange = () => {
         // Reset relevant fields when frequency changes
-        setValue("recurrenceRule.byday", undefined);
+        setValue("recurrenceRule.byday", []);
         setValue("recurrenceRule.bymonth", undefined);
         setValue("recurrenceRule.bysetpos", undefined);
         setValue("recurrenceRule.bymonthday", undefined);

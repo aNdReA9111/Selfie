@@ -292,10 +292,29 @@ const notificationsSchema = z
                         break;
                 }
             }
+            if (
+                data.advance &&
+                data.frequency &&
+                data.repetitions &&
+                data.advanceType === "DAYS"
+            ) {
+                switch (data.frequencyType) {
+                    case "DAILY":
+                        return data.repetitions * data.frequency <= data.advance;
+                    case "HOURLY":
+                        return (data.repetitions * data.frequency) / 24 <= data.advance;
+                    case "MINUTELY":
+                        return (
+                            (data.repetitions * data.frequency) / (60 * 24) <= data.advance
+                        );
+                    default:
+                        break;
+                }
+            }
             return true;
         },
         {
-            message: "You cannot set notifications after start of the event.",
+            message: "You cannot set notifications after start of the event/activity.",
         },
     );
 
