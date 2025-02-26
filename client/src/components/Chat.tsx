@@ -19,10 +19,11 @@ export const Chat = () => {
     const [messages, setMessages] = useState<IMessage[]>([]);
     const [selectedChat, setSelectedChat] = useState<string | null>(null);
     const [view, setView] = useState<'chats' | 'search' | 'messages'>('chats');
-    const { user } = useContext(AuthContext);
     const [messageText, setMessageText] = useState<string>('');
     const messageListRef = useRef<HTMLDivElement>(null);
-
+    
+    const { user } = useContext(AuthContext);
+    
     const scrollToBottom = () => {
         if (messageListRef.current) {
             messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
