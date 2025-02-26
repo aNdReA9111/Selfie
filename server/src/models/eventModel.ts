@@ -43,6 +43,7 @@ interface IEvent extends Document {
     _id_user: string;
     timezone: string;
     isPomodoro: boolean;
+    isDoNotDisturb: boolean;
     pomodoroSetting: IPomodoro;
 }
 
@@ -206,6 +207,15 @@ const eventSchema = new Schema<IEvent>({
         type: Boolean,
         required: true,
     },
+    isDoNotDisturb: {
+        type: Boolean,
+        required: true,
+        validate: {
+            validator: function(value: boolean) {
+                return !(value && this.isPomodoro);
+            }
+        }
+    },
     pomodoroSetting: {
         type: pomodoroSchema,
         required: function() {
@@ -222,10 +232,12 @@ const PomodoroModel: Model<IPomodoro> = mongoose.model<IPomodoro>(
 
 export {
     attendeeSchema,
-    EventModel, IAttendee,
+    EventModel,
+    IAttendee,
     IEvent,
     INotification,
     IPomodoro,
-    notificationSchema, PomodoroModel
+    notificationSchema,
+    PomodoroModel
 };
 

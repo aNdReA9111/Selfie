@@ -29,7 +29,7 @@ export const EventsPreview: React.FC = () => {
                 const events: Event[] = await res.json();
                 events.forEach((e: Event) => {
                     e.date = new Date(e.date);
-                    e.endDate = new Date(e.endDate);
+                    e.endDate = new Date(e.endDate as Date);
                 });
 
                 setLoading(false);
@@ -60,7 +60,7 @@ export const EventsPreview: React.FC = () => {
                             dayEvents.map((e: Event) => {
                                 let dates: { start: Date, end: Date } = {
                                     start: e.date,
-                                    end: e.endDate
+                                    end: e.endDate as Date
                                 }
 
                                 /* caclulate right occurence date in case of recurring event */

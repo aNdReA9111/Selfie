@@ -54,7 +54,7 @@ export const NotificationsForm = ({ watch, register, errors }: any) => {
                                 <input className="form-check-input" {...register('notifications.advanceType')} type="radio" name="notifications.advanceType" id="daysAdvance" value="DAYS" />
                                 <label className="form-check-label" htmlFor="daysAdvance">Days</label>
                             </div>
-                            <p className="mt-3">before start of the event.</p>
+                            <p className="mt-3">before start of the event/activity</p>
                             {errors.notifications?.advanceType && <div className="invalid-feedback">{errors.notifications.advanceType.message}</div>}
                         </div>
                     </div>)

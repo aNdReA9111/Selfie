@@ -12,7 +12,6 @@ const createActivity = async (req: Req, res: Response) => {
 
     try {
         const validAttendees = await setEmails(attendees);
-        console.log(validAttendees);
         const activity: IActivity = await ActivityModel.create({
             title,
             description,
