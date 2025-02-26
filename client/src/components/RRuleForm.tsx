@@ -14,40 +14,41 @@ type RecurringEventFormProps = {
 export const RRuleForm: React.FC<RecurringEventFormProps> = ({ watch, register, errors, setValue }) => {
 
     const frequency: string = watch('recurrenceRule.frequency');
-    const [byMonthDay, setByMonthDay] = useState<boolean>(!watch('recurrenceRule.bysetpos'));
-    const [bySpecificDay, setBySpecificDay] = useState<boolean>(!watch('recurrenceRule.bysetpos'));
+    // Derived from form state instead of local state
+    const byMonthDay = frequency === 'MONTHLY' && !watch('recurrenceRule.bysetpos');
+    const bySpecificDay = frequency === 'YEARLY' && !watch('recurrenceRule.bysetpos');
     const [endType, setEndType] = useState<string>(!watch('recurrenceRule.until') ? 'count' : 'until');
 
     const onInputModeChangeMonthly = () => {
-        if (byMonthDay){
-            setValue('recurrenceRule.bymonthday', undefined);
-            setValue('recurrenceRule.byday', "MO");
-            setValue('recurrenceRule.bysetpos', "1");
-
-        }else {
+        const currentBySetPos = watch('recurrenceRule.bysetpos');
+        if (currentBySetPos) {
+            // Switch to bymonthday mode
             setValue('recurrenceRule.byday', undefined);
             setValue('recurrenceRule.bysetpos', undefined);
             setValue('recurrenceRule.bymonthday', []);
+        } else {
+            // Switch to bysetpos mode
+            setValue('recurrenceRule.bymonthday', undefined);
+            setValue('recurrenceRule.byday', "MO");
+            setValue('recurrenceRule.bysetpos', 1);
         }
-        setByMonthDay(byMonthDay => !byMonthDay);
     }
 
     const onInputModeChangeYearly = () => {
-        if (bySpecificDay) {
-            setValue('recurrenceRule.bymonthday', undefined);
-            // setValue('recurrenceRule.bymonth', undefined);
-            setValue('recurrenceRule.byday', "MO");
-            setValue('recurrenceRule.bysetpos', "1");
-            setValue('recurrenceRule.bymonth', "1");
-
-        } else {
+        const currentBySetPos = watch('recurrenceRule.bysetpos');
+        if (currentBySetPos) {
+            // Switch to bymonthday mode
             setValue('recurrenceRule.byday', undefined);
             setValue('recurrenceRule.bysetpos', undefined);
-            setValue('recurrenceRule.bymonth', "1");
+            setValue('recurrenceRule.bymonth', 1);
             setValue('recurrenceRule.bymonthday', []);
+        } else {
+            // Switch to bysetpos mode
+            setValue('recurrenceRule.bymonthday', undefined);
+            setValue('recurrenceRule.byday', "MO");
+            setValue('recurrenceRule.bysetpos', 1);
+            setValue('recurrenceRule.bymonth', 1);
         }
-        setBySpecificDay(bySpecificDay => !bySpecificDay);
-
     }
 
     const onEndTypeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -60,20 +61,16 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({ watch, register, 
     }
 
     const isMonthDayChecked = (day: number): boolean => {
-        let bymonthday = watch('recurrenceRule.bymonthday');
-        return ((typeof bymonthday !== 'number' && typeof bymonthday !== 'undefined') ? bymonthday!.includes(day) : bymonthday === day);
+        const bymonthday = watch('recurrenceRule.bymonthday');
+        return Array.isArray(bymonthday) ? bymonthday.includes(day) : bymonthday === day;
     }
 
-    const onFrequencyChange = (newFrequency: string) => {
-        if (newFrequency === "YEARLY" && bySpecificDay) {
-            setValue("recurrenceRule.bymonthday", "1");
-        }
-        else 
-            setValue("recurrenceRule.bymonthday", undefined);
+    const onFrequencyChange = () => {
+        // Reset relevant fields when frequency changes
         setValue("recurrenceRule.byday", undefined);
-        // setValue("recurrenceRule.bymonthday", undefined);
         setValue("recurrenceRule.bymonth", undefined);
         setValue("recurrenceRule.bysetpos", undefined);
+        setValue("recurrenceRule.bymonthday", undefined);
     }
 
     return (
@@ -84,7 +81,7 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({ watch, register, 
                 <label htmlFor="frequency" className="form-label">Frequency</label>
                 <select className="form-select" id="frequency" {...register('recurrenceRule.frequency')}
                     onChange={(e) => {
-                        onFrequencyChange(e.target.value);
+                        onFrequencyChange();
                         register('recurrenceRule.frequency').onChange(e); // Default RHF onChange handler
                     }}
                     aria-label="Select frequency">
@@ -220,11 +217,25 @@ export const RRuleForm: React.FC<RecurringEventFormProps> = ({ watch, register, 
                             <input className="form-check-input" type="checkbox" role="switch" id="bySpecificDay" checked={bySpecificDay} onChange={onInputModeChangeYearly} />
                             <label className="form-check-label" htmlFor="bySpecificDay">On </label>
                             {bySpecificDay && (<>
-                                <div className="container mb-3">
+                                { /*<div className="container mb-3">
                                     <select className="form-select" {...register('recurrenceRule.bymonthday')} id="setmonthday" aria-label="Select month day">
                                         {[...Array(31).keys()].map((i: number) => {
                                             return (<option value={`${i + 1}`} key={uuidv4()}>{i + 1}</option>);
                                         })}
+                                    </select>
+                                </div>*/}
+                                <div className="container mb-3">
+                                    <select
+                                        className="form-select"
+                                        {...register('recurrenceRule.bymonthday')}
+                                        id="setmonthday"
+                                        aria-label="Select month day"
+                                    >
+                                        {[...Array(31).keys()].map((i) => (
+                                            <option value={i + 1} key={i + 1}>
+                                                {i + 1}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                                 <div className="container mb-3">
