@@ -8,6 +8,19 @@ const authReducer = (state: any, action: any) => {
             return { user: action.payload };
         case "LOGOUT":
             return { user: null };
+        case "UPDATE":
+            return { 
+                user: {
+                    ...state.user,
+                    nome: action.payload.nome,
+                    cognome: action.payload.cognome,
+                    data_nascita: action.payload.data_nascita,
+                    flags: {
+                        ...state.user.flags,
+                        ...action.payload.flags
+                    }
+                }
+            };
         default:
             return state;
     }
@@ -25,6 +38,7 @@ export const AuthContextProvider = ({ children }: any) => {
             localStorage.removeItem('user');
 
             const parsedUser = JSON.parse(user);
+            console.log('parsedUser:', parsedUser);
             // console.log(parsedUser);
             dispatch({type: 'LOGIN', payload: parsedUser});
         }

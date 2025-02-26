@@ -5,7 +5,8 @@ import {
     logoutUser,
     removeSubscription,
     searchUsers,
-    signUpUser
+    signUpUser,
+    updateUser
 } from '../controllers/userControllers.js';
 import { requireAuth } from '../middleware/requireAuth.js';
 
@@ -34,4 +35,6 @@ router.post('/subscribe', requireAuth, addSubscription);
 //route per push notification unsubscription
 router.patch('/unsubscribe', requireAuth, removeSubscription);
 
+//rout per la modifica del profilo
+router.patch('/update', requireAuth, updateUser);
 export { router as userRoutes };

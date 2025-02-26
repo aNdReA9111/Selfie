@@ -99,7 +99,7 @@ export const ImportCalendarModal = ({ show, handleClose }: { show: boolean; hand
                         ) : (
                             <>
                                 <i className="bi bi-cloud-upload fs-1 mb-2"></i>
-                                <p>Trascina qui il tuo file .ics o clicca per selezionarlo</p>
+                                <p>Drag here .ics file or click to select it.</p>
                             </>
                         )}
                     </div>
@@ -108,14 +108,14 @@ export const ImportCalendarModal = ({ show, handleClose }: { show: boolean; hand
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={handleClose}>
-                    Annulla
+                    Abort
                 </Button>
                 <Button
                     variant="primary"
                     onClick={handleImport}
                     disabled={!file}
                 >
-                    Importa
+                    Import
                 </Button>
             </Modal.Footer>
         </Modal>

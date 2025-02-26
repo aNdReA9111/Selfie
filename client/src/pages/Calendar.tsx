@@ -4,12 +4,14 @@ import { Calendar as BigCalendar, DateLocalizer, luxonLocalizer } from 'react-bi
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { Button } from 'react-bootstrap';
 import { RRule } from 'rrule';
+import { ActivitiesPreview } from '../components/ActivitiesPreview';
 import { ActivityDetails } from '../components/ActivityDetails';
 import { DNDEventModalForm } from '../components/DNDEventModalForm';
 import { EventComponent } from '../components/EventComponent';
 import { EventDetails } from '../components/EventDetails';
 import { EventModalForm } from '../components/EventModalForm';
 import { ImportCalendarModal } from '../components/ImportCalendarModal';
+import '../css/calendar.css';
 import { useActivities } from '../hooks/useActivities';
 import { useActivitiesContext } from '../hooks/useActivitiesContext';
 import { useEvents } from '../hooks/useEvents';
@@ -18,8 +20,6 @@ import { useTimeMachineContext } from '../hooks/useTimeMachineContext';
 import { ActivitiesContextType, Activity, Event, EventsContextType } from '../utils/types';
 
 const localizer: DateLocalizer = luxonLocalizer(DateTime);
-
-//TODO: delete singolo evento ricorrente
 
 function generateRecurringEvents(events: Event[], activities: Activity[]) {
     let calendarEvents = [];
@@ -86,6 +86,9 @@ const CustomCalendar = () => {
     const [slotEnd, setSlotEnd] = useState<Date | undefined>(undefined);
     const [showDND, setShowDND] = useState<boolean>(false);
     const [showImportModal, setShowImportModal] = useState<boolean>(false);
+
+    /* calendar view or activity view*/
+    const [isCalendarView, setIsCalendarView] = useState<boolean>(true);
 
 
     const { isLoading: isLoadingE, error: errorE } = useEvents("/api/events/", undefined, {
@@ -203,59 +206,83 @@ const CustomCalendar = () => {
         setShowDND(true);
     };
 
+    console.log(isCalendarView);
+
     return (
         isLoadingA || isLoadingE ? <h2>Loading...</h2> :
-            errorA || errorE ? <h2>{errorA || ""} + {"\n"} + {errorE || ""}</h2> : (<div className="container mt-5">
-                <div className="row justify-content-center">
-                    <div className="col-md-10">
-                        <BigCalendar
-                            localizer={localizer}
-                            components={{ event: EventComponent }}
-                            events={calendarEvents}
-                            selectable
-                            views={['month', 'week', 'day']}
-                            step={15}
-                            timeslots={4}
-                            onSelectEvent={handleSelectEvent}
-                            onSelectSlot={handleSelectSlot}
-                            style={{ height: 600 }}
-                            defaultDate={DateTime.now().plus(offset || 0).toJSDate()}  /*update current date to time machine date*/
-                            getNow={() => DateTime.now().plus(offset || 0).toJSDate()}
-                            popup
-                        />
-                        <DNDEventModalForm slotStart={slotStart} slotEnd={slotEnd} show={showDND} setShow={setShowDND} />
-                        <EventModalForm isActivity={false} />
-                        <EventModalForm isActivity={true} />
+            errorA || errorE ? <h2>{errorA || ""} + {"\n"} + {errorE || ""}</h2> : (
+                <div className="row justify-content-center m-0">
+                    <div className="col-12 m-0">
+                        <div className="btn-group m-2">
+                            <button
+                                type="button"
+                                className="btn btn-outline-primary"
+                                onClick={() => setIsCalendarView(true)}
+                            >Calendar</button>
+                            <button
+                                type="button"
+                                className="btn btn-outline-primary"
+                                onClick={() => setIsCalendarView(false)}
+                            >Activities</button>
+                        </div>
+                        {isCalendarView &&
+                            <BigCalendar
+                                localizer={localizer}
+                                components={{ event: EventComponent }}
+                                events={calendarEvents}
+                                selectable
+                                views={['month', 'week', 'day']}
+                                step={15}
+                                timeslots={4}
+                                onSelectEvent={handleSelectEvent}
+                                onSelectSlot={handleSelectSlot}
+                                style={{ height: "70vh", width: "100%" }}
+                                defaultDate={DateTime.now().plus(offset || 0).toJSDate()}  /*update current date to time machine date*/
+                                getNow={() => DateTime.now().plus(offset || 0).toJSDate()}
+                                popup
+                            />
+                        }
+                        {isCalendarView && <DNDEventModalForm slotStart={slotStart} slotEnd={slotEnd} show={showDND} setShow={setShowDND} />}
                         {currentEvent && <EventDetails id={currentEvent._id} date={date} show={showDetailsE} setShow={setShowDetailsE} />}
                         {currentActivity && <ActivityDetails id={currentActivity._id} show={showDetailsA} setShow={setShowDetailsA} />}
-                        <Button className="mt-3" variant="danger" onClick={handleDeleteAllE}>
-                            Delete All Events
-                            <i className="ms-2 bi bi-calendar2-x"></i>
-                        </Button>
-                        <Button className="mt-3" variant="danger" onClick={handleDeleteAllA}>
-                            Delete All Activities
-                            <i className="ms-2 bi bi-calendar2-x"></i>
-                        </Button>
+                        {isCalendarView &&
+                            <div className="mt-2 d-flex flex-wrap justify-content-start">
+                                <EventModalForm isActivity={false} />
+                                <EventModalForm isActivity={true} />
+                                <Button className="mt-3 me-3" variant="danger" onClick={handleDeleteAllE}>
+                                    Delete All Events
+                                    <i className="ms-2 bi bi-calendar2-x"></i>
+                                </Button>
+                                <Button className="mt-3 me-3" variant="danger" onClick={handleDeleteAllA}>
+                                    Delete All Activities
+                                    <i className="ms-2 bi bi-calendar2-x"></i>
+                                </Button>
 
-                        <Button className="mt-3" variant="secondary" onClick={handleExportCalendar}>
-                            Export Calendar
-                            <i className="ms-2 bi bi-calendar2-x"></i>
-                        </Button>
-                        <Button
-                            className="mt-3"
-                            variant="info"
-                            onClick={() => setShowImportModal(true)}
-                        >
-                            <i className="bi bi-cloud-upload me-2"></i>
-                            Import Calendar
-                        </Button>
-                        <ImportCalendarModal
-                            show={showImportModal}
-                            handleClose={() => setShowImportModal(false)}
-                        />
+                                <Button className="mt-3 me-3" variant="secondary" onClick={handleExportCalendar}>
+                                    Export Calendar
+                                    <i className="ms-2 bi bi-calendar2-x"></i>
+                                </Button>
+                                <Button
+                                    className="mt-3 me-3"
+                                    variant="info"
+                                    onClick={() => setShowImportModal(true)}
+                                >
+                                    <i className="bi bi-cloud-upload me-2"></i>
+                                    Import Calendar
+                                </Button>
+
+                            </div>
+                        }
+                        {
+                            isCalendarView && <ImportCalendarModal
+                                show={showImportModal}
+                                handleClose={() => setShowImportModal(false)}
+                            />
+                        }
+                        {!isCalendarView && <ActivitiesPreview isPreview={false} />}
                     </div>
                 </div>
-            </div>)
+            )
     );
 };
 

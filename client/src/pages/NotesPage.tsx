@@ -5,7 +5,6 @@ import { NotesSearchBar } from '../components/NotesSearchBar';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { useNotesContext } from '../hooks/useNotesContext';
 import { Note, NotesContextType } from '../utils/types';
-// import { Link } from 'react-router-dom';
 
 
 export const NotesPreview = () => {

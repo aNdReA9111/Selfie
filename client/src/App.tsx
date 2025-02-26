@@ -10,6 +10,9 @@ import Login from './pages/Login';
 import { NotesPreview } from './pages/NotesPage';
 import Pomodoro from './pages/Pomodoro';
 import SignUp from './pages/Signup';
+import EventInvitation from './pages/EventInvitation';
+import ActivityInvitation from './pages/ActivityInvitation';
+import UserInfo from './pages/UserInfo';
 
 // Components
 import { Editor } from './components/Editor';
@@ -104,7 +107,7 @@ function App() {
                             path="/account-settings"
                             element={
                                 <ProtectedRoute>
-                                    <About />
+                                    <UserInfo />
                                 </ProtectedRoute>
                             }
                         />
@@ -113,6 +116,24 @@ function App() {
                             element={
                                 <ProtectedRoute>
                                     <About />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/events/:idEvent/attendees/:nameAttendee"
+                            element={
+                                <ProtectedRoute>
+                                    <EventInvitation />
+                                </ProtectedRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/activities/:idActivity/attendees/:nameAttendee"
+                            element={
+                                <ProtectedRoute>
+                                    <ActivityInvitation />
                                 </ProtectedRoute>
                             }
                         />

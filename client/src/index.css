@@ -11,8 +11,14 @@ a {
   text-decoration: none;
 }
 
+/*simpel style for markdown table*/
+td, th {
+    border: 1px solid grey;
+    padding: .3rem 1rem;
+}
+
 .form-check-input:checked {
-  background-color: #ff6f20 !important; /* Change this to your preferred color */
+  background-color: #ff6f20 !important;
   border-color: #ff6f20 !important;
   box-shadow: 0 0 10px #ff6f20 !important;
 }
@@ -27,6 +33,5 @@ a {
 }
 
 .main-content {
-  padding-top: 56px; /* Altezza della navbar */
-  min-height: 100vh;
+  margin-top: 56px;
 }

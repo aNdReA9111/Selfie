@@ -3,12 +3,14 @@ import { Button, Modal } from 'react-bootstrap';
 import { useActivitiesContext } from '../hooks/useActivitiesContext';
 import { ActivityDetailsProps } from '../utils/types';
 import { EventModalForm } from './EventModalForm';
+import { useAuthContext } from '../hooks/useAuthContext';
 
 export const ActivityDetails = ({ id, show, setShow }: ActivityDetailsProps) => {
     const { activities, dispatch } = useActivitiesContext();
     const activity = activities.find((activity) => activity._id === id);
     if (!activity) return null;
 
+    const { user } = useAuthContext();
     const activityDate = DateTime.fromJSDate(activity?.date);
     let date2;
 
@@ -54,7 +56,7 @@ export const ActivityDetails = ({ id, show, setShow }: ActivityDetailsProps) => 
                         <div className="d-flex justify-content-between align-items-center">
                             <h3>{activity.title}</h3>
                             <div className='d-flex align-items-center'>
-                                <Button variant="danger" className='me-2' onClick={handleDeleteActivity}>Delete<i className="ms-2 bi bi-trash"></i></Button>
+                                {activity._id_user === user._id && <Button variant="danger" className='me-2' onClick={handleDeleteActivity}>Delete<i className="ms-2 bi bi-trash"></i></Button>}
                                 <EventModalForm activity={activity} isActivity={true} />
                             </div>
                         </div>

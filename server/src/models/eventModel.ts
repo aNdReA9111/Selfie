@@ -85,7 +85,6 @@ const notificationSchema = new Schema<INotification>({
     repetitions: {
         type: Number,
         min: 1,
-        max: 5,
         required: function() {
             return this.notifica_desktop || this.notifica_email;
         },

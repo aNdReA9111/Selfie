@@ -5,22 +5,23 @@ import { ActivityModel, IActivity } from "../models/activityModel.js";
 import { EventModel, IEvent, INotification } from "../models/eventModel.js";
 import { IUser, UserModel } from "../models/userModel.js";
 
+import { sendEmail } from "../utils/emailUtils.js";
+
 const { RRule } = pkg;
 
 const MILLIS_IN_DAY = 1000 * 60 * 60 * 24;
 
-/*send notification*/
+/*send notification NO email*/
 function sendNotification(
     sub: PushSubscription,
     title: string,
     url: string,
     notifica_desktop: boolean,
     notifica_mail: boolean,
-    priority: number,
+    priority: number,  /*useless as of now*/
     isActivity: boolean,
+    email: string,
 ) {
-    //priority serve per cambiare il testo in base alla priorità della notifica
-
     console.log(`Sending notification: ${title}`);
     if (notifica_desktop)
         webpush
@@ -28,18 +29,17 @@ function sendNotification(
                 sub,
                 JSON.stringify({
                     title,
-                    body: "Ricordati dell'" + isActivity ? "attività!" : "evento!",
+                    body: "Ricordati dell'" + (isActivity ? "attività!" : "evento!"),
                     url,
                 }),
             )
             .then(() => console.log(`Notification sent: ${title}`))
-            .catch((error) => console.error(`Error sending notification: ${error}`));
-
-    //CODICE PER INVIO EMAIL
+            .catch((error) => console.error(`Error sending notification: ${error}`));    
 }
 
 /*monitoring and possible sending of notifications*/
 async function checkAndSendNotifications() {
+    console.log("Checking notifications");
     /*users that can receive notifications*/
     const users: IUser[] = await UserModel.find({
         $or: [
@@ -254,8 +254,22 @@ function checkNotifications(
                     (event.notifications?.notifica_email || false),
                     priority,
                     isActivity,
+                    user.email,
                 );
             });
+
+            //invio email
+            if (user.flags.notifica_email && event.notifications?.notifica_email) {
+                console.log("Sending email notification");
+                sendEmail(
+                    user.email,
+                    "Ricordati dell'" + (isActivity ? "attività!" : "evento!"),
+                    `Ricordati dell'${isActivity ? "attività" : "evento"}: ${title}`,
+                    [],
+                );  
+            }
+
+            
         } else {
             console.log(`Skipping notification: ${title}`);
         }

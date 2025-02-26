@@ -33,7 +33,7 @@ export const loginUser = async (req: Request, res: Response) => {
             })
             .json({
                 _id: user._id,
-                email,
+                email: user.email,
                 token, // vedere se tenere o meno
                 isAuthenticated: true,
                 nome: user.nome,
@@ -58,7 +58,6 @@ export const signUpUser = async (req: Request, res: Response) => {
         cognome,
         username,
         data_nascita,
-        notifica_alert,
         notifica_desktop,
         notifica_email,
     } = req.body;
@@ -67,7 +66,6 @@ export const signUpUser = async (req: Request, res: Response) => {
         const flags = {
             notifica_email,
             notifica_desktop,
-            notifica_alert,
         } as IFlags;
 
         const user = await UserModel.signup(
@@ -164,4 +162,55 @@ export const searchUsers = async (req: Request, res: Response) => {
 export const logoutUser = async (req: Request, res: Response) => {
     res.clearCookie("token");
     res.status(200).json({ message: "Logout successful" });
+};
+
+export const updateUser = async (req: Request, res: Response) => {
+    const { user: userId } = req.body;
+    const { nome, cognome, data_nascita, flags } = req.body;
+
+    try {
+        const user = await UserModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "Utente non trovato" });
+        }
+
+        // Validazione nome e cognome con regex
+        const nameRegex = /^[A-Za-zÀ-ÿ\s']*$/;
+        if (nome && !nameRegex.test(nome)) {
+            return res.status(400).json({ message: "Formato nome non valido" });
+        }
+        if (cognome && !nameRegex.test(cognome)) {
+            return res.status(400).json({ message: "Formato cognome non valido" });
+        }
+
+        // Aggiorna i campi forniti
+        if (nome) user.nome = nome;
+        if (cognome) user.cognome = cognome;
+        if (data_nascita) user.data_nascita = new Date(data_nascita);
+        
+        // Aggiorna i flags se forniti
+        if (flags) {
+            user.set('flags', {
+                notifica_email: flags.notifica_email ?? user.flags.notifica_email,
+                notifica_desktop: flags.notifica_desktop ?? user.flags.notifica_desktop
+            });
+        }
+
+        await user.save();
+
+        // Ritorna l'utente aggiornato
+        res.status(200).json({
+            nome: user.nome,
+            cognome: user.cognome,
+            data_nascita: user.data_nascita,
+            flags: user.flags,
+            email: user.email,
+            username: user.username
+        });
+    } catch (error: any) {
+        console.error('Errore durante l\'aggiornamento:', error);
+        res.status(400).json({ 
+            message: error.message || "Errore durante l'aggiornamento dell'utente" 
+        });
+    }
 };
