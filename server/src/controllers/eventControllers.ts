@@ -386,7 +386,10 @@ const updateEvent = async (req: Req, res: Response) => {
         const newEvent: IEvent | null = await EventModel.findOneAndUpdate(
             {
                 _id: new mongoose.Types.ObjectId(eventId),
-                _id_user: userId,
+                $or: [
+                    { isPomodoro: true }, 
+                    { isPomodoro: false, _id_user: userId },
+                ],
             },
             {
                 ...eventData,
