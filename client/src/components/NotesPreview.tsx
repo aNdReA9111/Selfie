@@ -34,7 +34,7 @@ export const NotesPreview = () => {
     }, []);
 
     return (
-        <div className="d-flex flex-column justify-content-start container n">
+        <div className="d-flex flex-column justify-content-start container n mt-2">
             <div className="d-flex justify-content-between align-items-center mb-2">
                 <h2>Your last note</h2>
                 <button className="btn btn-danger" onClick={() => navigate("/notes/")}>Go to Notes<i className="bi bi-box-arrow-up-right ms-2"></i></button>

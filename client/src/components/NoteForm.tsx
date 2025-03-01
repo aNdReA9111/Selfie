@@ -1,10 +1,10 @@
+import { MutableRefObject, useRef } from "react";
 import { useFormContext } from "react-hook-form";
-import { Note, NoteFormData } from "../utils/types";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuthContext } from "../hooks/useAuthContext";
 import { useNotesContext } from "../hooks/useNotesContext";
-import { useNavigate, useParams } from "react-router-dom";
+import { Note, NoteFormData } from "../utils/types";
 import { EditBar } from "./EditBar";
-import { MutableRefObject, useRef } from "react";
 
 export const NoteForm = ({ isEdit, isView }: { isEdit: boolean, isView: boolean }) => {
     const { register, handleSubmit, formState: { errors } } = useFormContext<NoteFormData>();
@@ -99,7 +99,7 @@ export const NoteForm = ({ isEdit, isView }: { isEdit: boolean, isView: boolean 
                         placeholder="Note Text"
                         id="content"
                     ></textarea>
-                    <label htmlFor="content">Testo della nota</label>
+                    <label htmlFor="content">Note text</label>
                     {errors.content && <div className="invalid-feedback">{errors.content.message}</div>}
                 </div>
 
@@ -127,7 +127,7 @@ export const NoteForm = ({ isEdit, isView }: { isEdit: boolean, isView: boolean 
                         id="tags"
                         aria-describedby="tagsHelper"
                     />
-                    <label htmlFor="tags">Tag</label>
+                    <label htmlFor="tags">Tags</label>
                     <div id="tagsHelper" className="form-text">Example: tag1,tag2</div>
                     {errors.tags && <div className="invalid-feedback">{errors.tags.message}</div>}
                 </div>
@@ -142,7 +142,7 @@ export const NoteForm = ({ isEdit, isView }: { isEdit: boolean, isView: boolean 
                         id="users"
                         aria-describedby="usersHelper"
                     />
-                    <label htmlFor="users">Utenti</label>
+                    <label htmlFor="users">Users</label>
                     <div id="usersHelper" className="form-text">Example: user1,user2</div>
                     {errors.allowedUsers && <div className="invalid-feedback">{errors.allowedUsers.message}</div>}
                 </div>

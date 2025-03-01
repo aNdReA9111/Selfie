@@ -17,10 +17,8 @@ function sendNotification(
     title: string,
     url: string,
     notifica_desktop: boolean,
-    notifica_mail: boolean,
     priority: number,  /*useless as of now*/
     isActivity: boolean,
-    email: string,
 ) {
     console.log(`Sending notification: ${title}`);
     if (notifica_desktop)
@@ -32,9 +30,12 @@ function sendNotification(
                     body: "Ricordati dell'" + (isActivity ? "attività!" : "evento!"),
                     url,
                 }),
+                {
+                    TTL: 86400, // 1 day in seconds
+                }
             )
             .then(() => console.log(`Notification sent: ${title}`))
-            .catch((error) => console.error(`Error sending notification: ${error}`));    
+            .catch((error) => console.error(`Error sending notification: ${error}`));
 }
 
 /*monitoring and possible sending of notifications*/
@@ -250,15 +251,12 @@ function checkNotifications(
                     url,
                     user.flags.notifica_desktop &&
                     (event.notifications?.notifica_desktop || false),
-                    user.flags.notifica_email &&
-                    (event.notifications?.notifica_email || false),
                     priority,
                     isActivity,
-                    user.email,
                 );
             });
 
-            //invio email
+            //sending email
             if (user.flags.notifica_email && event.notifications?.notifica_email) {
                 console.log("Sending email notification");
                 sendEmail(
@@ -266,10 +264,10 @@ function checkNotifications(
                     "Ricordati dell'" + (isActivity ? "attività!" : "evento!"),
                     `Ricordati dell'${isActivity ? "attività" : "evento"}: ${title}`,
                     [],
-                );  
+                );
             }
 
-            
+
         } else {
             console.log(`Skipping notification: ${title}`);
         }
