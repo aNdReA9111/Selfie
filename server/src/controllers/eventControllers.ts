@@ -17,6 +17,7 @@ import { console } from "inspector";
 import { createICalendar, readICalendar } from "../utils/icalendarUtils.js";
 
 const createEvent = async (req: Req, res: Response) => {
+    
     const {
         title,
         description,
@@ -34,10 +35,20 @@ const createEvent = async (req: Req, res: Response) => {
         isPomodoro,
         pomodoroSetting,
     } = req.body;
-
+    
     try {
         const validAttendees = await setEmails(attendees);
         console.log(validAttendees);
+
+        const creator: IUser | null = await UserModel.findOne({ _id: userId });
+        
+        const attArray: IAttendee[] = attendees;
+
+        attArray?.forEach((att, index) => {
+            if(att.name == creator?.username){
+                attArray?.splice(index, 1);
+            }
+        });
 
         const event: IEvent = await EventModel.create({
             title,
@@ -49,7 +60,7 @@ const createEvent = async (req: Req, res: Response) => {
             duration,
             isRecurring,
             recurrenceRule,
-            attendees,
+            attendees: attArray,
             notifications,
             timezone,
             _id_user: userId,
@@ -105,6 +116,8 @@ const getEventById = async (req: Req, res: Response) => {
 };
 
 const getAllEvents = async (req: Req, res: Response) => {
+    
+
     const userId: mongoose.Types.ObjectId = req.body.user;
     const date = req.query.date;
     const onlyRecurring = /^true$/i.test(req.query.onlyRecurring as string);
@@ -310,6 +323,7 @@ const getAllEvents = async (req: Req, res: Response) => {
 };
 
 const deleteEventById = async (req: Req, res: Response) => {
+    
     const eventId = req.params.id;
     const userId: mongoose.Types.ObjectId = req.body.user;
 
@@ -364,6 +378,8 @@ const updateEvent = async (req: Req, res: Response) => {
             return res.status(404).json({ error: "Event not found" });
         }
 
+        const creator: IUser | null = await UserModel.findOne({ _id: userId });
+
         for (const newAttendee of eventData.attendees) {
             let isNew: boolean = true;
             for (const attendee of event.attendees || []) {
@@ -374,9 +390,11 @@ const updateEvent = async (req: Req, res: Response) => {
                     newAttendee.email = attendee.email;
                 }
             }
-            if (isNew) newAttendees.push(newAttendee);
+            
+            if (isNew && creator?.username!=newAttendee.name) newAttendees.push(newAttendee);
         }
     }
+
 
     try {
         //update event
