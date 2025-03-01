@@ -42,7 +42,7 @@ function createICalendar(events: IEvent[], activities: IActivity[]): string {
                         : undefined,
                 until: rrule.options.until ? (rrule.options.until as Date) : undefined,
                 byDay: Array.isArray(rrule.options.byweekday)
-                    ? rrule.options.byweekday.map((d) => rRuleWeekdayIntToICalWeekday[d])
+                    ? rrule.options.byweekday.map((d: any) => rRuleWeekdayIntToICalWeekday[d])
                     : rRuleWeekdayIntToICalWeekday[rrule.options.byweekday],
                 byMonth: rrule.options.bymonth,
                 byMonthDay: rrule.options.bymonthday.length
@@ -159,6 +159,7 @@ async function readICalendar(
                         attendees,
                         recurrenceRule: event.rrule?.toString(),
                         isPomodoro: false,
+                        isDoNotDisturb: false,
                     });
 
                     sendEventInvitationEmail(userId, createdEvent, createdEvent.attendees || []);

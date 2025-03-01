@@ -62,13 +62,13 @@ export const ActivityDetails = ({ id, show, setShow }: ActivityDetailsProps) => 
                         </div>
                         <p>{activity.description}</p>
                         <div>
-                            {date2 && (<h5>Nella timezone attuale: </h5>)}
+                            {date2 && (<h5>In the actual timezone: </h5>)}
                             <p><i className="bi bi-clock-fill me-2"></i>{activityDate.toLocaleString(DateTime.DATETIME_SHORT)}</p>
                         </div>
                         {
                             date2 && (
                                 <div>
-                                    <h5>Nella timezone dell'attività: </h5>
+                                    <h5>In the activity's timezone: </h5>
                                     <p><i className="bi bi-clock-fill me-2"></i>{date2.toLocaleString(DateTime.DATETIME_SHORT)}</p>
                                 </div>
                             )

@@ -7,10 +7,10 @@ self.addEventListener("push", (event) => {
     const options = {
         body: data.body,
         icon: "/logo.png",
+        requireInteraction: true,
     };
 
     event.waitUntil(
         self.registration.showNotification(data.title, options),
-        // self.registration.showNotification(data.body),
     );
 });

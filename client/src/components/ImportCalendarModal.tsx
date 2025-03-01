@@ -63,6 +63,13 @@ export const ImportCalendarModal = ({ show, handleClose }: { show: boolean; hand
             }
 
             const imported = await response.json();
+            imported.events.forEach((event: any) => {
+                event.date = new Date(event.date);
+                event.endDate = new Date(event.endDate);
+            })
+            imported.activities.forEach((activity: any) => {
+                activity.date = new Date(activity.date);
+            })
             dispatchEvents({ type: 'ADD_EVENTS', payload: imported.events });
             dispatchActivities({ type: 'ADD_ACTIVITIES', payload: imported.activities });
 

@@ -30,7 +30,7 @@ export const useEvents = (
                     //le date diventano string in json
                     result.forEach((el: Event) => {
                         el.date = new Date(el.date);
-                        el.endDate = new Date(el.endDate);
+                        el.endDate = new Date(el.endDate as Date);
                     });
                     dispatch({ type: "SET_EVENTS", payload: result });
                     console.log(result);

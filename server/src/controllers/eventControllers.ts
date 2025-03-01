@@ -33,12 +33,12 @@ const createEvent = async (req: Req, res: Response) => {
         timezone,
         user: userId,
         isPomodoro,
+        isDoNotDisturb,
         pomodoroSetting,
     } = req.body;
     
     try {
         const validAttendees = await setEmails(attendees);
-        console.log(validAttendees);
 
         const creator: IUser | null = await UserModel.findOne({ _id: userId });
         
@@ -65,10 +65,13 @@ const createEvent = async (req: Req, res: Response) => {
             timezone,
             _id_user: userId,
             isPomodoro,
+            isDoNotDisturb,
             pomodoroSetting,
         });
+        console.log("EVENTONE", event);
 
         sendEventInvitationEmail(userId, event, event.attendees || []);
+
 
         res.status(201).json(event);
     } catch (error: any) {
@@ -488,5 +491,6 @@ export {
     getAllEvents,
     getEventById,
     importEvents,
-    updateEvent,
+    updateEvent
 };
+

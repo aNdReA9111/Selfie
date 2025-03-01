@@ -6,7 +6,7 @@ const dateFromString = z.preprocess((val) => {
         const parsed = new Date(val);
         return isNaN(parsed.getTime()) ? undefined : parsed;
     }
-    return val; // If it's already a number, return it
+    return val; // If it's already a date, return it
 }, z.date());
 
 //date-string preprocessing, but optional
@@ -15,7 +15,7 @@ const dateFromStringOptional = z.preprocess((val) => {
         const parsed = new Date(val);
         return isNaN(parsed.getTime()) ? undefined : parsed;
     }
-    return val; // If it's already a number, return it
+    return val; // If it's already a date, return it
 }, z.date().optional());
 
 //custom types for time machine context
@@ -292,10 +292,29 @@ const notificationsSchema = z
                         break;
                 }
             }
+            if (
+                data.advance &&
+                data.frequency &&
+                data.repetitions &&
+                data.advanceType === "DAYS"
+            ) {
+                switch (data.frequencyType) {
+                    case "DAILY":
+                        return data.repetitions * data.frequency <= data.advance;
+                    case "HOURLY":
+                        return (data.repetitions * data.frequency) / 24 <= data.advance;
+                    case "MINUTELY":
+                        return (
+                            (data.repetitions * data.frequency) / (60 * 24) <= data.advance
+                        );
+                    default:
+                        break;
+                }
+            }
             return true;
         },
         {
-            message: "You cannot set notifications after start of the event.",
+            message: "You cannot set notifications after start of the event/activity.",
         },
     );
 
@@ -305,7 +324,7 @@ export const eventSchema = z.object({
     title: z.string().min(2).max(30),
     description: z.string().min(2).max(150),
     date: dateFromString,
-    endDate: dateFromString,
+    endDate: dateFromStringOptional,
     duration: z.number().positive().optional().nullable(),
     nextDate: z.date().optional().nullable(),
     location: z.string().optional().nullable(),
@@ -316,6 +335,7 @@ export const eventSchema = z.object({
     isRecurring: z.boolean(),
     timezone: z.string(),
     isPomodoro: z.boolean(),
+    isDoNotDisturb: z.boolean(),
     pomodoroSetting: pomodoroSettingSchema,
     _id_user: z.string(),
 });
@@ -333,6 +353,7 @@ export const eventFormSchema = eventSchema
         isRecurring: true,
         timezone: true,
         isPomodoro: true,
+        isDoNotDisturb: true,
         pomodoroSetting: true,
     })
     .merge(
@@ -350,6 +371,16 @@ export const eventFormSchema = eventSchema
                 .optional()
                 .nullable(),
         }),
+    )
+    .refine(
+        (data) => {
+            if (!data.isPomodoro && !data.endDate) return false;
+            return true;
+        },
+        {
+            message: "End date is required if event is not a pomodoro",
+            path: ["endDate"],
+        },
     )
     .refine(
         (data) => {
