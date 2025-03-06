@@ -15,7 +15,7 @@ export const EventDetails = ({ id, date, show, setShow }: EventDetailsProps) => 
 
     const { user } = useAuthContext();
     const start = event?.isRecurring === false ? DateTime.fromJSDate(event?.date) : DateTime.fromJSDate(date as Date);
-    const end = event?.isRecurring === false ? DateTime.fromJSDate(event?.endDate as Date) : DateTime.fromJSDate(date as Date).plus(event?.duration as number);
+    const end = DateTime.fromJSDate(date as Date).plus(event?.duration as number);
     const rruleString = event?.isRecurring === false ? undefined : RRule.fromString(event?.recurrenceRule as string).toText();
     let start2, end2;
 

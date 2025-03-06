@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useAuthContext } from "../hooks/useAuthContext";
 
 export const AttendeesForm = ({ register, errors, setValue, watch }: any) => {
     const [open, setOpen] = useState<boolean>(false);
     const [suggestions, setSuggestions] = useState<string[]>([]);
+    const { user } = useAuthContext();
 
     const inputField = watch('attendees');
     const inputText = Array.isArray(inputField) && inputField ? inputField.join(',') : "";
@@ -20,7 +22,7 @@ export const AttendeesForm = ({ register, errors, setValue, watch }: any) => {
             });
             if (res.ok) {
                 const data = await res.json();
-                setSuggestions(data.matchedUsernames);
+                setSuggestions(data.matchedUsernames.filter((s: string) => s !== user?.username));
             }
         } catch (error) {
             console.log(error);
