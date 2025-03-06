@@ -27,15 +27,15 @@
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
     display: flex;          
     flex-direction: column; 
-    overflow: hidden;       /* Necessario per contenere gli elementi scrollabili */
+    overflow: hidden;
 }
 
 .chat-header {
-    height: calc(100% - 20px); /* Modifica - Altezza calcolata per contenere tutto */
+    height: calc(100% - 20px);
     padding: 10px;
     display: flex;
     flex-direction: column;
-    overflow: hidden;       /* Modifica - Gestisce l'overflow dei contenuti interni */
+    overflow: hidden;
     flex-shrink: 0;
     max-height: 100%;
     overflow-y: auto;
@@ -44,8 +44,8 @@
 .messages-container {
     display: flex;
     flex-direction: column;
-    height: 100%;          /* Modifica - Usa tutto lo spazio disponibile */
-    max-height: 100%;      /* Modifica - Limita all'altezza del contenitore */
+    height: 100%;
+    max-height: 100%;
 }
 
 .messages-header {
@@ -64,8 +64,8 @@
 }
 
 .message-list {
-    flex: 1;              /* Modifica - Prende tutto lo spazio disponibile */
-    overflow-y: auto;     /* Modifica - Abilita lo scroll verticale */
+    flex: 1;
+    overflow-y: auto;
     height: 100%;
     padding: 15px;
     background-color: #f5f5f5;
@@ -168,8 +168,8 @@
 
 .active-chats-container {
     margin-top: 10px;      
-    height: calc(100% - 60px);    /* Modifica - Altezza calcolata lasciando spazio per l'input */
-    overflow-y: auto;             /* Necessario - Mantiene lo scroll */
+    height: calc(100% - 60px);
+    overflow-y: auto;
 }
 
 .active-chats-title {
@@ -265,6 +265,6 @@
 }
 
 .search-results-container {
-    max-height: calc(100% - 60px); /* Nuovo - Lascia spazio per l'input di ricerca */
-    overflow-y: auto;              /* Nuovo - Abilita lo scroll verticale */
+    max-height: calc(100% - 60px);
+    overflow-y: auto;
 }

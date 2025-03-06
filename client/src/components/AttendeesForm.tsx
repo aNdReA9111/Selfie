@@ -1,6 +1,12 @@
 import { useState } from "react";
+interface AttendeesFormProps {
+    register: any;
+    errors: any;
+    setValue: any;
+    watch: any;
+}
 
-export const AttendeesForm = ({ register, errors, setValue, watch }: any) => {
+export const AttendeesForm = ({ register, errors, setValue, watch }: AttendeesFormProps) => {
     const [open, setOpen] = useState<boolean>(false);
     const [suggestions, setSuggestions] = useState<string[]>([]);
 
@@ -8,7 +14,6 @@ export const AttendeesForm = ({ register, errors, setValue, watch }: any) => {
     const inputText = Array.isArray(inputField) && inputField ? inputField.join(',') : "";
 
     const getSuggestions = async (substring: string) => {
-        console.log(substring);
         try {
             const res = await fetch('/api/users/search', {
                 method: "POST",
@@ -29,8 +34,8 @@ export const AttendeesForm = ({ register, errors, setValue, watch }: any) => {
     };
 
     const onSuggestionClick = (suggestion: string) => {
-        console.log(inputText?.slice(0, inputText?.lastIndexOf(',') + 1) + suggestion);
-        setValue('attendees', (inputText?.slice(0, inputText.lastIndexOf(',') + 1) + suggestion).split(','));
+        const prefix = inputText.lastIndexOf(',') > -1 ? inputText.slice(0, inputText.lastIndexOf(',') + 1) : "";
+        setValue('attendees', (prefix + suggestion).split(','));
         setOpen(false);
     };
 
@@ -54,18 +59,11 @@ export const AttendeesForm = ({ register, errors, setValue, watch }: any) => {
                 <div id="attendeesHelper" className="form-text">Example: user1,user2</div>
                 {errors.attendees && <div className="invalid-feedback">{errors.attendees.message}</div>}
                 <ul onBlur={() => setOpen(false)} className={`list-group ${!open ? 'd-none' : ''} scrollable-list`}>
-                    {
-                        suggestions.map((suggestion, index) => (
-                            <li
-                                className="list-group-item"
-                                key={index}
-                                onClick={() => onSuggestionClick(suggestion)}
-                                style={{ cursor: 'pointer' }}
-                            >
-                                {suggestion}
-                            </li>
-                        ))
-                    }
+                    {suggestions.map((suggestion, index) => (
+                        <li className="list-group-item" key={index} onClick={() => onSuggestionClick(suggestion)} style={{ cursor: 'pointer' }}>
+                            {suggestion}
+                        </li>
+                    ))}
                 </ul>
             </div>
         </>

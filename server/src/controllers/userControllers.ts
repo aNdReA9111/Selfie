@@ -4,6 +4,8 @@ import webpush from "web-push";
 import { IFlags, UserModel } from "../models/userModel.js";
 import { Req } from "../utils/types.js";
 
+import { IUser } from "../models/userModel.js";
+
 // configuro il .env
 import * as dotenv from "dotenv";
 import path, { dirname } from "path";
@@ -14,6 +16,22 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 const createToken = (_id: string) => {
     return jwt.sign({ _id }, process.env.SECRET as string, { expiresIn: "3d" });
+};
+
+const getUserFromToken = async (token: string) => {
+    try {
+        const { _id } = jwt.verify(
+            token,
+            process.env.SECRET as string,
+        ) as jwt.JwtPayload;
+
+        const user : IUser = await
+            UserModel.findOne({ _id }).select("_id email nome cognome username data_nascita flags pushSubscriptions dateOffset");
+        
+        return user;
+    } catch (error) {
+        return null;
+    }
 };
 
 // login controller
@@ -47,6 +65,37 @@ export const loginUser = async (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(400).json({ message: error.message });
     }
+};
+
+export const refreshUser = async (req: Request, res: Response) => {
+    const token: string = req.cookies.token;
+    
+    if (!token) {
+        return 
+    }
+    
+    const user = await getUserFromToken(token);
+    if (!user) {
+        return res.status(404).json({ 
+            isAuthenticated: false,
+            message: "Utente non trovato" 
+        });
+    }
+    res
+        .status(200)
+        .json({
+            _id: user._id,
+            email: user.email,
+            token,
+            isAuthenticated: true,
+            nome: user.nome,
+            cognome: user.cognome,
+            username: user.username,
+            data_nascita: user.data_nascita,
+            flags: user.flags,
+            pushSubscriptions: user.pushSubscriptions,
+            dateOffset: user.dateOffset,
+        });
 };
 
 // signup controller

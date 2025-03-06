@@ -101,7 +101,7 @@ export const Chat = () => {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        credentials: "include", // Include i cookie in una richiesta cross-origin
+                        credentials: "include",
                     },
                     body: JSON.stringify({ substring: value })
                 });

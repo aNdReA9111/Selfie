@@ -116,7 +116,7 @@ userSchema.statics.signup = async function(email: string, password: string, nome
 
     // validazione
     if(!email || !password) throw new Error('Email and password are required');
-    if(!validator.isEmail(email)) throw new Error('Email is not valid');
+    if(!validator.isEmail(email)) throw new Error('Email isn\'t valid');
     if(!validator.isStrongPassword(password)) throw new Error('Password is not strong enough');
 
     const existingUser = await this.findOne({ email });
@@ -142,9 +142,9 @@ userSchema.statics.login = async function(email_or_username: string, password: s
     });
     if(!user) {
         if(validator.isEmail(email_or_username)) 
-            throw new Error('Email non esistente');
+            throw new Error('Email isn\'t valid');
         else
-            throw new Error('username non esistente');
+            throw new Error('username isn\'t valid');
     }
     
     const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -155,6 +155,4 @@ userSchema.statics.login = async function(email_or_username: string, password: s
 
 
 const UserModel: IUserModel = mongoose.model<IUser, IUserModel>('user', userSchema);
-
-// Esportare il modello con il tipo corretto
 export { UserModel };
