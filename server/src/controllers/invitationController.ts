@@ -26,20 +26,20 @@ const acceptEventInvitation = async (req: Req, res: Response) => {
     const token = req.cookies.token;
     
     if (!token) {
-        return res.status(401).json({ error: "Token non trovato. Accesso negato." });
+        return res.status(401).json({ error: "Token not found. Access denied." });
     }
 
     const verify_user = await getUserFromToken(token);
     if (!verify_user) {
-        return res.status(401).json({ error: "Token non valido. Accesso negato." });
+        return res.status(401).json({ error: "Token isn't valid." });
     }
     
     if (verify_user.username !== attendeeName) {
-        return res.status(401).json({ error: "Non sei autorizzato: non sei il corretto attendee per questo evento." });
+        return res.status(401).json({ error: "Not authorized: you are not the correct attendee for this event." });
     }
 
     if (!mongoose.Types.ObjectId.isValid(eventId)) {
-        return res.status(400).json({ error: "ID evento non valido" });
+        return res.status(400).json({ error: "Invalid event ID" });
     }
 
     try {
@@ -53,7 +53,7 @@ const acceptEventInvitation = async (req: Req, res: Response) => {
             }
         );
 
-        res.status(200).json("Invito accettato/modificato con successo!");
+        res.status(200).json("Invitation modified successfully!");
     } catch (error: any) {
         res.status(400).json({ message: error.message });
     }
@@ -65,20 +65,20 @@ const acceptActivityInvitation = async (req: Req, res: Response) => {
     const token = req.cookies.token;
 
     if (!token) {
-        return res.status(401).json({ error: "Token non trovato. Accesso negato." });
+        return res.status(401).json({ error: "Token not found. Access denied." });
     }
 
     const verify_user = await getUserFromToken(token);
     if (!verify_user) {
-        return res.status(401).json({ error: "Token non valido. Accesso negato." });
+        return res.status(401).json({ error: "." });
     }
 
     if (verify_user.username !== attendeeName) {
-        return res.status(401).json({ error: "Non sei autorizzato: non sei il corretto attendee per questa attività." });
+        return res.status(401).json({ error: "Not authorized: you are not the correct attendee for this activity." });
     }
 
     if (!mongoose.Types.ObjectId.isValid(activityId)) {
-        return res.status(400).json({ error: "ID attività non valido" });
+        return res.status(400).json({ error: "Invalid activity ID" });
     }
 
     try {
@@ -92,7 +92,7 @@ const acceptActivityInvitation = async (req: Req, res: Response) => {
             }
         );
 
-        res.status(200).json("Invito accettato/modificato con successo!");
+        res.status(200).json("Invitation modified successfully!");
     } catch (error: any) {
         res.status(400).json({ message: error.message });
     }

@@ -78,7 +78,7 @@ export const refreshUser = async (req: Request, res: Response) => {
     if (!user) {
         return res.status(404).json({ 
             isAuthenticated: false,
-            message: "Utente non trovato" 
+            message: "User not found" 
         });
     }
     res
@@ -220,16 +220,16 @@ export const updateUser = async (req: Request, res: Response) => {
     try {
         const user = await UserModel.findById(userId);
         if (!user) {
-            return res.status(404).json({ message: "Utente non trovato" });
+            return res.status(404).json({ message: "User not found" });
         }
 
         // Validazione nome e cognome con regex
         const nameRegex = /^[A-Za-zÀ-ÿ\s']*$/;
         if (nome && !nameRegex.test(nome)) {
-            return res.status(400).json({ message: "Formato nome non valido" });
+            return res.status(400).json({ message: "Invalid name format" });
         }
         if (cognome && !nameRegex.test(cognome)) {
-            return res.status(400).json({ message: "Formato cognome non valido" });
+            return res.status(400).json({ message: "Invalid surname format" });
         }
 
         // Aggiorna i campi forniti
@@ -257,9 +257,9 @@ export const updateUser = async (req: Request, res: Response) => {
             username: user.username
         });
     } catch (error: any) {
-        console.error('Errore durante l\'aggiornamento:', error);
+        console.error('Error during update:', error);
         res.status(400).json({ 
-            message: error.message || "Errore durante l'aggiornamento dell'utente" 
+            message: error.message || "Error during update." 
         });
     }
 };
