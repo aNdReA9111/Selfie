@@ -80,7 +80,7 @@ export const PomodoroPreview = () => {
     }
 
     return (
-        <div className="d-flex flex-column container p">
+        <div className="d-flex flex-column container mt-2 p">
             {event && <h2>Next Planned Study Session: {event.title}</h2>}
             {event && dates && <h6><i className="bi bi-clock me-2"></i>{dates.start.toLocaleString()} - {dates.end.toLocaleString()}</h6>}
             {event && <PomConfiguration pomodoroSetting={event?.pomodoroSetting} navigateToPomodoro={navigateToPomodoro} />}
