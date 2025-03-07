@@ -75,7 +75,7 @@ const Pomodoro: React.FC = () => {
         if (isComplete) {
             stop();
         }
-        if(!isRecurFromEvent){
+        if(eventId && !isRecurFromEvent){
             updatePomodoroEvent();
         }
     }, [cicliRimanenti]);
@@ -92,7 +92,9 @@ const Pomodoro: React.FC = () => {
 
             if (!isStudying) {
                 decrementaCicli();
-                updatePomodoroEvent();
+                if(eventId){
+                    updatePomodoroEvent();
+                }
                 setDisplayTime(studioTime);
                 setIsStudying(true);
             }
@@ -204,7 +206,7 @@ const Pomodoro: React.FC = () => {
     }
 
     return (
-    <body className='pomBody' style={{ height: '100vh', backgroundColor: "rgb(90, 5, 20)" }}>
+    <div style={{ backgroundColor: "rgb(90, 5, 20)", minHeight: "100vh" }}>
         {isComplete ? (
             <div className='d-flex justify-content-center'>
                 <div className="d-flex-column justify-content-center mt-4">
@@ -349,7 +351,7 @@ const Pomodoro: React.FC = () => {
                     />
                 </div>
         )}
-    </body>
+    </div>
     );
 };
 
