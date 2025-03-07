@@ -90,7 +90,7 @@ export const ActivityForm = ({ setShow, activity }: { setShow: Dispatch<SetState
             description: data.description,
             date: toUTC(data.date, data.timezone),
             notifications,
-            attendees: data.attendees?.map((a: string) => ({ name: a, email: "default@mail.com", accepted: false, responded: false })) || [],
+            attendees: data.attendees?.map((a: string) => ({ name: a, email: user.email, accepted: false, responded: false })) || [],
             timezone: data.timezone,
             isCompleted: data.isCompleted
         }

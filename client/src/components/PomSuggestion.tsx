@@ -41,23 +41,23 @@ export const PomSuggestion: React.FC<Props> = ({onSave, onClose, duration}) => {
 						<div>
 							<label className="mb-1"><strong>Hours</strong></label>
 							<input
-							type="number"
-							className="form-control"
-							min="0" max="99"
-							value={tempoDisp.hours}
-							onChange={(e) => setTempoDisp({ ...tempoDisp, hours: parseInt(e.target.value, 10) || 0 } ) }
+								type="number"
+								className="form-control"
+								min="0" max="99"
+								value={tempoDisp.hours}
+								onChange={(e) => setTempoDisp({ ...tempoDisp, hours: parseInt(e.target.value, 10) || 0 } ) }
 							/>
 						</div>
 						<span className="fs-4"> : </span>
 						<div>
-						<label className="mb-1"><strong>Minutes</strong></label>
-						<input
-						type="number"
-						className="form-control"
-						min="0" max="59"
-						value={tempoDisp.minutes}
-						onChange={ (e) => setTempoDisp( {...tempoDisp, minutes: parseInt(e.target.value, 10) || 0 } ) }
-						/>
+							<label className="mb-1"><strong>Minutes</strong></label>
+							<input
+								type="number"
+								className="form-control"
+								min="0" max="59"
+								value={tempoDisp.minutes}
+								onChange={ (e) => setTempoDisp( {...tempoDisp, minutes: parseInt(e.target.value, 10) || 0 } ) }
+							/>
 						</div>
 					</div>
 				</div>

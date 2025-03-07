@@ -75,7 +75,7 @@ const Pomodoro: React.FC = () => {
         if (isComplete) {
             stop();
         }
-        if(!isRecurFromEvent){
+        if(eventId && !isRecurFromEvent){
             updatePomodoroEvent();
         }
     }, [cicliRimanenti]);
@@ -92,7 +92,9 @@ const Pomodoro: React.FC = () => {
 
             if (!isStudying) {
                 decrementaCicli();
-                updatePomodoroEvent();
+                if(eventId){
+                    updatePomodoroEvent();
+                }
                 setDisplayTime(studioTime);
                 setIsStudying(true);
             }
@@ -204,15 +206,17 @@ const Pomodoro: React.FC = () => {
     }
 
     return (
-    <body className='pomBody' style={{ height: '100vh', backgroundColor: "rgb(90, 5, 20)" }}>
+    <div style={{ backgroundColor: "rgb(90, 5, 20)", minHeight: "100vh" }}>
         {isComplete ? (
             <div className='d-flex justify-content-center'>
                 <div className="d-flex-column justify-content-center mt-4">
                     <div className='d-flex'>
                         <p className="display-6 color-text">This session has been completed!</p>
+                    </div>
+                    <div className='d-flex justify-content-center mt-2'>
                         {location.state && (
-                            <Button onClick={backToCalendar}>Go back to Calendar</Button>
-                        )}
+                            <Button className = "color-5" onClick={backToCalendar}>Go back to Calendar</Button>
+                        )}                    
                     </div>
                     <div className='d-flex justify-content-center mt-2'>
                         <Button onClick={newSession}>Start a New Session</Button>
@@ -225,16 +229,16 @@ const Pomodoro: React.FC = () => {
                     <div className = {isRunning ? 'running' : 'notRunning'}>
                         <div className = 'd-flex-column justify-content-center text-center mt-5'>
 
-                            <div className='d-flex'>
-                                <div className = "d-flex-column mt-3 concentric-circles">
+                            <div className='d-flex mb-5'>
+                                <div className = "d-flex-column mt-5 mb-5 concentric-circles">
                                     {isStudying &&
                                         <>
-                                            <div style={{ position: 'absolute' }}>
+                                            <div style={{ position: 'absolute'}}>
                                                 <DisappearingCircle
-                                                timeLeft={displayTime.seconds ? displayTime.seconds : 60}
-                                                duration={60}
-                                                size={displayTime.hours>0 ? 350 : 274}
-                                                color='#801300'
+                                                    timeLeft={displayTime.seconds ? displayTime.seconds : 60}
+                                                    duration={60}
+                                                    size={displayTime.hours>0 ? 320 : 274}
+                                                    color='#801300'
                                             />
                                             </div>
 
@@ -242,7 +246,7 @@ const Pomodoro: React.FC = () => {
                                                 <DisappearingCircle
                                                     timeLeft={toNum(displayTime ? displayTime : (isStudying ? studioTime : riposoTime))}
                                                     duration={toNum(isStudying ? studioTime : riposoTime)}
-                                                    size={displayTime.hours>0 ? 370 : 296}
+                                                    size={displayTime.hours>0 ? 340 : 296}
                                                     color='#ff1100'
                                                 />
                                             </div>
@@ -278,7 +282,7 @@ const Pomodoro: React.FC = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className='d-flex-column buttons mt-5 align-items-center justify-content-center text-center'>
+                            <div className='d-flex-column buttons margin-top-7 align-items-center justify-content-center text-center'>
                                 <div className="d-flex justify-content-center text-center">
                                     <div>
                                         {!isRunning && (
@@ -347,7 +351,7 @@ const Pomodoro: React.FC = () => {
                     />
                 </div>
         )}
-    </body>
+    </div>
     );
 };
 

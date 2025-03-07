@@ -1,7 +1,7 @@
 import { FormEvent, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import '../css/auth.css';
 import { useLogin } from '../hooks/useLogin';
@@ -11,6 +11,15 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const { login, error, isLoading } = useLogin();
+
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [searchParams] = useSearchParams();
+
+    // Read the requested page from state, if present, otherwise redirect to home
+    const from = searchParams.get('logout')
+        ? '/'
+        : (location.state?.from?.pathname || '/');
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -23,6 +32,7 @@ const Login = () => {
 
         try {
             await login(email, password);
+            navigate(from, { replace: true });
         } catch (err) {
             console.error('Errore durante il login:', err);
         }

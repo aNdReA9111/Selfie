@@ -1,4 +1,4 @@
-import { createContext, useReducer, useEffect } from "react";
+import { createContext, useReducer, useEffect  } from "react";
 
 export const AuthContext = createContext<any>(null);
 
@@ -31,17 +31,26 @@ export const AuthContextProvider = ({ children }: any) => {
         user: null
     }); 
 
-    useEffect(() =>{
-        const user = localStorage.getItem('user');
-        if (user !== null) {
-            // rimuovo user dal local storage
-            localStorage.removeItem('user');
+    useEffect(() => {
+        const fetchUser = async () => {
+            
+            const response = await fetch('/api/users/refresh', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include'
+            });
 
-            const parsedUser = JSON.parse(user);
-            console.log('parsedUser:', parsedUser);
-            // console.log(parsedUser);
-            dispatch({type: 'LOGIN', payload: parsedUser});
-        }
+            if (response.ok) {
+                const user = await response.json();
+                dispatch({ type: 'LOGIN', payload: user });
+            }else{
+                dispatch({ type: 'LOGOUT' });
+            }
+            
+        };
+        fetchUser();
     }, []);
 
     return (

@@ -74,6 +74,20 @@ export const ActivityDetails = ({ id, show, setShow }: ActivityDetailsProps) => 
                             )
                         }
                     </div>
+                    {
+                        activity?.attendees && activity.attendees?.length > 0 && (
+                            <div>
+                                <h5>Attendees</h5>
+                                <ul>
+                                    {activity.attendees.map((attendee, index) => (
+                                        <li key={index}>{attendee.name} ({
+                                            attendee.responded && attendee.accepted ? 'Accepted' : attendee.responded && !attendee.accepted ? 'Declined' : 'Not responded'
+                                        })</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )
+                    }
                 </Modal.Body>
             </Modal>
         )

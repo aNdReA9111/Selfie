@@ -98,6 +98,20 @@ export const EventDetails = ({ id, date, show, setShow }: EventDetailsProps) => 
                         <div>
                             {event.isPomodoro && (<PomConfiguration pomodoroSetting={event.pomodoroSetting} navigateToPomodoro={navigateToPomodoro} />)}
                         </div>
+                        {
+                            event.attendees && event.attendees?.length > 0 && (
+                                <div>
+                                    <h5>Attendees</h5>
+                                    <ul>
+                                        {event.attendees.map((attendee, index) => (
+                                            <li key={index}>{attendee.name} ({
+                                                attendee.responded && attendee.accepted ? 'Accepted' : attendee.responded && !attendee.accepted ? 'Declined' : 'Not responded'
+                                            })</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )
+                        }
                     </div>
                 </Modal.Body>
             </Modal>

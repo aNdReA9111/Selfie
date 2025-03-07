@@ -3,6 +3,7 @@ import {
     addSubscription,
     loginUser,
     logoutUser,
+    refreshUser,
     removeSubscription,
     searchUsers,
     signUpUser,
@@ -24,7 +25,10 @@ router.post('/login', loginUser);
 router.post('/signup', signUpUser);
 
 // logout
-router.post('/logout', logoutUser);
+router.post('/logout', requireAuth, logoutUser);
+
+// refresh user
+router.post('/refresh', refreshUser);
 
 // search users
 router.post('/search', requireAuth, searchUsers);

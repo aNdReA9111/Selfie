@@ -31,7 +31,7 @@ function App() {
     }, [user]);
 
     return (
-        <BrowserRouter>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true } as any}>
             <div className="app-container">
                 <MyNavbar />
                 {user?.isAuthenticated && <MyNotification />}

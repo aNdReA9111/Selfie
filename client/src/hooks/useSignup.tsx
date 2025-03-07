@@ -67,8 +67,6 @@ interface UseSignupReturn {
     
             const json = await response.json();
     
-            // Salvo lo user nel local storage e dispatch
-            localStorage.setItem('user', JSON.stringify(json));
             dispatch({ type: 'LOGIN', payload: json });
             setIsLoading(false);
         } catch (error) {

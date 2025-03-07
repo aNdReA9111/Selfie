@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { Container, Form, Button, Alert } from 'react-bootstrap';
-import { CheckCircle, XCircle } from 'react-bootstrap-icons';
+import { Container, Alert, Form, Button } from 'react-bootstrap';
+import { useParams } from 'react-router-dom';
 
 const ActivityInvitation: React.FC = () => {
     const { idActivity, nameAttendee } = useParams();
@@ -11,16 +10,24 @@ const ActivityInvitation: React.FC = () => {
 
     const handleSubmit = async (response: boolean) => {
         try {
-            await fetch(`/api/invitations/activity/${idActivity}`, {
+            const res = await fetch(`/api/invitations/activity/${idActivity}`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 credentials: 'include',
-                body: JSON.stringify( {
-                    attendeeName: nameAttendee, responded: true, accepted: response
-                })
+                body: JSON.stringify({
+                    attendeeName: nameAttendee,
+                    responded: true,
+                    accepted: response,
+                }),
             });
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data.error || 'An error occurred while processing your response.');
+                return;
+            }
 
             setAccepted(response);
             setShowResponse(true);
@@ -33,43 +40,37 @@ const ActivityInvitation: React.FC = () => {
 
     if (showResponse) {
         return (
-            <Container className="mt-5 text-center">
+            <Container className="mt-5 text-center p-4">
                 {accepted ? (
                     <Alert variant="success">
-                        <CheckCircle className="me-2" size={24} />
                         Thank you for accepting the activity invitation!
                     </Alert>
                 ) : (
-                    <Alert variant="info">
-                        <XCircle className="me-2" size={24} />
-                        We're sorry you can't join this activity.
+                    <Alert variant="warning">
+                        You have declined the activity invitation.
                     </Alert>
                 )}
-                <Link to="/" className="btn btn-primary mt-3">
-                    Return to Home Page
-                </Link>
+
+                {/* Add a button to redirect to the home page */}
+                <Button variant="primary" href="/">Go to Home</Button>
+
             </Container>
         );
     }
 
     return (
-        <Container className="mt-5">
+        <Container className="mt-5 p-4">
             <h2 className="text-center mb-4">Activity Invitation</h2>
             {error && <Alert variant="danger">{error}</Alert>}
             <Form className="d-flex flex-column align-items-center">
-                <p className="mb-4">Would you like to join this activity?</p>
-                <div className="d-flex gap-3">
-                    <Button 
-                        variant="success" 
-                        onClick={() => handleSubmit(true)}
-                    >
-                        Accept
+                <div className="mb-3">
+                    <Button variant="success" onClick={() => handleSubmit(true)}>
+                        Accept Invitation
                     </Button>
-                    <Button 
-                        variant="danger" 
-                        onClick={() => handleSubmit(false)}
-                    >
-                        Decline
+                </div>
+                <div>
+                    <Button variant="danger" onClick={() => handleSubmit(false)}>
+                        Decline Invitation
                     </Button>
                 </div>
             </Form>

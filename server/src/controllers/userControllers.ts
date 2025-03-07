@@ -4,6 +4,8 @@ import webpush from "web-push";
 import { IFlags, UserModel } from "../models/userModel.js";
 import { Req } from "../utils/types.js";
 
+import { IUser } from "../models/userModel.js";
+
 // configuro il .env
 import * as dotenv from "dotenv";
 import path, { dirname } from "path";
@@ -14,6 +16,22 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 const createToken = (_id: string) => {
     return jwt.sign({ _id }, process.env.SECRET as string, { expiresIn: "3d" });
+};
+
+const getUserFromToken = async (token: string) => {
+    try {
+        const { _id } = jwt.verify(
+            token,
+            process.env.SECRET as string,
+        ) as jwt.JwtPayload;
+
+        const user : IUser = await
+            UserModel.findOne({ _id }).select("_id email nome cognome username data_nascita flags pushSubscriptions dateOffset");
+        
+        return user;
+    } catch (error) {
+        return null;
+    }
 };
 
 // login controller
@@ -47,6 +65,37 @@ export const loginUser = async (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(400).json({ message: error.message });
     }
+};
+
+export const refreshUser = async (req: Request, res: Response) => {
+    const token: string = req.cookies.token;
+    
+    if (!token) {
+        return 
+    }
+    
+    const user = await getUserFromToken(token);
+    if (!user) {
+        return res.status(404).json({ 
+            isAuthenticated: false,
+            message: "User not found" 
+        });
+    }
+    res
+        .status(200)
+        .json({
+            _id: user._id,
+            email: user.email,
+            token,
+            isAuthenticated: true,
+            nome: user.nome,
+            cognome: user.cognome,
+            username: user.username,
+            data_nascita: user.data_nascita,
+            flags: user.flags,
+            pushSubscriptions: user.pushSubscriptions,
+            dateOffset: user.dateOffset,
+        });
 };
 
 // signup controller
@@ -171,16 +220,16 @@ export const updateUser = async (req: Request, res: Response) => {
     try {
         const user = await UserModel.findById(userId);
         if (!user) {
-            return res.status(404).json({ message: "Utente non trovato" });
+            return res.status(404).json({ message: "User not found" });
         }
 
         // Validazione nome e cognome con regex
         const nameRegex = /^[A-Za-zÀ-ÿ\s']*$/;
         if (nome && !nameRegex.test(nome)) {
-            return res.status(400).json({ message: "Formato nome non valido" });
+            return res.status(400).json({ message: "Invalid name format" });
         }
         if (cognome && !nameRegex.test(cognome)) {
-            return res.status(400).json({ message: "Formato cognome non valido" });
+            return res.status(400).json({ message: "Invalid surname format" });
         }
 
         // Aggiorna i campi forniti
@@ -208,9 +257,9 @@ export const updateUser = async (req: Request, res: Response) => {
             username: user.username
         });
     } catch (error: any) {
-        console.error('Errore durante l\'aggiornamento:', error);
+        console.error('Error during update:', error);
         res.status(400).json({ 
-            message: error.message || "Errore durante l'aggiornamento dell'utente" 
+            message: error.message || "Error during update." 
         });
     }
 };

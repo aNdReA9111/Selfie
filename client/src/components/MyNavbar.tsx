@@ -95,7 +95,7 @@ const MyNavbar = () => {
                                 className="custom-dropdown"
                             >
                                 <NavDropdown.Item as={Link} to="/account-settings">
-                                    Impostazioni account
+                                    Account settings
                                 </NavDropdown.Item>
                                 <NavDropdown.Divider />
                                 <NavDropdown.Item onClick={handleLogout}>
