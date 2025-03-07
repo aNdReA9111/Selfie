@@ -323,7 +323,8 @@ export const EventForm = ({ setShow, event, slotStart, slotEnd }: {
                                 {...register('isDoNotDisturb')}
                                 onChange={(e) => {
                                     register("isDoNotDisturb").onChange(e);
-                                    setValue("isPomodoro", !e.target.checked);
+                                    if (isPomodoro)
+                                        setValue("isPomodoro", !e.target.checked);
                                     if (e.target.checked) {
                                         setValue("title", "DO NOT DISTURB");
                                         setValue("description", "DO NOT DISTURB");
